@@ -1,11 +1,9 @@
-import dotenv from 'dotenv'
-dotenv.config()
-
+import ENV from './src/ENV.js'
 
 import connection from './src/Database/connection.js'
 import app from './src/app.js'
 
-const PORT=process.env.PORT || 1200
+const PORT=process.env.PORT || 5000
 
 
 connection()

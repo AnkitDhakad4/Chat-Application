@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+import ENV from "../ENV.js";
 
 async function connection(){
     try {
-        const response=await mongoose.connect(process.env.MONGO_URL)
+        const response=await mongoose.connect(ENV.MONGO_URL)
     
         if(response)
         {
