@@ -10,4 +10,6 @@ function generateToken(userId){
 }
 
 
-export default generateToken
+
+
+export {generateToken}
