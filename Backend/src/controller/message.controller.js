@@ -1,7 +1,7 @@
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
 import uploadOnCloudinary from "../Database/cloudinary.js";
-import mongoose from "mongoose";
+
 
 const createMessage = async function (req, res) {
   try {
