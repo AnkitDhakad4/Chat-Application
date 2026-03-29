@@ -18,6 +18,10 @@ app.use(cors({
 import userRoutes from "./routes/user.routes.js";
 app.use('/api/v1/users',userRoutes)
 
+//messages routes
+import messageRouter from "./routes/message.routes.js";
+app.use('/api/v1/message',messageRouter)
+
 app.get('/',(req,res)=>{
     res.send('<h1 style="color:red; display: flex; justify-content: center; align-items: center; padding:80px; ">It is  working fine bro !!</h1>')
 })
