@@ -7,6 +7,7 @@ import uploadOnCloudinary from '../Database/cloudinary.js'
 
 const signup = async function (req, res) {
   try {
+    console.log(req.body)
     const { name, profilePic, password, dob, contact, email } = req.body;
 
     if ([name, email, password].some((ele) => !ele || ele.trim().length == 0)) {
@@ -46,18 +47,18 @@ const signup = async function (req, res) {
       "-password -dob",
     );
 
-    const data = await welcomeEmail(
-      findedUser.email,
-      findedUser.name,
-      ENV.APP_LINK,
-    );
-    console.log("After sending an email data is :", data);
+    // const data = await welcomeEmail(
+    //   findedUser.email,
+    //   findedUser.name,
+    //   ENV.APP_LINK,
+    // );
+    // console.log("After sending an email data is :", data);
 
     if (!findedUser) {
       return res
         .status(500)
         .json({ message: "There is server error while logup" });
-    }
+    } 
 
     const token = generateToken({ id: findedUser._id });
 
@@ -161,10 +162,6 @@ const updateProfilePic=async function(req,res){
   const url=await uploadOnCloudinary(profilePic,'Profile Pics')
 
   const updatedUser=await User.findByIdAndUpdate(userId,{profilePic:url},{new:true}).select("-password -dob")//this new returns the updated User
-
-  
-
-
 
 }
 
