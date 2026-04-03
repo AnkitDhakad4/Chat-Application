@@ -20,12 +20,13 @@ function App() {
       
       <div className="absolute bottom-0 left-0 size-80 bg-fuchsia-600/10 blur-[100px]" />
 
-      {authStatus?<Loading s="50" />:
+      
       <Routes>
         <Route path="/" element={authStatus ? <ChatPage/> : <Navigate to={'/login'} />} />
         <Route path="/signup" element={!authStatus ? <SignupPage /> : <Navigate to={'/'}/>} />
         <Route path="/login" element={!authStatus ? <LoginPage/> :<Navigate to={'/'}/>} />
-      </Routes>}
+        
+      </Routes>
 </div>
       <Toaster/>
     </>

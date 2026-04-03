@@ -14,7 +14,7 @@ import userAuthStore from "../store/userAuth.store.js";
 import Loading from "../components/Loading.jsx";
 
 const inputClassName =
-  "w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-emerald-400/70 focus:bg-white/8";
+  "w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-red-400 focus:bg-white/8";
 
 function SignupPage() {
   const [formData, setFormData] = useState({
@@ -60,8 +60,8 @@ function SignupPage() {
               <form className="space-y-5" onSubmit={handleSubmit}>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <label className="space-y-2 sm:col-span-2">
-                    <span className="text-sm font-medium text-slate-200">
-                      Full name*
+                    <span className="text-sm font-medium text-slate-200 flex ">
+                      Full name<p className="text-red-400">*</p>
                     </span>
                     <div className="relative">
                       <User className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
@@ -107,6 +107,7 @@ function SignupPage() {
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
+                        minLength={8}
                         placeholder="Create a secure password"
                         required
                       />
@@ -153,11 +154,11 @@ function SignupPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-800 px-6 py-3 text-sm font-medium text-white transition-all hover:bg-emerald-700 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-800 px-6 py-3 text-sm font-medium text-white transition-all hover:bg-emerald-700 disabled:opacity-70 disabled:cursor-not-allowed p-8"
                 >
                   {isLoading ? (
                     <Loading size="2" />
-                  ) : ( 
+                  ) : (
                     <>
                       <span>Create account</span>
                       <ChevronRight className="size-4" />

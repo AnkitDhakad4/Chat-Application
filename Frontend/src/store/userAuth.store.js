@@ -7,6 +7,7 @@ const authStore= create((set)=>({
     isCheckingAuth:false,
     isLoading:false,
     user:null,
+    
 
     signup:async (data)=>{
         set({isLoading:true})
@@ -31,7 +32,7 @@ const authStore= create((set)=>({
             const response=await axiosInstance.get('/users/check')
             console.log(response.data)
             
-            set({user:response.data,authStatus:true})
+            set({user:response.data.data,authStatus:true})
         } catch (error) {
             console.log("error for is toast ",error)
             toast.error(error.response?.data?.message)
@@ -44,18 +45,33 @@ const authStore= create((set)=>({
         try {
             set({isLoading:true})
             const response=await axiosInstance.post('/users/login',data)
-            set({user:response.data})
-            toast.success("Login Successfully !")
+            set({user:response.data.data})
+            // console.log(response.data.data)
             set({authStatus:true})
+            toast.success("Login Successfully !")
         } catch (error) {
             toast.error(error.response?.data?.message)
         }finally{
             set({isLoading:false})
+        }
+    },
+    logout:async()=>{
+        // console.log("In log out")
+        try {
+            const res=await axiosInstance.post('/users/logout')
+            // console.log(res.data)
+            toast.success("I will wait for you! 🥺 👋👋",{autoClose:3000,pauseOnHover: true,})
+            
+            set({authStatus:false})
+        } catch (error) {
+            toast.error(error.response?.data?.message)
+
         }
     }
 
 
 }))
 
-
 export default authStore
+
+
