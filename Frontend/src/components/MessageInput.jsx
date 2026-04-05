@@ -2,13 +2,12 @@ import React, { useEffect, useState, useRef } from "react";
 import useChatStore from "../store/useChatStore";
 import authStore from "../store/userAuth.store";
 import useKeysound from "../hooks/useKeysound";
-import { X, ImageIcon, Send } from "lucide-react";
+import { X, ImageIcon, Send, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 function MessageInput() {
   const {
-    selectedUser,
-    messages,
+   isImageUploading,
     isSoundOn,
     getTokenForUpload,
     uploadOnCloudinary,
@@ -16,7 +15,7 @@ function MessageInput() {
   } = useChatStore();
   const [previewImage, setPreviewImage] = useState();
   const [actualImage, setActualImage] = useState();
-  const [text, setText] = useState();
+  const [text, setText] = useState("");
 
   const sound = useKeysound();
 
@@ -38,10 +37,10 @@ function MessageInput() {
   }, [isSoundOn]);
 
   const handleImage = async (e) => {
-    const formData = new FormData();
-
+    
+    
     if (e.target.files.length > 0) {
-      const file = e.target.files[0];
+       const file = e.target.files[0];
       setActualImage(file);
       setPreviewImage(URL.createObjectURL(file));
     }
@@ -108,6 +107,11 @@ function MessageInput() {
             src={previewImage}
             className="h-20 w-30 object-cover ring-1 ring-gray-500"
           />
+          {isImageUploading && (
+            <div className="absolute inset-0 bg-black/50 flex justify-center items-center">
+              <Loader2 className="animate-spin" />
+            </div>
+          )}
           <button className="absolute right-0 top-0" onClick={removeImage}>
             <X size={12} className={`hover:scale-120 hover:cursor-pointer`} />
           </button>

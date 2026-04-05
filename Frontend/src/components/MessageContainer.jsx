@@ -19,6 +19,7 @@ const scrollRef=useRef()
   useEffect(() => {
     getMessages(selectedUser._id);
   }, [selectedUser]);
+  
 
   if (isMessageLoading) return <Loading />;
 
