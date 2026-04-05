@@ -35,7 +35,7 @@ export default function ContactList() {
           <div 
           onClick={()=>{setSelectedUser(partener)}}
           key={partener._id}
-          className='flex flex-row h-[3.5em] p-1 ring-1 ring-white'>
+          className='hover:cursor-pointer  flex flex-row h-[3.5em] p-1 ring-1 ring-white bg-blue-400/15 rounded-2xl hover:bg-blue-500/15'>
         {/* TODO:avatar online offline */}
        <div className='avatar avatar-online'>
          <img

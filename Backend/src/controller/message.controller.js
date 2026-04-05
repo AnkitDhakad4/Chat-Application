@@ -1,21 +1,24 @@
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
 import uploadOnCloudinary from "../Database/cloudinary.js";
+import generateCloudinarySignature from "../Database/cloudinary.js";
+import messageRouter from "../routes/message.routes.js";
 
 
 const createMessage = async function (req, res) {
   try {
     const { image, text } = req.body;
+    
     const sender = req.user.id;
     const { id: reciever } = req.params;
-    let url = "";
-    if (image) {
-      url = await uploadOnCloudinary(image, "Messages");
-    }
+    // let url = "";
+    // if (image) {
+    //   url = await uploadOnCloudinary(image, "Messages");
+    // }
     const message = await Message.create({
       senderId: sender,
       recieverId: reciever,
-      image: url,
+      image: image,
       text: text,
     });
 
@@ -108,4 +111,14 @@ const getMessageByUserId = async function (req, res) {
   }
 };
 
-export { createMessage, getAllContacts, getChatPartners, getMessageByUserId };
+const generateUploadToken=(req,res)=>{
+  const {timestamp,signature,apiKey}=generateCloudinarySignature()
+
+  return res.status(200).json({message:"Token is generated successfully",data:{timestamp,signature,apiKey}})
+}
+
+const getImageUrl=(req,res)=>{
+  
+}
+
+export { createMessage, getAllContacts, getChatPartners, getMessageByUserId, generateUploadToken };

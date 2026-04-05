@@ -33,7 +33,8 @@ function ChatList() {
           <div 
           onClick={()=>{setSelectedUser(partener)}}
           key={partener._id}
-          className='flex flex-row h-[3.5em] p-1 ring-1 ring-white'>
+
+          className='bg-blue-400/15 rounded-2xl hover:bg-blue-500/15 hover:cursor-pointer flex flex-row h-[3.5em] p-1 ring-1 ring-white'>
         {/* TODO:avatar online offline */}
        <div className='avatar avatar-online'>
          <img
