@@ -107,13 +107,23 @@ const useChatStore = create((set, get) => ({
     // };
     // set({ messages: [...get().messages, artificialMessage] });
     
-    console.log("In send message of store");
+    
     try {
+      const {contacts,selectedUser,chatParteners}=get()
       const resp = await axiosInstance.post(
-        `/message/send/${get().selectedUser._id}`,
+        `/message/send/${selectedUser._id}`,
         { text: message, image: image },
       );
-      console.log(resp.data);
+      
+      
+      const newContacts=contacts.filter((user)=>user._id !==selectedUser._id)
+      const newChatParteners=contacts.filter((user)=>user._id === selectedUser._id)
+
+      if(newChatParteners.length > 0 )
+      {
+        set({contacts:newContacts,chatParteners:chatParteners.concat(newChatParteners)})
+
+      }
       set({ messages: [...get().messages, resp.data.message] });
     } catch (error) {
       console.log(error);
@@ -121,9 +131,9 @@ const useChatStore = create((set, get) => ({
     }
   },
 
-  getTokenForUpload: async () => {
+  getTokenForUpload: async (folder) => {
     try {
-      const resp = await axiosInstance.get("/message/uploadToken");
+      const resp = await axiosInstance.post("/message/uploadToken",{folder});
       // console.log("resp from getTokenForUpload", resp);
       return {
         timestamp: resp.data.data.timestamp,
@@ -135,6 +145,7 @@ const useChatStore = create((set, get) => ({
     }
   },
   uploadOnCloudinary: async (formData) => {
+    console.log("In upload on cloudinary")
     set({ isImageUploading: true });
     try {
       const resp = await fetch(

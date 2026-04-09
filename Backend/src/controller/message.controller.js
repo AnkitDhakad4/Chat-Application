@@ -76,6 +76,7 @@ const getAllContacts = async function (req, res) {
       "-password -dob",
     );
 
+    // console.log("All contacts are ", contacts);
     return res
       .status(200)
       .json({ message: "Here is all the contacts ", data: contacts });
@@ -112,7 +113,8 @@ const getMessageByUserId = async function (req, res) {
 };
 
 const generateUploadToken=(req,res)=>{
-  const {timestamp,signature,apiKey}=generateCloudinarySignature()
+  const {folder}=req.body
+  const {timestamp,signature,apiKey}=generateCloudinarySignature(folder)
 
   return res.status(200).json({message:"Token is generated successfully",data:{timestamp,signature,apiKey}})
 }

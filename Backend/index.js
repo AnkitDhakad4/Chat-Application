@@ -1,14 +1,14 @@
 import ENV from './src/ENV.js'
-
+import './src/app.js'
 import connection from './src/Database/connection.js'
-import app from './src/app.js'
+import { server } from './src/socket.js'
 
 const PORT=process.env.PORT || 5000
 
 
 connection()
 .then((res)=>{
-    app.listen(PORT,()=>{
+    server.listen(PORT,()=>{
         console.log("mongoDB is connected successfully",res.connection.host)
         console.log(`app is working on port https://localhost:${PORT}`)
     })

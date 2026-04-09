@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react'
 import useChatStore from '../store/useChatStore.js'
+import authStore from '../store/userAuth.store.js'
 function ChatList() {
   const {chatParteners,getChatParteners,setSelectedTab,selectedTab,isUsersLoading,setSelectedUser} =useChatStore()
-  
+  const {onlineUsers} =authStore()
 
   useEffect(()=>{
     getChatParteners()
   },[])
 
+console.log("chatparteners are ", chatParteners)
 
   if(isUsersLoading) return(
     <div className='h-[10em] w-full  flex justify-center items-center '>
@@ -33,18 +35,19 @@ function ChatList() {
           <div 
           onClick={()=>{setSelectedUser(partener)}}
           key={partener._id}
+          
 
           className='bg-blue-400/15 rounded-2xl hover:bg-blue-500/15 hover:cursor-pointer flex flex-row h-[3.5em] p-1 ring-1 ring-white'>
-        {/* TODO:avatar online offline */}
-       <div className='avatar avatar-online'>
+        
+       <div className={`avatar ${onlineUsers.includes(partener._id)? "avatar-online":"avatar-offline"} `}>
          <img
         className='h-[3em] relative  object-cover '
-        src={'/avatar.png' || partener.profilePic} alt="" />
+        src={partener.profilePic || '/avatar.png'} alt="" />
        </div>
        <div className='px-2 flex flex-col'>
         {/* TODO: online offline using socket.io */}
           <h3>{partener.name || 'John Doe'}</h3>
-          <p>online...</p>
+          <p>{onlineUsers.includes(partener._id)? "online...":"offline..."}</p>
        </div>
     </div>
         )

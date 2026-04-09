@@ -7,8 +7,8 @@ import toast from "react-hot-toast";
 
 function MessageInput() {
   const {
-   isImageUploading,
     isSoundOn,
+    isImageUploading,
     getTokenForUpload,
     uploadOnCloudinary,
     sendMessage
@@ -53,7 +53,7 @@ function MessageInput() {
     if (actualImage) {
       let signature;
       try {
-        signature = await getTokenForUpload();
+        signature = await getTokenForUpload("messages");
       } catch (error) {
         console.error("Error fetching upload token:", error);
       }
@@ -61,6 +61,7 @@ function MessageInput() {
       // console.log("signature from messageSend", signature);
 
       const formData = new FormData();
+      console.log("actual image in messsage ",actualImage)
       formData.append("file", actualImage);
       formData.append("signature", signature.signature);
       formData.append("timestamp", signature.timestamp);
@@ -70,6 +71,7 @@ function MessageInput() {
       try {
         const response = await uploadOnCloudinary(formData);
         url = response.secure_url;
+        console.log("message image link ",url)
         if (!response) {
           toast.error("Error uploading image");
         }
@@ -80,7 +82,7 @@ function MessageInput() {
 
     try {
       const resp = await sendMessage(url, text);
-      console.log(resp);
+      // console.log(resp);
     } catch (error) {
       console.log(error)
     }
@@ -95,7 +97,7 @@ function MessageInput() {
   const removeImage = () => {
     setPreviewImage(null);
     if (imageInput.current) {
-      imageInput.current = "";
+      imageInput.current.value = "";
     }
   };
 

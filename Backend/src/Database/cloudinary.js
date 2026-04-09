@@ -28,9 +28,9 @@ const uploadOnCloudinary=async function(profilePic,folderName){
     }
 }
 
-const generateCloudinarySignature=()=>{
+const generateCloudinarySignature=(folder)=>{
     const timestamp=Math.floor(Date.now()/1000)
-    const folder="messages"
+    console.log("Folder in generate token ",folder)
     const signature=cloudinary.utils.api_sign_request({timestamp,folder},ENV.CLOUDINARY_SECRET_KEY)
     return { signature:signature,timestamp:timestamp,apiKey:ENV.CLOUDINARY_API_KEY}
 }

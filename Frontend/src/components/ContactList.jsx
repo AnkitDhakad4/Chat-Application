@@ -1,15 +1,17 @@
 import React, { useState,useEffect } from 'react'
-import useChatStore from '../store/useChatStore'
+import useChatStore from '../store/useChatStore.js'
+import authStore from '../store/userAuth.store.js'
 
 export default function ContactList() {
   const {getContacts,contacts,isUsersLoading,setSelectedUser} =useChatStore()
-
+  const {onlineUsers}=authStore()
 
   useEffect(()=>{
     getContacts()
     
   },[])
 
+  console.log("chatparteners are ", contacts)
 
   if(isUsersLoading) return(
     <div className='h-[10em] w-full  flex justify-center items-center '>
@@ -35,17 +37,17 @@ export default function ContactList() {
           <div 
           onClick={()=>{setSelectedUser(partener)}}
           key={partener._id}
-          className='hover:cursor-pointer  flex flex-row h-[3.5em] p-1 ring-1 ring-white bg-blue-400/15 rounded-2xl hover:bg-blue-500/15'>
+          className='hover:cursor-pointer  flex flex-row h-[3.5em] p-1  bg-blue-400/15 rounded-2xl hover:bg-blue-500/15'>
         {/* TODO:avatar online offline */}
-       <div className='avatar avatar-online'>
+       <div className={`avatar flex items-center ${onlineUsers.includes(partener._id)? "avatar-online":"avatar-offline"} `}>
          <img
-        className='h-[3em] relative  object-cover '
-        src={'/avatar.png' || partener.profilePic} alt="" />
+        className='h-[2.8em] relative  object-cover '
+        src={partener.profilePic || '/avatar.png'} alt="" />
        </div>
        <div className='px-2 flex flex-col'>
         {/* TODO: online offline using socket.io */}
           <h3>{partener.name || 'John Doe'}</h3>
-          <p>online...</p>
+          <p>{onlineUsers.includes(partener._id)? "online...":"offline..."}</p>
        </div>
     </div>
         )

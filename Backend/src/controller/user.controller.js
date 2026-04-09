@@ -60,7 +60,7 @@ const signup = async function (req, res) {
         .json({ message: "There is server error while logup" });
     } 
 
-    const token = generateToken({ id: findedUser._id });
+    const token = generateToken(findedUser._id);
 
     const option = {
       secure: ENV.NODE_ENV == "development" ? false : true,
@@ -153,16 +153,23 @@ const check=async function(req,res){
 }
 
 const updateProfilePic=async function(req,res){
-  const {profilePic}=req.body
+  try {
+    const {url}=req.body
+    
+  
+    if(!url) return res.status(400).json({messgae:"Profile pic not found "})
+  
+    const userId=req.user.id;
 
-  if(!profilePic) return res.status(400).json({messgae:"Profile pic not found "})
-
-  const userId=req.user.id;
-
-  const url=await uploadOnCloudinary(profilePic,'Profile Pics')
-
-  const updatedUser=await User.findByIdAndUpdate(userId,{profilePic:url},{new:true}).select("-password -dob")//this new returns the updated User
+    
+    const updatedUser=await User.findByIdAndUpdate(userId,{profilePic:url},{new:true}).select("-password -dob")//this new returns the updated User
+    console.log("Updated user is ",updatedUser)
+    return res.status(200).json({message:"Profile is updated successfully",data:updatedUser})
+    
+  } catch (error) {
+    return res.status(500).json({message:"There is a error while updatin the profile of User"})
+  }
 
 }
 
-export { signup, login, logout,check };
+export { signup, login, logout,check,updateProfilePic };
