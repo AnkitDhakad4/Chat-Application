@@ -6,7 +6,7 @@ import StartConversation from "./StartConversation.jsx";
 import MessageInput from "./MessageInput.jsx";
 
 function MessageContainer() {
-  const { messages, getMessages, selectedUser, isMessageLoading } =
+  const { messages, getMessages, selectedUser, isMessageLoading,subscribeMessage,unSubscribeMessage,sendMessage } =
     useChatStore();
 const scrollRef=useRef()
      useEffect(()=>{
@@ -18,7 +18,13 @@ const scrollRef=useRef()
 
   useEffect(() => {
     getMessages(selectedUser._id);
-  }, [selectedUser]);
+    subscribeMessage()
+
+    return ()=>{
+      unSubscribeMessage()
+    }
+
+  }, [selectedUser,subscribeMessage,unSubscribeMessage]);
   
 
   if (isMessageLoading) return <Loading />;
@@ -41,7 +47,7 @@ const scrollRef=useRef()
                   >
                     {message.image && (
                       <img src={message.image}
-                      className="h-40 w-60 object-cover"
+                      className="h-40 w-60 object-fit"
                       alt="Image is not loaded" />
                     )}
                     <p>{message.text}</p>

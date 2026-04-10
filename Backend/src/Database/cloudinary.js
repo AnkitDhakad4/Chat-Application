@@ -30,7 +30,9 @@ const uploadOnCloudinary=async function(profilePic,folderName){
 
 const generateCloudinarySignature=(folder)=>{
     const timestamp=Math.floor(Date.now()/1000)
-    console.log("Folder in generate token ",folder)
+    
+    // console.log("Folder in generate token ",folder)
+
     const signature=cloudinary.utils.api_sign_request({timestamp,folder},ENV.CLOUDINARY_SECRET_KEY)
     return { signature:signature,timestamp:timestamp,apiKey:ENV.CLOUDINARY_API_KEY}
 }

@@ -22,19 +22,19 @@ function MessageInput() {
   const imageInput = useRef();
   
 
-  useEffect(() => {
-    const handlekeydown = () => {
-      if (isSoundOn) {
-        sound.playSound();
-      }
-    };
+  // useEffect(() => {
+  //   const handlekeydown = () => {
+  //     if (isSoundOn) {
+  //       sound.playSound();
+  //     }
+  //   };
 
-    window.addEventListener("keydown", handlekeydown);
+  //   window.addEventListener("keydown", handlekeydown);
 
-    return () => {
-      window.removeEventListener("keydown", handlekeydown);
-    };
-  }, [isSoundOn]);
+  //   return () => {
+  //     window.removeEventListener("keydown", handlekeydown);
+  //   };
+  // }, [isSoundOn]);
 
   const handleImage = async (e) => {
     
@@ -47,7 +47,9 @@ function MessageInput() {
   };
 
   const messageSend = async (e) => {
+
     e.preventDefault();
+    if(text.trim()==="" ) return;
 
     let url;
     if (actualImage) {

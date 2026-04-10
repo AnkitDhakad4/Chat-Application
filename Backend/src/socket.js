@@ -20,6 +20,10 @@ io.use(socketAuthMiddleWare);
 //to store the online users
 const userSocketMap = {};
 
+export function getReceiverId(userId){
+  return userSocketMap[userId];
+}
+
 // here
 // io is the whole server
 // and socket is that particular users connection instance
@@ -27,7 +31,8 @@ io.on("connection", (socket) => {
   
   
   const userId = socket.user_id;
-  console.log("A user is connected to socket with id ", socket.id, socket.user.name, userId);
+  // console.log("A user is connected to socket with id ", socket.id, socket.user.name, userId);
+
   userSocketMap[userId] = socket.id;
 
   //to send online user informations
@@ -35,7 +40,8 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     //here we used the socket bcz that particular user is disconnected and we will run this when only to get that he is disonnected
-    console.log(`user: ${socket.user.name} is disconnected`);
+    // console.log(`user: ${socket.user.name} is disconnected`);
+    
     delete userSocketMap[userId];
 
     //here again io bcz to infor all user that he is disconnected it will run when anyone i just trun off his connection

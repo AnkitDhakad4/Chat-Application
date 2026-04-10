@@ -7,7 +7,7 @@ import uploadOnCloudinary from '../Database/cloudinary.js'
 
 const signup = async function (req, res) {
   try {
-    console.log(req.body)
+    // console.log(req.body)
     const { name, profilePic, password, dob, contact, email } = req.body;
 
     if ([name, email, password].some((ele) => !ele || ele.trim().length == 0)) {
@@ -138,7 +138,7 @@ const logout = async function (req, res) {
         .json({ message: "User is logout successfully" });
     }
   } catch (error) {
-    console.log("Error while verifyin the JWT Token ", error.message);
+    // console.log("Error while verifyin the JWT Token ", error.message);
     return res
       .status(401)
       .json({ message: "Token is not valid", error: error.message });
@@ -163,7 +163,7 @@ const updateProfilePic=async function(req,res){
 
     
     const updatedUser=await User.findByIdAndUpdate(userId,{profilePic:url},{new:true}).select("-password -dob")//this new returns the updated User
-    console.log("Updated user is ",updatedUser)
+    // console.log("Updated user is ",updatedUser)
     return res.status(200).json({message:"Profile is updated successfully",data:updatedUser})
     
   } catch (error) {

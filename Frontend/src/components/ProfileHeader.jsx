@@ -1,4 +1,4 @@
-import { UserIcon, LogOutIcon, Volume2Icon, VolumeOffIcon } from "lucide-react";
+import { UserIcon, LogOutIcon, Volume2Icon, VolumeOffIcon,Loader2, Loader } from "lucide-react";
 import { useRef, useState } from "react";
 import userAuthStore from "../store/userAuth.store.js";
 import useChatStore from "../store/useChatStore.js";
@@ -78,18 +78,28 @@ function ProfileHeader() {
           className="group rounded-full size-14 overflow-hidden relative"
           onClick={() => fileInputRef.current.click()}
         >
+        
+
           <img
             className="size-full object-cover"
             src={user.profilePic || previewImage || "/avatar.png"}
             alt="profilePic"
           />
 
+        {isImageUploading && (
+          <div className="absolute inset-0 bg-black/50 truncate flex justify-center items-center duration-400 ">
+            <Loader2 size={15} className="text-white animate-spin"/>
+          </div>
+        )}
+        {!isImageUploading && (
           <div className="absolute inset-0 bg-black/50 truncate flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-400 ">
             <span className="text-white text-xs ">Change</span>
           </div>
+        )}
           <input
             type="file"
             ref={fileInputRef}
+            disabled={isImageUploading}
             onChange={handleImageUpload}
             accept="image/*"
             className="hidden"

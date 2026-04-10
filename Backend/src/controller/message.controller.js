@@ -1,20 +1,22 @@
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
-import uploadOnCloudinary from "../Database/cloudinary.js";
-import generateCloudinarySignature from "../Database/cloudinary.js";
-import messageRouter from "../routes/message.routes.js";
 
+import generateCloudinarySignature from "../Database/cloudinary.js";
+
+
+import { getReceiverId, io } from "../socket.js";
 
 const createMessage = async function (req, res) {
   try {
     const { image, text } = req.body;
-    
+
     const sender = req.user.id;
     const { id: reciever } = req.params;
     // let url = "";
     // if (image) {
     //   url = await uploadOnCloudinary(image, "Messages");
     // }
+    // console.log("Message in create message ",text,image)
     const message = await Message.create({
       senderId: sender,
       recieverId: reciever,
@@ -22,7 +24,14 @@ const createMessage = async function (req, res) {
       text: text,
     });
 
+    // console.log("message is created successfully ",message)
+
     // todo : to implement the socket.io for real time message sending
+    const receiverSocketId = getReceiverId(reciever);
+
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", message);
+    }
 
     return res.status(200).json({ message: message });
   } catch (error) {
@@ -40,7 +49,7 @@ const getChatPartners = async function (req, res) {
       $or: [{ senderId: userId }, { recieverId: userId }],
     });
 
-    (messages);
+    // messages;
     const chatPartenersIds = [
       ...new Set(
         messages.map((message) =>
@@ -49,14 +58,11 @@ const getChatPartners = async function (req, res) {
             : message.senderId?.toString(),
         ),
       ),
-    ];
-    
+    ].filter((id)=> id !==userId.toString());
 
     const parteners = await User.find({
       _id: { $in: chatPartenersIds },
     }).select("-password");
-
-
 
     return res
       .status(200)
@@ -71,7 +77,7 @@ const getChatPartners = async function (req, res) {
 const getAllContacts = async function (req, res) {
   try {
     const userId = req.user.id;
-    
+
     const contacts = await User.find({ _id: { $ne: userId } }).select(
       "-password -dob",
     );
@@ -91,7 +97,6 @@ const getMessageByUserId = async function (req, res) {
   try {
     const senderId = req.user.id;
     const { id: receiverId } = req.params;
-    
 
     const messages = await Message.find({
       $or: [
@@ -100,27 +105,33 @@ const getMessageByUserId = async function (req, res) {
       ],
     });
 
-    
-    return res
-      .status(200)
-      .json({
-        message: "ALl message of this user is received with this person",
-        data: messages,
-      });
+    return res.status(200).json({
+      message: "ALl message of this user is received with this person",
+      data: messages,
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
 
-const generateUploadToken=(req,res)=>{
-  const {folder}=req.body
-  const {timestamp,signature,apiKey}=generateCloudinarySignature(folder)
+const generateUploadToken = (req, res) => {
+  const { folder } = req.body;
+  const { timestamp, signature, apiKey } = generateCloudinarySignature(folder);
 
-  return res.status(200).json({message:"Token is generated successfully",data:{timestamp,signature,apiKey}})
-}
+  return res
+    .status(200)
+    .json({
+      message: "Token is generated successfully",
+      data: { timestamp, signature, apiKey },
+    });
+};
 
-const getImageUrl=(req,res)=>{
-  
-}
+const getImageUrl = (req, res) => {};
 
-export { createMessage, getAllContacts, getChatPartners, getMessageByUserId, generateUploadToken };
+export {
+  createMessage,
+  getAllContacts,
+  getChatPartners,
+  getMessageByUserId,
+  generateUploadToken,
+};

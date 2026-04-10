@@ -11,6 +11,8 @@ function Chateheader() {
     setSelectedUser(null);
   };
 
+  
+
   useEffect(() => {
     const handleEscKey = (e) => {
       if (e.key === "Escape") {
@@ -26,10 +28,10 @@ function Chateheader() {
   return (
     <div className="w-full justify-between pr-4 items-center h-fit flex gap-2 p-1 bg-gray-700/45 ring-1 ring-white items-center">
       <div className="flex flex-row gap-3">
-        <div className={`avatar ${onlineUsers.includes(selectedUser._id)?"avatar-online":"avatar-offline"}} pl-2  `}>
+        <div className={`avatar ${onlineUsers.includes(selectedUser._id)?"avatar-online":"avatar-offline"} pl-2  `}>
           <img
             src={selectedUser.profilePic || "/avatar.png"}
-            className="h-10 w-10 object-cover"
+            className="h-10 w-10 object-cover rounded-3xl"
           />
         </div>
         <div className="flex flex-col justify-center ">

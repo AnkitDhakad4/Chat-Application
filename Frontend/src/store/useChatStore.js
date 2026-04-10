@@ -5,7 +5,7 @@ import axios from "axios";
 import authStore from "./userAuth.store.js";
 const useChatStore = create((set, get) => ({
   chatParteners: [],
-  tempMsgStore:[],
+  tempMsgStore: [],
   contacts: [],
   selectedTab: "chats",
   selectedUser: null,
@@ -98,7 +98,7 @@ const useChatStore = create((set, get) => ({
     //   text: message,
     //   image: image,
     //   createdAt: {
-    //     $date: new Date().toISOString(),    
+    //     $date: new Date().toISOString(),
     //   },
     //   updatedAt: {
     //     $date: new Date().toISOString(),
@@ -106,34 +106,38 @@ const useChatStore = create((set, get) => ({
     //   __v: 0,
     // };
     // set({ messages: [...get().messages, artificialMessage] });
-    
-    
+
     try {
-      const {contacts,selectedUser,chatParteners}=get()
+      const { contacts, selectedUser, chatParteners } = get();
       const resp = await axiosInstance.post(
         `/message/send/${selectedUser._id}`,
         { text: message, image: image },
       );
-      
-      
-      const newContacts=contacts.filter((user)=>user._id !==selectedUser._id)
-      const newChatParteners=contacts.filter((user)=>user._id === selectedUser._id)
 
-      if(newChatParteners.length > 0 )
-      {
-        set({contacts:newContacts,chatParteners:chatParteners.concat(newChatParteners)})
+      const newContacts = contacts.filter(
+        (user) => user._id !== selectedUser._id,
+      );
+      const newChatParteners = contacts.filter(
+        (user) => user._id === selectedUser._id,
+      );
 
+      if (newChatParteners.length > 0) {
+        set({
+          contacts: newContacts,
+          chatParteners: chatParteners.concat(newChatParteners),
+        });
       }
+      // console.log("Message in sendMessage is ",resp.data.message)
       set({ messages: [...get().messages, resp.data.message] });
     } catch (error) {
       console.log(error);
-    //   toast.error(error.response?.data?.error)
+      //   toast.error(error.response?.data?.error)
     }
   },
 
   getTokenForUpload: async (folder) => {
     try {
-      const resp = await axiosInstance.post("/message/uploadToken",{folder});
+      const resp = await axiosInstance.post("/message/uploadToken", { folder });
       // console.log("resp from getTokenForUpload", resp);
       return {
         timestamp: resp.data.data.timestamp,
@@ -145,7 +149,7 @@ const useChatStore = create((set, get) => ({
     }
   },
   uploadOnCloudinary: async (formData) => {
-    console.log("In upload on cloudinary")
+    console.log("In upload on cloudinary");
     set({ isImageUploading: true });
     try {
       const resp = await fetch(
@@ -165,6 +169,34 @@ const useChatStore = create((set, get) => ({
       set({ isImageUploading: false });
     }
   },
-}));
+
+
+  subscribeMessage: () => {
+    const {selectedUser,isSoundOn}=get()
+    if(!selectedUser) return
+
+    const socket=authStore.getState().socket
+    // const {messages}=get()
+    socket.on('newMessage',(msg)=>{
+      set({messages:[...get().messages,msg]})
+
+      if(isSoundOn)
+      {
+        const playSound=new Audio('./sounds/notification.mp3')
+        playSound.currentTime=0;
+        playSound.play().catch((error)=>console.error("errorwhile playing the notification sound ",error.message))
+      }
+
+    })
+
+     
+
+  },
+
+  unSubscribeMessage:()=>{
+    const socket=authStore.getState().socket
+    socket.off('newMessage')
+  }
+}));  
 
 export default useChatStore;

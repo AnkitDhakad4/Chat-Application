@@ -13,7 +13,7 @@ const socketAuthMiddleWare = async (socket, next) => {
 
       
     if (!token) {
-      console.log("No token is provided to socket");
+      // console.log("No token is provided to socket");
       return next(new Error("User is not authorised -- no token provided"));
     }
 
@@ -23,7 +23,7 @@ const socketAuthMiddleWare = async (socket, next) => {
         maxAge: ENV.EXPIRY,
       });
     } catch (error) {
-      console.log("Invalid socket token", error.message);
+      // console.log("Invalid socket token", error.message);
       return next(
         new Error("User is not authorised -- token is expired or invalid"),
       );
@@ -39,7 +39,7 @@ const socketAuthMiddleWare = async (socket, next) => {
     socket.user_id = user._id.toString();
     return next();
   } catch (error) {
-    console.log("Error in socket authentication", error.message);
+    // console.log("Error in socket authentication", error.message);
     return next(error);
   }
 };

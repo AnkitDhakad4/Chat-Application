@@ -41,7 +41,7 @@ export default function ContactList() {
         {/* TODO:avatar online offline */}
        <div className={`avatar flex items-center ${onlineUsers.includes(partener._id)? "avatar-online":"avatar-offline"} `}>
          <img
-        className='h-[2.8em] relative  object-cover '
+        className='h-[2.8em] relative  object-cover rounded-3xl '
         src={partener.profilePic || '/avatar.png'} alt="" />
        </div>
        <div className='px-2 flex flex-col'>

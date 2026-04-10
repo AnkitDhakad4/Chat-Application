@@ -9,7 +9,7 @@ function ChatList() {
     getChatParteners()
   },[])
 
-console.log("chatparteners are ", chatParteners)
+// console.log("chatparteners are ", chatParteners)
 
   if(isUsersLoading) return(
     <div className='h-[10em] w-full  flex justify-center items-center '>
@@ -41,7 +41,7 @@ console.log("chatparteners are ", chatParteners)
         
        <div className={`avatar ${onlineUsers.includes(partener._id)? "avatar-online":"avatar-offline"} `}>
          <img
-        className='h-[3em] relative  object-cover '
+        className='h-[3em] relative  object-cover rounded-3xl '
         src={partener.profilePic || '/avatar.png'} alt="" />
        </div>
        <div className='px-2 flex flex-col'>
