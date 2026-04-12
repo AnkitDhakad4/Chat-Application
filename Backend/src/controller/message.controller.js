@@ -25,7 +25,8 @@ const createMessage = async function (req, res) {
     });
 
     // console.log("message is created successfully ",message)
-
+ 
+    
     // todo : to implement the socket.io for real time message sending
     const receiverSocketId = getReceiverId(reciever);
 

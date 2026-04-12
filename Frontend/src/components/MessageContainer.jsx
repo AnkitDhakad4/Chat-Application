@@ -36,11 +36,12 @@ const scrollRef=useRef()
         {messages.length > 0 ? (
           <div className="space-y-6 w-full mx-auto">
             {messages.map((message) => {
+              
               return (
                 <div
                   key={message._id}
                   className={`chat ${message.senderId 
-                !== selectedUser._id ? "chat-end" : "chat-start"}`}
+                === selectedUser._id ? "chat-start" : "chat-end"} ${(message.senderId === selectedUser._id || message.recieverId === selectedUser._id) ? "block" : "hidden"}`}
                 >
                   <div
                     className={`chat flex flex-col items-end chat-bubble ${message.senderId === selectedUser._id ? "bg-gray-700/40 " : "bg-cyan-400/40"}`}
