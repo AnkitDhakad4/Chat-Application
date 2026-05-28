@@ -1,27 +1,30 @@
 import { create } from "zustand";
 import axiosInstance from "../lib/axios.js";
 import toast from "react-hot-toast";
-import axios from "axios";
 import authStore from "./userAuth.store.js";
 const useChatStore = create((set, get) => ({
   chatParteners: [],
   tempMsgStore: [],
   contacts: [],
-  selectedTab: "chats",
+  selectedTab: localStorage.getItem('selectedTab') || 'Chats' ,
   selectedUser: null,
   messages: [],
   isUsersLoading: false,
   isMessageLoading: false,
-  isSoundOn: JSON.parse(localStorage.getItem("isSoundOn")) === true,
+  isSoundOn: localStorage.getItem("isSoundOn") === "true",
   isImageUploading: false,
 
   toggleSound: () => {
-    localStorage.setItem("isSoundOn", !get().isSoundOn);
-    set({ isSoundOn: !get().isSoundOn });
+    const nextSoundState = !get().isSoundOn;
+    localStorage.setItem("isSoundOn", String(nextSoundState));
+    set({ isSoundOn: nextSoundState });
   },
 
   setSelectedTab: (tab) => {
+   
     set({ selectedTab: tab });
+    localStorage.setItem('selectedTab',String(tab))
+
   },
 
   getChatParteners: async () => {

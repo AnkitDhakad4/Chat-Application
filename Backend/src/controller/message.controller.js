@@ -63,7 +63,7 @@ const getChatPartners = async function (req, res) {
 
     const parteners = await User.find({
       _id: { $in: chatPartenersIds },
-    }).select("-password");
+    }).select("-password -dob");
 
     return res
       .status(200)
