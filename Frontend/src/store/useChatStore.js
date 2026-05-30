@@ -7,7 +7,14 @@ const useChatStore = create((set, get) => ({
   tempMsgStore: [],
   contacts: [],
   selectedTab: localStorage.getItem('selectedTab') || 'Chats' ,
-  selectedUser: null,
+  selectedUser: {
+    _id: "1",
+    name: "John Doe",
+    image:
+      "https://randomuser.me/api/portraits/men/1.jpg",
+    about:
+      "Frontend developer who loves clean UI and smooth animations.",
+  },
   messages: [],
   isUsersLoading: false,
   isMessageLoading: false,

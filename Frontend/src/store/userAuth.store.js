@@ -11,9 +11,16 @@ const authStore = create((set, get) => ({
   authStatus: false,
   isCheckingAuth: false,
   isLoading: false,
-  user: null,
+  user: {_id:2},
   socket: null,
-  onlineUsers: [],
+  onlineUsers: [{
+    _id: "1",
+    name: "John Doe",
+    image:
+      "https://randomuser.me/api/portraits/men/1.jpg",
+    about:
+      "Frontend developer who loves clean UI and smooth animations.",
+  }],
 
   signup: async (data) => {
     set({ isLoading: true });

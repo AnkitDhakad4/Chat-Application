@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import useChatStore from "../store/useChatStore.js";
 import authStore from "../store/userAuth.store.js";
 import { Search, Bell, BellOff } from "lucide-react";
+import ProfileHeader from "./profileHeader.jsx";
 
 function Middlepanel() {
-  const { selectedTab, isSoundOn, toggleSound } = useChatStore();
+  const { selectedTab, isSoundOn, toggleSound, selectedUser,setSelectedUser } = useChatStore();
 
   const [searchVal, setSearchVal] = useState("");
   
@@ -23,6 +24,11 @@ function Middlepanel() {
     toggleSound();
     console.log("Now sound is ", isSoundOn);
   };
+
+  const selectUser=(id)=>{
+      console.log("id in middle ",id)
+    setSelectedUser(id)
+  }
 
   const users = [
   {
@@ -116,11 +122,13 @@ function Middlepanel() {
   },
 ];
 
+  
+
 
 
   return (
-    <div className=" border border-[#E2E8F0] border-box  h-full w-27/100 flex flex-col ">
-      <div className=" border-b-1 border-[#E2E8F0] h-1/10 flex">
+    <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
+      <div className=" border-b border-[#E2E8F0] h-1/10 flex">
         <div className="flex justify-center w-27/100  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
           <p>{selectedTab}</p>
         </div>
@@ -151,23 +159,11 @@ function Middlepanel() {
       <div className="h-9/10 flex flex-col gap-1  p-2 w-full overflow-auto scrollbar ">
         {/* chat component */}
         {users.map((user)=>(
-          <div className="h-12/100  p-1 flex items-center gap-1 w-full">
-          <div className="relative h-full ">
-            <div className={`${onlineUsers.includes(user._id)? 'online':''} absolute size-3 shrink-0 `}></div>
-            <img
-              src={user.image}
-              className="h-full object-cover rounded-full "
-            />
-          </div>
-          <div className=" h-full flex-1   min-w-0 flex justify-center flex-col">
-            <div className="flex  justify-between pr-1">
-              <p className="font-liberation text-[#0F172A] text-lg font-bold"> {user.name}</p>
-              {/* <p className="text-xs font-mono">{user.lastSeen}</p> */}
-            </div>
-            <p className="font-liberation truncate max-w-full text-xs text-gray-500 ">{user.about}</p>
-          </div>
-          
-        </div>
+          // hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full
+          <ProfileHeader 
+          key={user._id} 
+          onlineUsers={onlineUsers} user={user} outsideClass="hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full" />
+         
         ))}
       </div>
     </div>
@@ -175,3 +171,24 @@ function Middlepanel() {
 }
 
 export default Middlepanel;
+
+//  <div
+//           className="hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full"
+//           onClick={()=>selectUser(user._id)} 
+//            >
+//           <div className="relative h-full ">
+//             <div className={`${onlineUsers.includes(user._id)? 'online':''} absolute size-3 shrink-0 `}></div>
+//             <img
+//               src={user.image}
+//               className="h-full object-cover rounded-full "
+//             />
+//           </div>
+//           <div className=" h-full flex-1   min-w-0 flex justify-center flex-col">
+//             <div className="flex  justify-between pr-1">
+//               <p className="font-liberation text-[#0F172A] text-lg font-bold"> {user.name}</p>
+//               {/* <p className="text-xs font-mono">{user.lastSeen}</p> */}
+//             </div>
+//             <p className="font-liberation truncate max-w-full text-xs text-gray-500 ">{user.about}</p>
+//           </div>
+          
+//         </div>
