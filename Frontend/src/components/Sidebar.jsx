@@ -1,9 +1,11 @@
 import React from "react";
 import { Link, Route } from "react-router-dom";
 import usechatStore from "../store/useChatStore.js";
+import authStore from "../store/userAuth.store.js";
 function Sidebar() {
 
-  const {selectedTab,setSelectedTab} = usechatStore();
+  const {selectedTab,setSelectedTab,isUsersLoading} = usechatStore();
+  const {user}=authStore()
   const handleClick=(e)=>{
     const tab=e.currentTarget.value
     setSelectedTab(tab)
@@ -80,6 +82,7 @@ leading-none
               value={component.name}
               key={component.name}
               onClick={handleClick}
+              disabled={isUsersLoading}
               >
                 <img
                   src={component.icon}
@@ -97,10 +100,10 @@ leading-none
       <div className="  ">
         <div className=" rounded-full  border-[2px] border-[#E2E8F0] w-9/10 ml-4"></div>
         <div className="flex  pt-3 px-2 pb-1.5 gap-2">
-          <img src="./chatFlowLogo.png" alt="avatar" className="size-10 mt-0.5 ring-1 ring-black object-cover rounded-xl" />
+          <img src={user.profilePic || "./chatFlowLogo.png"} alt="avatar" className="size-10 mt-0.5  object-cover rounded-xl" />
           <div className="flex flex-col text-[#0F172A]">
-            <p className="font-bold text-lg">User Name</p>
-            <p className="font-light text-[#0F172A]/50 text-xs pl-0.5">User line</p>
+            <p className="font-bold text-lg">{user.name}</p>
+            <p className="font-light text-[#0F172A]/50 text-xs pl-0.5">{user.about}</p>
           </div>
         </div>
       </div>

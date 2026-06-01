@@ -1,15 +1,28 @@
 import React, { useState } from "react";
 import useChatStore from "../store/useChatStore.js";
 import authStore from "../store/userAuth.store.js";
-import { Search, Bell, BellOff } from "lucide-react";
+import { Search, Bell, BellOff, LoaderCircle } from "lucide-react";
 import ProfileHeader from "./profileHeader.jsx";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
 
 function Middlepanel() {
-  const { selectedTab, isSoundOn, toggleSound, selectedUser,setSelectedUser } = useChatStore();
+  const {
+    selectedTab,
+    isSoundOn,
+    toggleSound,
+    selectedUser,
+    setSelectedUser,
+    getchatPartners,
+    getContacts,
+    contacts,
+    chatPartners,
+    isUsersLoading,
+  } = useChatStore();
 
   const [searchVal, setSearchVal] = useState("");
-  
-  const {onlineUsers}=authStore()
+
+  const { onlineUsers } = authStore();
 
   const handleChange = (e) => {
     setSearchVal(e.target.value);
@@ -25,106 +38,35 @@ function Middlepanel() {
     console.log("Now sound is ", isSoundOn);
   };
 
-  const selectUser=(id)=>{
-      console.log("id in middle ",id)
-    setSelectedUser(id)
-  }
+  const selectUser = (id) => {
+    console.log("id in middle ", id);
+    setSelectedUser(id);
+  };
 
-  const users = [
-  {
-    _id: "1",
-    name: "John Doe",
-    image:
-      "https://randomuser.me/api/portraits/men/1.jpg",
-    about:
-      "Frontend developer who loves clean UI and smooth animations.",
-  },
+  const [users, setUsers] = useState([]);
 
-  {
-    _id: "2",
-    name: "Emma Watson",
-    image:
-      "https://randomuser.me/api/portraits/women/2.jpg",
-    about:
-      "Coffee addict ☕ and passionate product designer.",
-  },
-
-  {
-    _id: "3",
-    name: "Michael Lee",
-    image:
-      "https://randomuser.me/api/portraits/men/3.jpg",
-    about:
-      "Building scalable backend systems with Node.js.",
-  },
-
-  {
-    _id: "4",
-    name: "Sophia Turner",
-    image:
-      "https://randomuser.me/api/portraits/women/4.jpg",
-    about:
-      "UI/UX enthusiast creating delightful user experiences.",
-  },
-
-  {
-    _id: "5",
-    name: "David Kim",
-    image:
-      "https://randomuser.me/api/portraits/men/5.jpg",
-    about:
-      "Full-stack engineer and open-source contributor.",
-  },
-
-  {
-    _id: "6",
-    name: "Olivia Brown",
-    image:
-      "https://randomuser.me/api/portraits/women/6.jpg",
-    about:
-      "Loves photography, traveling, and React development.",
-  },
-
-  {
-    _id: "7",
-    name: "James Wilson",
-    image:
-      "https://randomuser.me/api/portraits/men/7.jpg",
-    about:
-      "Cybersecurity learner and Linux fanboy.",
-  },
-
-  {
-    _id: "8",
-    name: "Ava Martinez",
-    image:
-      "https://randomuser.me/api/portraits/women/8.jpg",
-    about:
-      "Creating modern mobile-first web applications.",
-  },
-
-  {
-    _id: "9",
-    name: "Ethan Clark",
-    image:
-      "https://randomuser.me/api/portraits/men/9.jpg",
-    about:
-      "AI enthusiast exploring machine learning and TinyML.",
-  },
-
-  {
-    _id: "10",
-    name: "Isabella Moore",
-    image:
-      "https://randomuser.me/api/portraits/women/10.jpg",
-    about:
-      "Minimalist designer who enjoys elegant interfaces.",
-  },
-];
-
-  
-
-
+  useEffect(() => {
+    setUsers([]);
+    async function LoadChats() {
+      try {
+        if (selectedTab === "Chats") {
+          let res = await getchatPartners();
+          setUsers(res);
+          
+        } else if (selectedTab === "Contacts") {
+          let res = await getContacts();
+          
+          setUsers(res);
+          
+        }
+      } catch (error) {
+        
+        toast.error(error?.message);
+      }
+    }
+    LoadChats();
+    return () => {};
+  }, [selectedTab]);
 
   return (
     <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
@@ -154,17 +96,27 @@ function Middlepanel() {
           )}
         </div>
       </div>
-      
+
       {/* chat appears here */}
       <div className="h-9/10 flex flex-col gap-1  p-2 w-full overflow-auto scrollbar ">
         {/* chat component */}
-        {users.map((user)=>(
-          // hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full
-          <ProfileHeader 
-          key={user._id} 
-          onlineUsers={onlineUsers} user={user} outsideClass="hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full" />
-         
-        ))}
+        {isUsersLoading ? (
+          <div className="flex items-center justify-center gap-3">
+            {" "}
+            <p className="font-inter ">Loading...</p>{" "}
+            <LoaderCircle className="animate-spin size-4" />{" "}
+          </div>
+        ) : (
+          users.map((user) => (
+            // hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full
+            <ProfileHeader
+              key={user._id}
+              onlineUsers={onlineUsers}
+              user={user}
+              outsideClass="hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full"
+            />
+          ))
+        )}
       </div>
     </div>
   );
@@ -174,7 +126,7 @@ export default Middlepanel;
 
 //  <div
 //           className="hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full"
-//           onClick={()=>selectUser(user._id)} 
+//           onClick={()=>selectUser(user._id)}
 //            >
 //           <div className="relative h-full ">
 //             <div className={`${onlineUsers.includes(user._id)? 'online':''} absolute size-3 shrink-0 `}></div>
@@ -190,5 +142,5 @@ export default Middlepanel;
 //             </div>
 //             <p className="font-liberation truncate max-w-full text-xs text-gray-500 ">{user.about}</p>
 //           </div>
-          
+
 //         </div>

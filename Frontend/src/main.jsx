@@ -8,7 +8,7 @@ import ChatPage from "./pages/ChatPage.jsx";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <>
     <BrowserRouter>
-      <div  className=' border-box overflow-hidden h-screen w-screen bg-[#FFFFFF]  text-black'>
+      <div  className=' border-box  h-screen w-screen bg-[#FFFFFF]  text-black'>
       <App />
       </div>
 

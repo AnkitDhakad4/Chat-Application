@@ -23,8 +23,8 @@ function ProfileHeader(props) {
           <div className="relative h-full ">
             <div className={`${onlineUsers.some((u)=>{if(u._id===user._id && !props.upper){return true} else{return false}})? 'online':'' } absolute size-3 shrink-0 `}></div>
             <img
-              src={user.image}
-              className="h-full object-cover rounded-full "
+              src={user.profilePic || './avatar.png'}
+              className="h-full p-1 object-cover rounded-full "
             />
           </div>
           <div className=" h-full flex-1   min-w-0 flex justify-center flex-col">

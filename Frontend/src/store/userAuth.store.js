@@ -11,16 +11,9 @@ const authStore = create((set, get) => ({
   authStatus: false,
   isCheckingAuth: false,
   isLoading: false,
-  user: {_id:2},
+  user: {},
   socket: null,
-  onlineUsers: [{
-    _id: "1",
-    name: "John Doe",
-    image:
-      "https://randomuser.me/api/portraits/men/1.jpg",
-    about:
-      "Frontend developer who loves clean UI and smooth animations.",
-  }],
+  onlineUsers: [],
 
   signup: async (data) => {
     set({ isLoading: true });
@@ -56,14 +49,15 @@ const authStore = create((set, get) => ({
   login: async (data) => {
     try {
       set({ isLoading: true });
+      console.log("Data in the login function is ", data);
       const response = await axiosInstance.post("/users/login", data);
       set({ user: response.data.data, authStatus: true });
-      get().connect();
+      // get().connect();
       toast.success("Login Successfully !");
     } catch (error) {
       toast.error(error.response?.data?.message);
     } finally {
-      set({ isLoading: false });
+      set({ isLoading: false });    
     }
   },
   logout: async () => {
