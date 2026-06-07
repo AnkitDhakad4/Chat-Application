@@ -1,37 +1,41 @@
 import { create } from "zustand";
 import axiosInstance from "../lib/axios.js";
 import toast from "react-hot-toast";
-import axios from "axios";
 import authStore from "./userAuth.store.js";
 const useChatStore = create((set, get) => ({
-  chatParteners: [],
+  chatPartners: [],
   tempMsgStore: [],
   contacts: [],
-  selectedTab: "chats",
+  selectedTab: localStorage.getItem("selectedTab") || "Chats",
   selectedUser: null,
   messages: [],
   isUsersLoading: false,
   isMessageLoading: false,
-  isSoundOn: JSON.parse(localStorage.getItem("isSoundOn")) === true,
+  isSoundOn: localStorage.getItem("isSoundOn") === "true",
   isImageUploading: false,
 
   toggleSound: () => {
-    localStorage.setItem("isSoundOn", !get().isSoundOn);
-    set({ isSoundOn: !get().isSoundOn });
+    const nextSoundState = !get().isSoundOn;
+    localStorage.setItem("isSoundOn", String(nextSoundState));
+    set({ isSoundOn: nextSoundState });
   },
 
   setSelectedTab: (tab) => {
+    
     set({ selectedTab: tab });
+    localStorage.setItem("selectedTab", String(tab));
   },
 
-  getChatParteners: async () => {
-    const { chatParteners } = get();
-    if (chatParteners && chatParteners.length > 0) return;
+  getchatPartners: async () => {
+    const { chatPartners } = get();
+    if (chatPartners && chatPartners.length > 0) return chatPartners;
 
     set({ isUsersLoading: true });
     try {
       const resp = await axiosInstance.get("/message/chats");
-      set({ chatParteners: resp.data.data });
+            // console.log("data in getchatPartners is ", resp.data.data);
+      set({ chatPartners: resp.data.data });
+      return resp.data.data
     } catch (error) {
       toast.error(error.response?.data?.message);
     } finally {
@@ -40,25 +44,27 @@ const useChatStore = create((set, get) => ({
   },
 
   getContacts: async () => {
-    const { contacts, chatParteners } = get();
+    const { contacts, chatPartners } = get();
 
-    if (contacts && contacts.length > 0) return;
+    if (contacts && contacts.length > 0) return contacts;
 
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/message/contacts");
       const allUsers = res.data.data;
+      
+      const partnerIds = new Set(chatPartners.map((partner) => partner._id));
 
       const data = allUsers.filter((user) => {
-        const isAlreadyPartener = chatParteners.some(
-          (partener) => partener._id === user._id,
-        );
-        return !isAlreadyPartener;
+        return !partnerIds.has(user._id);
       });
 
+      
       set({ contacts: data });
+      return data;
     } catch (error) {
-      toast.error(error.response?.data?.message);
+      console.log(error)
+      // toast.error(error?.message);
     } finally {
       set({ isUsersLoading: false });
     }
@@ -67,8 +73,11 @@ const useChatStore = create((set, get) => ({
   getMessages: async (id) => {
     set({ isMessageLoading: true });
     try {
+      console.log("In getMessages ")
       const res = await axiosInstance.get(`/message/${id}`);
+      console.log(res)
       set({ messages: res.data.data });
+      console.log("messages are ",res.data.data)
     } catch (error) {
       toast.error(error.response?.data?.error);
     } finally {
@@ -77,8 +86,9 @@ const useChatStore = create((set, get) => ({
   },
 
   setSelectedUser: (user) => {
-    // console.log(user)
+    console.log(user)
     set({ selectedUser: user });
+
   },
 
   sendMessage: async (image, message) => {
@@ -108,7 +118,7 @@ const useChatStore = create((set, get) => ({
     // set({ messages: [...get().messages, artificialMessage] });
 
     try {
-      const { contacts, selectedUser, chatParteners } = get();
+      const { contacts, selectedUser, chatPartners } = get();
       const resp = await axiosInstance.post(
         `/message/send/${selectedUser._id}`,
         { text: message, image: image },
@@ -117,17 +127,17 @@ const useChatStore = create((set, get) => ({
       const newContacts = contacts.filter(
         (user) => user._id !== selectedUser._id,
       );
-      const newChatParteners = contacts.filter(
+      const newchatPartners = contacts.filter(
         (user) => user._id === selectedUser._id,
       );
 
-      if (newChatParteners.length > 0) {
+      if (newchatPartners.length > 0) {
         set({
           contacts: newContacts,
-          chatParteners: chatParteners.concat(newChatParteners),
+          chatPartners: chatPartners.concat(newchatPartners),
         });
       }
-      // console.log("Message in sendMessage is ",resp.data.message)
+      console.log("Message in sendMessage is ",resp.data.message)
       set({ messages: [...get().messages, resp.data.message] });
     } catch (error) {
       console.log(error);
@@ -170,40 +180,40 @@ const useChatStore = create((set, get) => ({
     }
   },
 
-
   subscribeMessage: () => {
-    const {selectedUser,isSoundOn}=get()
-    if(!selectedUser) return
+    const { selectedUser, isSoundOn } = get();
+    if (!selectedUser) return;
 
-    const socket=authStore.getState().socket
+    const socket = authStore.getState().socket;
     // const {messages}=get()
-    socket.on('newMessage',(msg)=>{
+    socket.on("newMessage", (msg) => {
+      const isMessageFromSelectedUser =
+        msg.senderId === selectedUser._id ||
+        msg.recieverId === selectedUser._id;
 
-      const isMessageFromSelectedUser = msg.senderId === selectedUser._id || msg.recieverId === selectedUser._id;
-        
       if (!isMessageFromSelectedUser) return;
 
-      set({messages:[...get().messages,msg]})
+      set({ messages: [...get().messages, msg] });
 
-
-
-      if(isSoundOn)
-      {
-        const playSound=new Audio('./sounds/notification.mp3')
-        playSound.currentTime=0;
-        playSound.play().catch((error)=>console.error("errorwhile playing the notification sound ",error.message))
+      if (isSoundOn) {
+        const playSound = new Audio("./sounds/notification.mp3");
+        playSound.currentTime = 0;
+        playSound
+          .play()
+          .catch((error) =>
+            console.error(
+              "errorwhile playing the notification sound ",
+              error.message,
+            ),
+          );
       }
-
-    })
-
-     
-
+    });
   },
 
-  unSubscribeMessage:()=>{
-    const socket=authStore.getState().socket
-    socket.off('newMessage')
-  }
-}));  
+  unSubscribeMessage: () => {
+    const socket = authStore.getState().socket;
+    socket.off("newMessage");
+  },
+}));
 
 export default useChatStore;
