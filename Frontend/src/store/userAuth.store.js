@@ -101,9 +101,9 @@ const authStore = create((set, get) => ({
     });
 
     
-    console.log("socket is created ", socket)
+    // console.log("socket is created ", socket)
     socket.on("getOnlineUsers", (userIds) => {
-      console.log("rsponse from the getOnlineUser in frontend ",userIds)
+      // console.log("rsponse from the getOnlineUser in frontend ",userIds)
       set({ onlineUsers: new Set(userIds) });
     });
 
@@ -117,7 +117,7 @@ const authStore = create((set, get) => ({
     socket.removeAllListeners();
     if (socket.connected) {
       socket.disconnect();
-      console.log("User is disconnected successfully");
+      // console.log("User is disconnected successfully");
     }
 
     set({ socket: null, onlineUsers: [] });

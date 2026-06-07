@@ -12,10 +12,10 @@ export default function LoginPage() {
 
   const {login,isLoading}=useAuthStore()
 
-  const handleClickOnEye=()=>{
-    eyeRef.current.click()
+  // const handleClickOnEye=()=>{
+  //   eyeRef.current.click()
 
-  }
+  // }
 
   const quoteRef=useRef()
   const quotes = [
@@ -60,7 +60,7 @@ if(password.trim().length==0){
     password
   }
 
-  console.log(signInData)
+  // console.log(signInData)
   
   try{
       await login(signInData)

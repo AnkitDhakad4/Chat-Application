@@ -5,7 +5,7 @@ function ProfileHeader(props) {
 
     const {onlineUsers,user,outsideClass}=props
     
-    const onLineUsers=onlineUsers;
+    const onLineUsers=new Set(onlineUsers);
 
     const {selectedUser,setSelectedUser,getMessages } = useChatStore()
 
