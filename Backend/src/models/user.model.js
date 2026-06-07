@@ -23,6 +23,14 @@ const userSchema= new mongoose.Schema(
             type:Date
             // required:true
         },
+        about:{
+            type:String,
+            default:"Hey there! I am using Chatflow."
+        },
+        lastSeen:{
+            type:Date,
+            default:Date.now
+        },
         profilePic:{
             type:String,
             default:""

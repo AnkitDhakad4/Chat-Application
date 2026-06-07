@@ -80,6 +80,7 @@ const signup = async function (req, res) {
 const login = async function (req, res) {
   try {
     const { email, password } = req.body;
+    console.log("Email and password in the login controller is ", req.body);
 
     if (
       [email, password].forEach((ele) =>
@@ -116,6 +117,7 @@ const login = async function (req, res) {
       .status(200)
       .json({ message: "User is logged in successfully ", data: userResponse });
   } catch (error) {
+    console.log("Error while login the user ", error.message);
     return res.status(500).json({
       message: "There is some error while login",
       error: error.message,

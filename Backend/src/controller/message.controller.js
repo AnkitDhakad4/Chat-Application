@@ -63,8 +63,9 @@ const getChatPartners = async function (req, res) {
 
     const parteners = await User.find({
       _id: { $in: chatPartenersIds },
-    }).select("-password");
+    }).select("-password -dob");
 
+    //console.log("Chat parteners are ", parteners);
     return res
       .status(200)
       .json({ message: "Here is all the chat partners ", data: parteners });
@@ -83,7 +84,7 @@ const getAllContacts = async function (req, res) {
       "-password -dob",
     );
 
-    // console.log("All contacts are ", contacts);
+    //console.log("All contacts are ", contacts);
     return res
       .status(200)
       .json({ message: "Here is all the contacts ", data: contacts });
@@ -106,6 +107,7 @@ const getMessageByUserId = async function (req, res) {
       ],
     });
 
+    // console.log("Messages with this user are ", messages);
     return res.status(200).json({
       message: "ALl message of this user is received with this person",
       data: messages,

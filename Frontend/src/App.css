@@ -1,9 +1,32 @@
+@import url('https://fonts.cdnfonts.com/css/liberation-serif');
+@import url('https://fonts.cdnfonts.com/css/inter');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap');
+
 @import "tailwindcss";
 @plugin "daisyui";
+@plugin 'tailwind-scrollbar';
+
+@utility rung{
+  @apply ring-1 ring-black
+}
+
+@utility online{
+  @apply  rounded-full bg-green-700 bottom-1 right-1  
+}
+
 
 @property --border-angle {
     inherits: false;
     initial-value: 0deg;
     syntax: '<angle>';
 }
+
+@theme {
+  --font-liberation: "Liberation Serif", serif;
+  --font-inter:"Inter",sans-serif;
+  --font-space:"space Grotesk",sans-serif;
+  --font-sora:"Sora",sans-serif;
+}
+
 
