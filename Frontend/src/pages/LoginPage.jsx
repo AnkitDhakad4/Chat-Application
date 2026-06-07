@@ -98,7 +98,7 @@ if(password.trim().length==0){
                 className="flex-1 bg-none rounded-xl px-1.5 w-7/10 h-8 border-[#E2E8F0] outline-none "
                 placeholder="Enter your email"
                 value={email}
-                onChange={(e)=>{setEmail(e.target.value)}}
+                onChange={(e)=>{setEmail(e.target.value.toLowerCase())}}
               />
             </div>
           </div>
@@ -109,7 +109,7 @@ if(password.trim().length==0){
               <div className="flex border-[#E2E8F0] border-2  rounded-xl items-center justify-between w-full h-11  gap-1 px-3 text-[#94A3B8] focus-within:border-[#FF2D78]">
               <LockKeyhole />
               <input
-              required:true
+              required
                 type={passwordVisible ? "text" :"password"}
                 className="flex-1 w-7/10 h-8 rounded-xl px-1.5 flex border-[#E2E8F0] outline-none "
                 value={password}

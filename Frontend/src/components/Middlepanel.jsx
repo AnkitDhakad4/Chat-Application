@@ -17,6 +17,7 @@ function Middlepanel() {
     getContacts,
     contacts,
     chatPartners,
+    getMessages,
     isUsersLoading,
   } = useChatStore();
 
@@ -38,10 +39,7 @@ function Middlepanel() {
     console.log("Now sound is ", isSoundOn);
   };
 
-  const selectUser = (id) => {
-    console.log("id in middle ", id);
-    setSelectedUser(id);
-  };
+  
 
   const [users, setUsers] = useState([]);
 
