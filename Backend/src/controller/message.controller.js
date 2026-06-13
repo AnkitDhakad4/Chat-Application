@@ -1,25 +1,187 @@
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
-
+import MessageRequest from '../models/messageRequest.model.js'
 import generateCloudinarySignature from "../Database/cloudinary.js";
-
-
 import { getReceiverId, io } from "../socket.js";
+import chatParteners from "../models/chatParteners.model.js";
+
+
+const requestToMessage=async function(req,res){
+  try {
+    
+    const {id:reciever}=req.params;
+    const user=req.user;
+
+    if(!reciever)
+    {
+      return res.status(400).json({message:"Receiver id is required to message"});
+    }
+
+    const request=await MessageRequest.create({
+      senderId:user._id,
+      receiverId:reciever,
+      status:'pending'
+    })
+
+    if(!request)
+    {
+      return res.status(503).json({message:"there is error while creating the request"})
+    }
+
+    return res.status(200).json({message:"Request is sended to user successfully",data:request})
+
+  } catch (error) {
+    return res.status(500).json({message:error.message})
+  }
+}
+
+const acceptMessageRequest=async function(req,res){
+  try {
+    const user=req.user;
+    const {requestId}=req.body;
+  
+    if(!requestId)
+    {
+      return res.status(400).json({message:"request id is required"});
+    }
+  
+    const acceptIt=await MessageRequest.findOneAndUpdate({_id:requestId},{status:'accepted'},{returnDocument:'after'})
+
+    
+      if(!acceptIt)
+      {
+        return res.status(503).json({message:"Error while accepting the request"});
+      }
+    const receiverId=acceptIt.receiverId;
+
+    const updateParteners=await chatParteners.findOneAndUpdate({userId:user._id},{$addToSet:{partners:receiverId}},{upsert:true,returnDocument:'after'})
+
+    if(!updateParteners)
+    {
+      return res.status(503).json({message:"Error while updating the chatParteners"});
+    }
+  
+    return res.status(200).json({message:"request is accepted",data:acceptIt});
+  } catch (error) {
+    return res.status(500).json({message:error.message});
+  }
+}
+
+
+
+const rejectMessageRequest=async function(req,res){
+  try {
+    const user=req.user;
+    const {requestId}=req.body;
+  
+    if(!requestId)
+    {
+      return res.status(400).json({message:"request id is required"});
+    }
+  
+    const rejectIt=await MessageRequest.findOneAndUpdate({_id:requestId},{status:'rejected'},{returnDocument:'after'})
+  
+    if(!rejectIt)
+    {
+      return res.status(503).json({message:"Error while rejecting the request"});
+    }
+  
+    return res.status(200).json({message:"request is rejected",data:rejectIt});
+  } catch (error) {
+    return res.status(500).json({message:error.message});
+  }
+}
+
+
+
+const getAllRequestForUser=async function(req,res){
+  try {
+    const user=req.user;
+    
+    const requests=await MessageRequest.find({receiverId:user._id,status:'pending'})
+  
+    if(!requests)
+    {
+      return res.status(503).json({message:"Error while fetching all pending requests"});
+    }
+  
+    return res.status(200).json({message:"requests are fetched successfully",data:requests});
+  } catch (error) {
+    return res.status(500).json({message:error.message});
+  }
+}
+
+
+const getAllRejectedRequests=async function(req,res){
+  try {
+    const user=req.user;
+    
+    const requests=await MessageRequest.find({receiverId:user._id,status:'rejected'})
+  
+    if(!requests)
+    {
+      return res.status(503).json({message:"Error while fetching all rejected requests"});
+    }
+  
+    return res.status(200).json({message:"rejected requests are fetched successfully",data:requests});
+  } catch (error) {
+    return res.status(500).json({message:error.message});
+  }
+}
+
+
+
+const acceptRejectedRequest=async function(req,res){
+  try {
+    const user=req.user;
+    const {requestId}=req.body
+    
+    const requestAccepted=await MessageRequest.findOneAndUpdate({_id:requestId},{status:'accepted'},{returnDocument:'after'})
+    
+    if(!requestAccepted)
+    {
+      return res.status(503).json({message:"Error while accepting request"});
+    }
+
+    const receiverId=requestAccepted.receiverId;
+    const updateParteners=await chatParteners.findOneAndUpdate({userId:user._id},{$addToSet:{partners:receiverId}},{upsert:true,returnDocument:'after'})
+
+    if(!updateParteners)
+    {
+      return res.status(503).json({message:"Error while updating the chatParteners"});
+    }
+  
+    return res.status(200).json({message:"Request is accepted successfully",data:requestAccepted});
+  } catch (error) {
+    return res.status(500).json({message:error.message});
+  }
+}
+
+
+
 
 const createMessage = async function (req, res) {
   try {
     const { image, text } = req.body;
 
     const sender = req.user.id;
-    const { id: reciever } = req.params;
+    const { id: receiver } = req.params;
     // let url = "";
     // if (image) {
     //   url = await uploadOnCloudinary(image, "Messages");
     // }
     // console.log("Message in create message ",text,image)
+
+    const isEligible=await MessageRequest.findOne({$or:[{senderId:sender,receiverId:receiver,status:'accepted'},{senderId:receiver,receiverId:sender,status:'accepted'}]})
+
+    if(!isEligible )
+    {
+      return res.status(401).json({message:"Acceptance required to message."})
+    }
+
     const message = await Message.create({
       senderId: sender,
-      recieverId: reciever,
+      receiverId: receiver,
       image: image,
       text: text,
     });
@@ -46,33 +208,20 @@ const getChatPartners = async function (req, res) {
   try {
     const userId = req.user.id;
 
-    const messages = await Message.find({
-      $or: [{ senderId: userId }, { recieverId: userId }],
-    });
+    
+  const parteners=await chatParteners.findOne({userId:userId}).populate('partners','email name profilePic about lastSeen')
+const data = parteners ? parteners.partners.filter((prtnr)=>prtnr._id!=userId) : [];
 
-    // messages;
-    const chatPartenersIds = [
-      ...new Set(
-        messages.map((message) =>
-          message.senderId?.toString() === userId?.toString()
-            ? message.recieverId?.toString()
-            : message.senderId?.toString(),
-        ),
-      ),
-    ].filter((id)=> id !==userId.toString());
-
-    const parteners = await User.find({
-      _id: { $in: chatPartenersIds },
-    }).select("-password -dob");
-
+// parteners.filter((prtnr)=>prtnr._id !=user._id)
     //console.log("Chat parteners are ", parteners);
+    console.log("chatPartners:- ",data)
     return res
       .status(200)
-      .json({ message: "Here is all the chat partners ", data: parteners });
+      .json({ message: "Here is all the chat partners ", data: data });
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error while fetching the chat partners", error });
+      .json({ message: "Error while fetching the chat partners", error:error.message });
   }
 };
 
@@ -102,8 +251,8 @@ const getMessageByUserId = async function (req, res) {
 
     const messages = await Message.find({
       $or: [
-        { senderId: senderId, recieverId: receiverId },
-        { senderId: receiverId, recieverId: senderId },
+        { senderId: senderId, receiverId: receiverId },
+        { senderId: receiverId, receiverId: senderId },
       ],
     });
 
@@ -137,4 +286,11 @@ export {
   getChatPartners,
   getMessageByUserId,
   generateUploadToken,
+
+  requestToMessage,
+  acceptMessageRequest,
+  rejectMessageRequest,
+  getAllRequestForUser,
+  getAllRejectedRequests,
+  acceptRejectedRequest
 };

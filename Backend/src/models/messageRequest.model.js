@@ -11,7 +11,7 @@ const messageRequestSchema=new mongoose.Schema({
     },
     status:{
         type:String,
-        value:['pending','accepted','rejected'],
+        enum:['pending','accepted','rejected'],
         default:'pending'
 
     }
@@ -19,3 +19,4 @@ const messageRequestSchema=new mongoose.Schema({
 
 messageRequestSchema.index({senderId:1,receiverId:1},{unique:true})
 const MessageRequest=mongoose.model('MessageRequest',messageRequestSchema)
+export default MessageRequest

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
 import {io} from "socket.io-client";
+import useChatStore from './useChatStore.js'
 
 const baseUrl = import.meta.env.VITE_SOCKET_URL;
 console.log(baseUrl)
@@ -10,7 +11,7 @@ console.log(baseUrl)
 const authStore = create((set, get) => ({
   authStatus: false,
   isCheckingAuth: false,
-  isLoading: false,
+  isLoading: false, 
   user: {},
   socket: null,
   onlineUsers: null,
@@ -63,6 +64,7 @@ const authStore = create((set, get) => ({
   logout: async () => {
     // console.log("In log out")
     try {
+      useChatStore.getState().setSelectedUser(null);
       await axiosInstance.post("/users/logout");
       get().disconnect();
       toast.success("I will wait for you! 🥺 👋👋", {

@@ -5,7 +5,7 @@ import authStore from "../store/userAuth.store.js";
 import { EllipsisVertical, LogOut } from "lucide-react";
 function Sidebar() {
   const { selectedTab, setSelectedTab, isUsersLoading } = usechatStore();
-  const { user,logout } = authStore();
+  const { user, logout } = authStore();
   const handleClick = (e) => {
     const tab = e.currentTarget.value;
     setSelectedTab(tab);
@@ -23,12 +23,12 @@ function Sidebar() {
       icon: "./icons/contact.png",
     },
     {
-      name: "Calls",
-      icon: "./icons/telephone.png",
-    },
-    {
       name: "Groups",
       icon: "./icons/discussion.png",
+    },
+    {
+      name: "Activity",
+      icon: "./icons/bell.png",
     },
     // ,
     // {

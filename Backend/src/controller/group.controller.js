@@ -100,6 +100,7 @@ const addMembers = async function (req, res) {
 
 const groupInvitationsToUser = async function (req, res) {
   try {
+    console.log("frontend is hitting")
     const user = req.user;
     const invitations = await groupRequest
       .find({ invitedUserId: user._id, status: "pending" })

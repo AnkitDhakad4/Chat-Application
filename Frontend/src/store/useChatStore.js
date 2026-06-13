@@ -2,11 +2,13 @@ import { create } from "zustand";
 import axiosInstance from "../lib/axios.js";
 import toast from "react-hot-toast";
 import authStore from "./userAuth.store.js";
+import { devtools } from "zustand/middleware";
 const useChatStore = create((set, get) => ({
   chatPartners: [],
   tempMsgStore: [],
   contacts: [],
-  selectedTab: localStorage.getItem("selectedTab") || "Chats",
+  selectedTab:"", 
+  // localStorage.getItem("selectedTab") || "Chats",
   selectedUser: null,
   messages: [],
   isUsersLoading: false,
@@ -33,7 +35,7 @@ const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const resp = await axiosInstance.get("/message/chats");
-            // console.log("data in getchatPartners is ", resp.data.data);
+            console.log("data in getchatPartners is ", resp.data);
       set({ chatPartners: resp.data.data });
       return resp.data.data
     } catch (error) {

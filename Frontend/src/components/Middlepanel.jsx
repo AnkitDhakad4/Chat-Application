@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import useChatStore from "../store/useChatStore.js";
 import authStore from "../store/userAuth.store.js";
-import { Search, Bell, BellOff, LoaderCircle } from "lucide-react";
+import { Search, Bell, BellOff, LoaderCircle,VolumeOff,Volume2, VolumeX } from "lucide-react";
 import ProfileHeader from "./profileHeader.jsx";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
+import requestStore from "../store/requests.store.js";
 
 function Middlepanel() {
   const {
@@ -50,6 +51,7 @@ function Middlepanel() {
         if (selectedTab === "Chats") {
           let res = await getchatPartners();
           setUsers(res);
+          console.log("chatParteners are: ",res)
           
         } else if (selectedTab === "Contacts") {
           let res = await getContacts();
@@ -66,10 +68,26 @@ function Middlepanel() {
     return () => {};
   }, [selectedTab]);
 
+
+  const {selectedNoticeTab,setSelectedNoticeTab,getMessageRequests,getGroupRequests}=requestStore();
+
+  const tempRequests= [
+        {
+            "_id": "6a2d18e17b0c6142f49ed4cb",
+            "senderId": "69d8177a438b5137a1682528",
+            "receiverId": "69d2a516baf6989be3e137af",
+            "status": "accepted",
+            "createdAt": "2026-06-13T08:46:25.178Z",
+            "updatedAt": "2026-06-13T08:51:19.214Z",
+            "__v": 0
+        }
+    ]
+
+
   return (
     <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
       <div className=" border-b border-[#E2E8F0] h-1/10 flex">
-        <div className="flex justify-center w-27/100  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
+        <div className="flex justify-center w-27/100 truncate  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
           <p>{selectedTab}</p>
         </div>
         <div className=" flex items-center justify-evenly grow ">
@@ -85,19 +103,41 @@ function Middlepanel() {
           </button>
           {isSoundOn ? (
             <button onClick={handleBell}>
-              <Bell className="size-5  text-[#64748B] cursor-pointer" />
+              <Volume2 className="size-5  text-[#64748B] cursor-pointer" />
             </button>
           ) : (
             <button onClick={handleBell}>
-              <BellOff className="size-5  text-[#64748B] cursor-pointer" />
+              <VolumeX className="size-5  text-[#64748B] cursor-pointer" />
             </button>
           )}
         </div>
       </div>
 
       {/* chat appears here */}
-      <div className="h-9/10 flex flex-col gap-1  p-2 w-full overflow-auto scrollbar ">
+      {selectedTab==='Activity' && 
+      
+      <div className=" h-1/20 flex justify-evenly items-center  border-[#E2E8F0] border-b ">
+        <p 
+        // onClick={()=>{setSelectedNoticeTab('Messages')}}
+        onClick={()=>{getMessageRequests()}}
+        className=" bg-[#F3F4F6] duration-500 cursor-pointer hover:bg-[#FF2D78] hover:text-[#ffffff]  font-liberation font-bold text-[#475569] px-1.5 rounded-2xl">Message Requests</p>
+        <p 
+        // onClick={()=>{setSelectedNoticeTab('Groups')}}
+        onClick={()=>{getGroupRequests()}}
+        className=" bg-[#F3F4F6] duration-500  cursor-pointer hover:bg-[#FF2D78] hover:text-[#ffffff]  font-liberation font-bold text-[#475569] px-1.5 rounded-2xl">Group Invitations</p>
+      </div>}
+      <div className="flex-1 flex flex-col gap-1  p-2 w-full overflow-auto scrollbar ">
         {/* chat component */}
+
+        {selectedTab==='Activity' ? 
+        
+        <div>
+
+
+        </div> : 
+        
+        
+        <>
         {isUsersLoading ? (
           <div className="flex items-center justify-center gap-3">
             {" "}
@@ -114,7 +154,11 @@ function Middlepanel() {
               outsideClass="hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full"
             />
           ))
-        )}
+        )}</>  
+        
+        }
+
+       
       </div>
     </div>
   );
