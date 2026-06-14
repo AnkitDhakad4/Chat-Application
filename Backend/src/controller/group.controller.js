@@ -1,6 +1,85 @@
 import mongoose from "mongoose";
 import Group from "../models/group.model.js";
 import groupRequest from "../models/groupRequest.model.js";
+import Message from '../models/message.model.js'
+
+
+const getGroupMessages=async function(req,res){
+  try {
+    const user=req.user
+    const {groupId}=req.body
+
+    const data = await Group.findOne({ _id: groupId, members: user._id });
+
+    if (!data) {
+      return res
+        .status(403)
+        .json({ message: "You are not the member of this group" });
+    }
+
+    const messages=await Message.find({groupId:data._id}).populate('senderId','name profilePic');
+
+    
+
+      return res
+        .status(201)
+        .json({ message: "messages are fetched successfully",data:messages });
+
+
+  } catch (error) {
+    return res.status(500).json({message:error.message})
+  }
+}
+
+const createGroupMessages=async function(req,res){
+  try {
+    const user=req.user
+    const {groupId,text,image}=req.body
+
+    if(!groupId)
+    {
+      return res
+        .status(400)
+        .json({ message: "group id is required" });
+    }
+
+    if(!text && !image)
+    {
+       return res
+        .status(400)
+        .json({ message: "Can not send an empty message" });
+
+    }
+    const data = await Group.findOne({ _id: groupId, members: user._id });
+
+    if (!data) {
+      return res
+        .status(403)
+        .json({ message: "You are not the member of this group" });
+    }
+
+    const message=await Message.create({groupId:data._id,text:text,image:image,senderId:user._id})
+
+    if(!message)
+    {
+      return res
+        .status(404)
+        .json({ message: "Can not get the messages of the group" });
+    }
+
+      return res
+        .status(201)
+        .json({ message: "Message sent successfully",data:message });
+
+
+  } catch (error) {
+    return res.status(500).json({message:error.message})
+  }
+}
+
+
+
+
 
 const createGroup = async (req, res) => {
   try {
@@ -97,6 +176,24 @@ const addMembers = async function (req, res) {
     return res.status(500).json({ message: error.message });
   }
 };
+
+const allGroups=async function(req,res){
+  try {
+    const user=req.user;
+
+    const groups=await Group.find({members:user._id}).populate('members','name email about profilePic lastSeen');
+    if(!groups)
+    {
+      return res.status(400).json({message:"Error while fetching the groups"})
+
+    }
+
+      return res.status(200).json({message:"Groups are fetched successfully",data:groups})
+
+  } catch (error) {
+    return res.status(500).json({message:error.message})
+  }
+}
 
 const groupInvitationsToUser = async function (req, res) {
   try {
@@ -326,7 +423,7 @@ const getGroupInfo = async function (req, res) {
     //   },
     // ]);
 
-    const info = await Group.findOne({ _id: groupId, members: user._id });
+    const info = await Group.findOne({ _id: groupId, members: user._id }).populate('members','name email about profilePic lastSeen');
 
     if (!info) {
       return res
@@ -485,4 +582,7 @@ export {
   groupInvitationRejection,
   rejectedInvitations,
   acceptRejectedInvitation,
+  allGroups,
+  getGroupMessages,
+  createGroupMessages
 };

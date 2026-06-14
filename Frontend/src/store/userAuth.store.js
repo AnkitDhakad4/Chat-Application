@@ -14,7 +14,8 @@ const authStore = create((set, get) => ({
   isLoading: false, 
   user: {},
   socket: null,
-  onlineUsers: null,
+  onlineUsers: new Set(),
+
 
   signup: async (data) => {
     set({ isLoading: true });
@@ -124,6 +125,8 @@ const authStore = create((set, get) => ({
 
     set({ socket: null, onlineUsers: [] });
   },
+
+  
 }));
 
 export default authStore;

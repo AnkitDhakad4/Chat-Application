@@ -5,7 +5,7 @@ function ProfileHeader(props) {
 
     const {onlineUsers,user,outsideClass}=props
     
-    const onLineUsers=new Set(onlineUsers);
+    const onLineUsers=onlineUsers;
 
     const {selectedUser,setSelectedUser,getMessages } = useChatStore()
 
@@ -33,7 +33,7 @@ function ProfileHeader(props) {
   return (
     <div
           className={outsideClass}
-          onClick={()=>selectUser(props.user)}
+          onClick={()=>{if(!props.upper)selectUser(props.user)}}
           key={user._id} 
            >
           <div className="relative h-full ">

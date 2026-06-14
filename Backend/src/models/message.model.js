@@ -26,7 +26,7 @@ const messageSchema=new mongoose.Schema(
     }
 )
 
-
+messageSchema.index({groupId:1,senderId:1})
 const Message=mongoose.model('Message',messageSchema)
 
 export default Message

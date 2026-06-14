@@ -9,8 +9,13 @@ const requestStore =create((set,get)=>({
     groupInvitations:[],
     rejectedMessageRequests:[],
     rejectedGroupInvitations:[],
+    infoAbout:null,
 
+    setInfoAbout:(usrOrGrp)=>{
+        set({infoAbout:usrOrGrp})
+        console.log(usrOrGrp)
 
+    },
     setSelectedNoticeTab:(noticeTab)=>{
         set({selectedNoticeTab:noticeTab})
     },
@@ -29,11 +34,48 @@ const requestStore =create((set,get)=>({
     getGroupRequests:async ()=>{
         try {
             const resp=await axiosInstance.get('/users/groupInvitations')
-            console.log(resp.data)
+           
             set({groupInvitations:resp.data.data})
+           
         } catch (error) {
             console.log(error)
         }
+
+    },
+    rejectedMessageRequest:async ()=>{
+        try {
+            const resp=await axiosInstance.post('/message/rejectMessageRequest')
+            console.log(resp.data.data)
+            set({rejectedMessageRequests:resp.data.data})
+        } catch (error) {
+            console.error(error)
+        }
+    },
+    rejectedInvitations:async ()=>{
+        try {
+            const resp=await axiosInstance.post('/users/rejectedInvitations')
+            console.log(resp.data.data)
+            set({rejectedGroupInvitations:resp.data.data})
+        } catch (error) {
+            console.error(error)
+        }
+    },
+
+    acceptInvitation:async ()=>{
+
+    },
+
+    rejectInvitation:async()=>{
+
+    },
+
+    acceptMessageReqeust:async(req)=>{
+        console.log("In acceptMessageReqeust")
+    },
+
+    rejectMessageReqeust:async(req)=>{
+        console.log("In rejectMessageReqeust")
+
 
     }
 }))

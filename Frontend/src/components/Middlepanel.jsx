@@ -6,7 +6,8 @@ import ProfileHeader from "./profileHeader.jsx";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 import requestStore from "../store/requests.store.js";
-
+import groupStore from "../store/group.store.js";
+import GroupProfileView from './GroupProfileView.jsx'
 function Middlepanel() {
   const {
     selectedTab,
@@ -83,8 +84,11 @@ function Middlepanel() {
         }
     ]
 
+    const {selectedGroup,allGroups,isGroupsLoading}=groupStore();
+    console.log(allGroups)
 
-  return (
+    if(selectedTab==='Chats' || selectedTab==='Contacts')
+  {return (
     <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
       <div className=" border-b border-[#E2E8F0] h-1/10 flex">
         <div className="flex justify-center w-27/100 truncate  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
@@ -114,30 +118,10 @@ function Middlepanel() {
       </div>
 
       {/* chat appears here */}
-      {selectedTab==='Activity' && 
-      
-      <div className=" h-1/20 flex justify-evenly items-center  border-[#E2E8F0] border-b ">
-        <p 
-        // onClick={()=>{setSelectedNoticeTab('Messages')}}
-        onClick={()=>{getMessageRequests()}}
-        className=" bg-[#F3F4F6] duration-500 cursor-pointer hover:bg-[#FF2D78] hover:text-[#ffffff]  font-liberation font-bold text-[#475569] px-1.5 rounded-2xl">Message Requests</p>
-        <p 
-        // onClick={()=>{setSelectedNoticeTab('Groups')}}
-        onClick={()=>{getGroupRequests()}}
-        className=" bg-[#F3F4F6] duration-500  cursor-pointer hover:bg-[#FF2D78] hover:text-[#ffffff]  font-liberation font-bold text-[#475569] px-1.5 rounded-2xl">Group Invitations</p>
-      </div>}
+     
       <div className="flex-1 flex flex-col gap-1  p-2 w-full overflow-auto scrollbar ">
         {/* chat component */}
 
-        {selectedTab==='Activity' ? 
-        
-        <div>
-
-
-        </div> : 
-        
-        
-        <>
         {isUsersLoading ? (
           <div className="flex items-center justify-center gap-3">
             {" "}
@@ -154,7 +138,61 @@ function Middlepanel() {
               outsideClass="hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full"
             />
           ))
-        )}</>  
+        )}
+       
+      </div>
+    </div>
+  );}
+  else  {
+    return (
+    <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
+      <div className=" border-b border-[#E2E8F0] h-1/10 flex">
+        <div className="flex justify-center w-27/100 truncate  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
+          <p>{selectedTab}</p>
+        </div>
+        <div className=" flex items-center justify-evenly grow ">
+          <input
+            type="text"
+            className="border-slate-200 focus:ring-blue-500 text-gray-900 bg-gray-100 p-2 rounded-2xl h-1/2"
+            placeholder="search here..."
+            onChange={handleChange}
+            value={searchVal}
+          />
+          <button onClick={handleSearch}>
+            <Search className="size-5 text-[#64748B] cursor-pointer" />
+          </button>
+          {isSoundOn ? (
+            <button onClick={handleBell}>
+              <Volume2 className="size-5  text-[#64748B] cursor-pointer" />
+            </button>
+          ) : (
+            <button onClick={handleBell}>
+              <VolumeX className="size-5  text-[#64748B] cursor-pointer" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* chat appears here */}
+      
+      <div className="flex-1 flex flex-col gap-1  p-2 w-full overflow-auto scrollbar ">
+      
+        {!isGroupsLoading ? (
+          <div className="flex items-center justify-center gap-3">
+            {" "}
+            <p className="font-inter ">Loading...</p>{" "}
+            <LoaderCircle className="animate-spin size-4" />{" "}
+          </div>
+        ) : (
+          allGroups.map((group) => (
+            // hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full
+            <GroupProfileView
+              group={group}
+              outsideClass="hover:cursor-pointer  h-12/100  p-1 flex items-center gap-1 w-full"
+            />
+            
+          ))
+        )
         
         }
 
@@ -162,6 +200,7 @@ function Middlepanel() {
       </div>
     </div>
   );
+  }
 }
 
 export default Middlepanel;

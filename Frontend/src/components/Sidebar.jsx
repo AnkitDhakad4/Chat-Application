@@ -3,11 +3,21 @@ import { Link, Route } from "react-router-dom";
 import usechatStore from "../store/useChatStore.js";
 import authStore from "../store/userAuth.store.js";
 import { EllipsisVertical, LogOut } from "lucide-react";
+import groupStore from "../store/group.store.js";
 function Sidebar() {
   const { selectedTab, setSelectedTab, isUsersLoading } = usechatStore();
+  
   const { user, logout } = authStore();
+  const {setSelectedUser}=usechatStore();
+  const {setSelectedGroup}=groupStore();
   const handleClick = (e) => {
     const tab = e.currentTarget.value;
+
+    if(tab==='Activity')
+    {
+      setSelectedUser(null)
+      setSelectedGroup(null);
+    }
     setSelectedTab(tab);
   };
 
