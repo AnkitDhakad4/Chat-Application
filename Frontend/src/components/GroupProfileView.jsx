@@ -4,10 +4,12 @@ import groupStore from '../store/group.store.js'
 
 function GroupProfileView(props) {
 
-    const {group,outsideClass}=props
+
+  const {group,outsideClass,upper}=props
+  console.log("Props are",group)
     
-    console.log("hiii")
-    console.log(group)
+    
+    // console.log(group)
     
     const {setSelectedGroup}=groupStore()
 
@@ -20,25 +22,25 @@ function GroupProfileView(props) {
        
     //   };
 
-    const selectGroup=(user)=>{
+    const selectGroup=(group)=>{
     setSelectedGroup(group)
-     async function getMsg(){
-          try {
-            console.log("getting the msg")
-            await getMessages(user._id)
-          } catch (error) {
-            console.log(error)
-          }
-        }
+    //  async function getMsg(){
+    //       try {
+    //         console.log("getting the msg")
+    //         await getMessages(user._id)
+    //       } catch (error) {
+    //         console.log(error)
+    //       }
+    //     }
     
-        getMsg();
-  }
+    //     getMsg();
+    }
 
   return (
     <div
           className={outsideClass}
           onClick={()=>{selectGroup(group)}}
-          key={group._id} 
+          // key={group._id} 
            >
           <div className="relative h-full ">
             <img
@@ -51,7 +53,8 @@ function GroupProfileView(props) {
               <p className="font-liberation text-[#0F172A] text-lg font-bold"> {group.groupName}</p>
               {/* <p className="text-xs font-mono">{user.lastSeen}</p> */}
             </div>
-            <p className="font-liberation truncate max-w-full text-xs text-gray-500 ">{group.groupDescription}</p>
+           {upper ? <p className="font-liberation truncate max-w-full text-xs text-gray-500 ">{group.groupDescription}</p>:
+           <p className="font-liberation text-xs text-gray-500 ">{group.members.length} Members</p>}
           </div>
           
         </div>

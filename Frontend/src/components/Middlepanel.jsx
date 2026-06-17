@@ -85,9 +85,9 @@ function Middlepanel() {
     ]
 
     const {selectedGroup,allGroups,isGroupsLoading}=groupStore();
-    console.log(allGroups)
+    
 
-    if(selectedTab==='Chats' || selectedTab==='Contacts')
+    if(selectedTab==='Chats' )
   {return (
     <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
       <div className=" border-b border-[#E2E8F0] h-1/10 flex">
@@ -143,6 +143,64 @@ function Middlepanel() {
       </div>
     </div>
   );}
+
+  if(selectedTab==='Contacts')
+  {return (
+    <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
+      <div className=" border-b border-[#E2E8F0] h-1/10 flex">
+        <div className="flex justify-center w-27/100 truncate  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
+          <p>{selectedTab}</p>
+        </div>
+        <div className=" flex items-center justify-evenly grow ">
+          <input
+            type="text"
+            className="border-slate-200 focus:ring-blue-500 text-gray-900 bg-gray-100 p-2 rounded-2xl h-1/2"
+            placeholder="search here..."
+            onChange={handleChange}
+            value={searchVal}
+          />
+          <button onClick={handleSearch}>
+            <Search className="size-5 text-[#64748B] cursor-pointer" />
+          </button>
+          {isSoundOn ? (
+            <button onClick={handleBell}>
+              <Volume2 className="size-5  text-[#64748B] cursor-pointer" />
+            </button>
+          ) : (
+            <button onClick={handleBell}>
+              <VolumeX className="size-5  text-[#64748B] cursor-pointer" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* chat appears here */}
+     
+      <div className="flex-1 flex flex-col gap-1  p-2 w-full overflow-auto scrollbar ">
+        {/* chat component */}
+
+        {isUsersLoading ? (
+          <div className="flex items-center justify-center gap-3">
+            {" "}
+            <p className="font-inter ">Loading...</p>{" "}
+            <LoaderCircle className="animate-spin size-4" />{" "}
+          </div>
+        ) : (
+          users.map((user) => (
+            // hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full
+            <ProfileHeader
+              key={user._id}
+              onlineUsers={onlineUsers}
+              user={user}
+              fromContactPage={true}
+              outsideClass="hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full"
+            />
+          ))
+        )}
+       
+      </div>
+    </div>
+  );}
   else  {
     return (
     <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
@@ -187,6 +245,8 @@ function Middlepanel() {
           allGroups.map((group) => (
             // hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full
             <GroupProfileView
+            upper={true}
+            key={group._id}
               group={group}
               outsideClass="hover:cursor-pointer  h-12/100  p-1 flex items-center gap-1 w-full"
             />

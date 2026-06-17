@@ -9,6 +9,7 @@ const PORT=process.env.PORT || 5000
 connection()
 .then((res)=>{
     server.listen(PORT,()=>{
+        
         console.log("mongoDB is connected successfully",res.connection.host)
         console.log(`app is working on port https://localhost:${PORT}`)
     })

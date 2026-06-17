@@ -19,6 +19,10 @@ import SendMessage from "./SendMessage";
 import DayShow from "./DayShow";
 import toast from "react-hot-toast";
 import requestStore from "../store/requests.store.js";
+import GroupProfileView from "./GroupProfileView.jsx";
+import groupStore from "../store/group.store.js";
+import NoChatPage from "./NoChatPage.jsx";
+import ContactsPage from "./ContactPage.jsx";
 
 
 function MessagePage() {
@@ -240,6 +244,7 @@ function MessagePage() {
         ) {
           elements.push(showMessage(messages[i]));
         } else {
+          i--;
           break;
         }
       }
@@ -314,55 +319,56 @@ function MessagePage() {
   }, [messages]);
 
   const {infoAbout,setInfoAbout}=requestStore()
+  const {selectedGroup,setSelectedGroup}=groupStore()
   
-  if(selectedTab==='Groups')
-  {
+  console.log("selected tab in messagepage is ",selectedTab)
+  console.log("selected group is ",selectedGroup)
+
+  
+  if (selectedTab === 'Groups') {
+    if (!selectedGroup) {
+      return <NoChatPage />;
+    }
+
     return (
-      <></>
-    )
-  }
-  else 
-  {
-    return (
-      <div className=" flex flex-col h-full flex-1 border-y border-r border-[#E2E8F0]   ">
+      <div className="flex flex-col h-full flex-1 border-y border-r border-[#E2E8F0]">
         {/* upper section */}
-        <div className="flex  h-1/10  border-b border-[#E2E8F0]   ">
-        <ChevronLeft 
-        onClick={()=>{setSelectedUser(null)}}
-        className="self-center size-9 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer  "/>
-          <ProfileHeader
-           
-            upper={true}
-            onlineUsers={onlineUsers}
-            user={selectedUser}
-            outsideClass="hover:cursor-pointer  w-1/2 pl-2   p-1   flex items-center gap-1 "
+        <div className="flex h-1/10 border-b border-[#E2E8F0]">
+          <ChevronLeft 
+            onClick={() => { setSelectedGroup(null) }}
+            className="self-center size-9 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer"
           />
-  
-          <div className=" flex-1 flex justify-end items-center gap-5">
+          <GroupProfileView
+            group={selectedGroup}
+            outsideClass="hover:cursor-pointer w-1/2 pl-2 p-1 flex items-center gap-1"
+          />
+          <div className="flex-1 flex justify-end items-center gap-5">
             <Info 
-             onClick={()=>{setInfoAbout(selectedUser)}}
-            className="size-7 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer" />
-            {/* <Phone className="size-6 text-[#6B7280]" /> */}
-            <EllipsisVertical className="mx-2 size-6 text-[#6B7280]  hover:text-[#FF2D78] hover:cursor-pointer" />
+              onClick={() => { setInfoAbout('Group') }}
+              className="size-7 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer" 
+            />
+            <EllipsisVertical className="mx-2 size-6 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer" />
           </div>
         </div>
-  
-        {/* main message section here we can see the chats */}
-        {/* bg-[url('/ChatBG.jpg')]    */}
-        <div className="h-80/100 w-full ">
-          <div className="h-full w-full overflow-y-scroll scrollbar rung flex gap-2 flex-col  p-4  ">
-            {isMessageLoading?<div className='flex items-center justify-center  p-2 gap-2'><Loader2Icon className="size-4.5 animate-spin "/> <p className="font-inter ">Loading...</p></div>:handleMessageRenderingAccordingToTime(messages)}
+
+        {/* main message section */}
+        <div className="h-80/100 w-full">
+          <div className="h-full w-full overflow-y-scroll scrollbar rung flex gap-2 flex-col p-4">
+            {isMessageLoading ? (
+              <div className='flex items-center justify-center p-2 gap-2'>
+                <Loader2Icon className="size-4.5 animate-spin" /> 
+                <p className="font-inter">Loading...</p>
+              </div>
+            ) : (
+              handleMessageRenderingAccordingToTime(messages)
+            )}
             <div className="w-0 h-0" ref={scrollViewRef}></div>
           </div>
         </div>
-  
+
         {/* message input */}
-        <div className="px-8 rung h-10/100 flex-1  flex items-center justify-evenly ">
-          <form
-            action="submit"
-            onSubmit={handleSubmit}
-            className="w-full flex justify-evenly items-center"
-          >
+        <div className="px-8 rung h-10/100 flex-1 flex items-center justify-evenly">
+          <form onSubmit={handleSubmit} className="w-full flex justify-evenly items-center">
             <input
               type="text"
               className="border-[#E5E7EB] border-2 bg-[#F9FAFB] p-2 w-4/5 rounded-2xl"
@@ -370,7 +376,6 @@ function MessagePage() {
               onChange={handleChange}
               value={messageText}
             />
-  
             <button type="button" onClick={() => inputFileRef.current.click()}>
               <Image className="size-9 hover:cursor-pointer" />
               <input
@@ -388,8 +393,84 @@ function MessagePage() {
         </div>
       </div>
     );
-
   }
+
+  // 2. Handle Individual User Views (Chats, Contacts, Activity)
+  
+  // if(selectedTab==='Contacts')
+  //   {
+  //     return <ContactsPage />
+  //   }
+    
+    if (!selectedUser) {
+      return <NoChatPage />;
+    }
+
+  return (
+    <div className="flex flex-col h-full flex-1 border-y border-r border-[#E2E8F0]">
+      {/* upper section */}
+      <div className="flex h-1/10 border-b border-[#E2E8F0]">
+        <ChevronLeft 
+          onClick={() => { setSelectedUser(null) }}
+          className="self-center size-9 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer"
+        />
+        <ProfileHeader
+          upper={true}
+          onlineUsers={onlineUsers}
+          user={selectedUser}
+          outsideClass="hover:cursor-pointer w-1/2 pl-2 p-1 flex items-center gap-1"
+        />
+        <div className="flex-1 flex justify-end items-center gap-5">
+          <Info 
+            onClick={() => { setInfoAbout('User') }}
+            className="size-7 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer" 
+          />
+          <EllipsisVertical className="mx-2 size-6 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer" />
+        </div>
+      </div>
+
+      {/* main message section */}
+      <div className="h-80/100 w-full">
+        <div className="h-full w-full overflow-y-scroll scrollbar rung flex gap-2 flex-col p-4">
+          {isMessageLoading ? (
+            <div className='flex items-center justify-center p-2 gap-2'>
+              <Loader2Icon className="size-4.5 animate-spin" /> 
+              <p className="font-inter">Loading...</p>
+            </div>
+          ) : (
+            handleMessageRenderingAccordingToTime(messages)
+          )}
+          <div className="w-0 h-0" ref={scrollViewRef}></div>
+        </div>
+      </div>
+
+      {/* message input */}
+      <div className="px-8 rung h-10/100 flex-1 flex items-center justify-evenly">
+        <form onSubmit={handleSubmit} className="w-full flex justify-evenly items-center">
+          <input
+            type="text"
+            className="border-[#E5E7EB] border-2 bg-[#F9FAFB] p-2 w-4/5 rounded-2xl"
+            placeholder="send message"
+            onChange={handleChange}
+            value={messageText}
+          />
+          <button type="button" onClick={() => inputFileRef.current.click()}>
+            <Image className="size-9 hover:cursor-pointer" />
+            <input
+              className="hidden"
+              type="file"
+              accept="image/*"
+              ref={inputFileRef}
+              onChange={handleFileChange}
+            />
+          </button>
+          <button type="submit" className="hover:cursor-pointer">
+            <SendHorizontal className="size-9 p-0.5 flex justify-center items-center rung rounded-lg bg-[#FF2D78] text-[#FFFFFF]" />
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 }
 
 export default MessagePage;

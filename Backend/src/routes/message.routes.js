@@ -12,6 +12,7 @@ import {
   getAllRequestForUser,
   getAllRejectedRequests,
   acceptRejectedRequest,
+  getAllSendedRequest,
 } from "../controller/message.controller.js";
 import authentication from "../middleware/authMiddleWare.js";
 
@@ -28,6 +29,7 @@ messageRouter.route('/rejectMessageRequest').post(authentication,rejectMessageRe
 messageRouter.route('/getAllRequests').post(authentication,getAllRequestForUser)
 messageRouter.route('/getRejectedRequests').post(authentication,getAllRejectedRequests)
 messageRouter.route('/acceptRejectedRequest').post(authentication,acceptRejectedRequest)
+messageRouter.route('/getSentRequests').get(authentication,getAllSendedRequest) 
 messageRouter.route("/:id").get(authentication, getMessageByUserId);
 
 export default messageRouter;

@@ -3,18 +3,30 @@ import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
 import {io} from "socket.io-client";
 import useChatStore from './useChatStore.js'
+import groupStore from "./group.store.js";
+import requestStore from "./requests.store.js";
 
 const baseUrl = import.meta.env.VITE_SOCKET_URL;
 console.log(baseUrl)
 
-
-const authStore = create((set, get) => ({
+const initialState={
   authStatus: false,
   isCheckingAuth: false,
   isLoading: false, 
   user: {},
   socket: null,
-  onlineUsers: new Set(),
+  onlineUsers: new Set()
+}
+
+
+const authStore = create((set, get) => ({
+  // authStatus: false,
+  // isCheckingAuth: false,
+  // isLoading: false, 
+  // user: {},
+  // socket: null,
+  // onlineUsers: new Set(),
+  ...initialState,
 
 
   signup: async (data) => {
@@ -68,12 +80,18 @@ const authStore = create((set, get) => ({
       useChatStore.getState().setSelectedUser(null);
       await axiosInstance.post("/users/logout");
       get().disconnect();
-      toast.success("I will wait for you! 🥺 👋👋", {
+  
+
+      // set({ authStatus: false });
+      console.log("Reseting another stores")
+      useChatStore.getState().reset();
+      groupStore.getState().reset();
+      requestStore.getState().reset();
+      set({...initialState});
+          toast.success("I will wait for you! 🥺 👋👋", {
         autoClose: 3000,
         pauseOnHover: true,
       });
-
-      set({ authStatus: false });
     } catch (error) {
       toast.error(error.response?.data?.message);
     }
@@ -125,7 +143,9 @@ const authStore = create((set, get) => ({
 
     set({ socket: null, onlineUsers: [] });
   },
-
+   reset:()=>{
+    set({...initialState})
+  }
   
 }));
 

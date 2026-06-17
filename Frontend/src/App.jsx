@@ -10,7 +10,7 @@ function App() {
   // if(true) return (<Loading/>)
 
   return (
-    <>
+    <> 
    
       <Routes>
         <Route path="/" element={authStatus ? <ChatPage/> : <Navigate to={'/login'} />} />

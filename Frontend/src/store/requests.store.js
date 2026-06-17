@@ -1,16 +1,35 @@
 import { create } from "zustand";
 import  axiosInstance from "../lib/axios.js";
 
-
-// it return all these states(variables) and actions(methods)
-const requestStore =create((set,get)=>({
-    selectedNoticeTab:"Group",
+const initialState={
+    selectedNoticeTab:"",
     messageRequests:[],
     groupInvitations:[],
     rejectedMessageRequests:[],
     rejectedGroupInvitations:[],
-    infoAbout:null,
+    sentRequests:[],
+    infoAbout:null
+}
+// it return all these states(variables) and actions(methods)
+const requestStore =create((set,get)=>({
+    // selectedNoticeTab:"",
+    // messageRequests:[],
+    // groupInvitations:[],
+    // rejectedMessageRequests:[],
+    // rejectedGroupInvitations:[],
+    // infoAbout:null,
+    ...initialState,
 
+
+    sentMessageRequest:async(userId)=>{
+        try {
+            console.log(userId)
+            const request=await axiosInstance.get(`/message/messageRequest/${userId}`)
+            console.log(request.data)
+        } catch (error) {
+            console.log(error)
+        }
+    },
     setInfoAbout:(usrOrGrp)=>{
         set({infoAbout:usrOrGrp})
         console.log(usrOrGrp)
@@ -61,6 +80,18 @@ const requestStore =create((set,get)=>({
         }
     },
 
+
+    getSentRequests:async()=>{
+        try{
+            const reqs=await axiosInstance.get('/message/getSentRequests')
+            console.log("sented requests are ",reqs.data.data)
+            set({sentRequests:reqs.data.data})
+        }catch(error)
+        {
+            console.log(error)
+        }
+    },
+
     acceptInvitation:async ()=>{
 
     },
@@ -77,7 +108,11 @@ const requestStore =create((set,get)=>({
         console.log("In rejectMessageReqeust")
 
 
-    }
+    },
+     reset:()=>{
+        // console.log("Reseting the requestStore")
+    set({...initialState})
+  }
 }))
 
 export default requestStore;

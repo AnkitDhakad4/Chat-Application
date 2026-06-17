@@ -3,9 +3,9 @@ import useChatStore from '../store/useChatStore'
 
 function ProfileHeader(props) {
 
-    const {onlineUsers,user,outsideClass}=props
+    const {onlineUsers,user,outsideClass,fromContactPage}=props
     
-    const onLineUsers=onlineUsers;
+    // const onLineUsers=onlineUsers;
 
     const {selectedUser,setSelectedUser,getMessages } = useChatStore()
 
@@ -17,17 +17,20 @@ function ProfileHeader(props) {
     //   };
 
     const selectUser=(user)=>{
-    setSelectedUser(user)
-     async function getMsg(){
-          try {
-            console.log("getting the msg")
-            await getMessages(user._id)
-          } catch (error) {
-            console.log(error)
-          }
-        }
     
-        getMsg();
+    if(!fromContactPage)
+      {setSelectedUser(user)
+        //  async function getMsg(){
+        //       try {
+        //         console.log("getting the msg")
+        //         await getMessages(user._id)
+        //       } catch (error) {
+        //         console.log(error)
+        //       }
+        //     }
+        
+        //     getMsg();
+      }
   }
 
   return (
@@ -37,7 +40,7 @@ function ProfileHeader(props) {
           key={user._id} 
            >
           <div className="relative h-full ">
-            <div className={`${onLineUsers.has(user._id)&& !props.upper ? 'online':'' } absolute size-3 shrink-0 `}></div>
+            <div className={`${onlineUsers.has(user._id)&& !props.upper ? 'online':'' } absolute size-3 shrink-0 `}></div>
             <img
               src={user.profilePic || './avatar.png'}
               className="h-full p-1 object-cover rounded-full "
@@ -48,7 +51,7 @@ function ProfileHeader(props) {
               <p className="font-liberation text-[#0F172A] text-lg font-bold"> {user.name}</p>
               {/* <p className="text-xs font-mono">{user.lastSeen}</p> */}
             </div>
-            {props.upper ? onLineUsers.has(user._id) ? <p className='text-green-500 pl-0.5 text-xs'>Online...</p> : <p className='text-gray-600 text-xs pl-0.5'>Offline...</p> : <p className="font-liberation truncate max-w-full text-xs text-gray-500 ">{user.about}</p>}
+            {props.upper ? onlineUsers.has(user._id) ? <p className='text-green-500 pl-0.5 text-xs'>Online...</p> : <p className='text-gray-600 text-xs pl-0.5'>Offline...</p> : <p className="font-liberation truncate max-w-full text-xs text-gray-500 ">{user.about}</p>}
           </div>
           
         </div>

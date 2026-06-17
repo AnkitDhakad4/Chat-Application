@@ -3,7 +3,9 @@ import axiosInstance from "../lib/axios.js";
 import toast from "react-hot-toast";
 import authStore from "./userAuth.store.js";
 import { devtools } from "zustand/middleware";
-const useChatStore = create((set, get) => ({
+
+
+const initialState={
   chatPartners: [],
   tempMsgStore: [],
   contacts: [],
@@ -14,7 +16,21 @@ const useChatStore = create((set, get) => ({
   isUsersLoading: false,
   isMessageLoading: false,
   isSoundOn: localStorage.getItem("isSoundOn") === "true",
-  isImageUploading: false,
+  isImageUploading: false
+}
+const useChatStore = create((set, get) => ({
+  // chatPartners: [],
+  // tempMsgStore: [],
+  // contacts: [],
+  // selectedTab:"", 
+  // // localStorage.getItem("selectedTab") || "Chats",
+  // selectedUser: null,
+  // messages: [],
+  // isUsersLoading: false,
+  // isMessageLoading: false,
+  // isSoundOn: localStorage.getItem("isSoundOn") === "true",
+  // isImageUploading: false,
+  ...initialState,
 
   toggleSound: () => {
     const nextSoundState = !get().isSoundOn;
@@ -216,6 +232,11 @@ const useChatStore = create((set, get) => ({
     const socket = authStore.getState().socket;
     socket.off("newMessage");
   },
+
+  reset:()=>{
+    // console.log("Reseting the useChatstore")
+    set({...initialState})
+  }
 }));
 
 export default useChatStore;

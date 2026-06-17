@@ -10,6 +10,7 @@ const requestToMessage=async function(req,res){
   try {
     
     const {id:reciever}=req.params;
+    console.log(reciever)
     const user=req.user;
 
     if(!reciever)
@@ -22,6 +23,7 @@ const requestToMessage=async function(req,res){
       receiverId:reciever,
       status:'pending'
     })
+    console.log(request)
 
     if(!request)
     {
@@ -31,8 +33,31 @@ const requestToMessage=async function(req,res){
     return res.status(200).json({message:"Request is sended to user successfully",data:request})
 
   } catch (error) {
+    console.log(error.message)
     return res.status(500).json({message:error.message})
   }
+}
+
+const getAllSendedRequest=async function(req,res){
+ try {
+   const user=req.user;
+  //  console.log("in getAllSendedRequest")
+ const requests=await MessageRequest.find({
+       senderId:user._id,
+       status:'pending'
+     })
+     if (!requests) {
+      return res.status(404).json({ message: "Could not retrieve requests data structure" });
+    }
+
+    console.log(requests)
+      return res.status(200).json({ 
+      message: "All sent requests fetched successfully", 
+      data: requests
+    });
+ } catch (error) {
+   return res.status(500).json({message:error.message})
+ }
 }
 
 const acceptMessageRequest=async function(req,res){
@@ -214,7 +239,7 @@ const data = parteners ? parteners.partners.filter((prtnr)=>prtnr._id!=userId) :
 
 // parteners.filter((prtnr)=>prtnr._id !=user._id)
     //console.log("Chat parteners are ", parteners);
-    console.log("chatPartners:- ",data)
+    // console.log("chatPartners:- ",data)
     return res
       .status(200)
       .json({ message: "Here is all the chat partners ", data: data });
@@ -229,10 +254,11 @@ const getAllContacts = async function (req, res) {
   try {
     const userId = req.user.id;
 
+    // console.log(req.user)
     const contacts = await User.find({ _id: { $ne: userId } }).select(
       "-password -dob",
     );
-
+    // console.log(contacts)
     //console.log("All contacts are ", contacts);
     return res
       .status(200)
@@ -292,5 +318,9 @@ export {
   rejectMessageRequest,
   getAllRequestForUser,
   getAllRejectedRequests,
-  acceptRejectedRequest
+  acceptRejectedRequest,
+
+
+
+  getAllSendedRequest
 };

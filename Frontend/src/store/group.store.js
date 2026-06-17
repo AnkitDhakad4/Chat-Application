@@ -2,8 +2,11 @@ import axios from "axios";
 import { create } from "zustand";
 import axiosInstance from "../lib/axios";
 
+const initialState={
+     selectedGroup:null
+}
 const groupStore=create((set,get)=>({
-    selectedGroup:null,
+    ...initialState,
     allGroups:[
         {
             "_id": "6a265b65c7f61bd9656b5f26",
@@ -49,6 +52,7 @@ const groupStore=create((set,get)=>({
     isGroupsLoading:true,
 
     setSelectedGroup:(grp)=>{
+        // console.log(grp,"is selected")
         set({selectedGroup:grp})
     },
 
@@ -59,7 +63,11 @@ const groupStore=create((set,get)=>({
         } catch (error) {
             console.log(error)
         }
-    }
+    },
+     reset:()=>{
+        // console.log("Reseting the groupStore")
+    set({...initialState})
+  }
 }))
 
 export default groupStore
