@@ -8,7 +8,7 @@
 @plugin 'tailwind-scrollbar';
 
 @utility rung{
-  @apply ring-1 ring-black
+  @apply ring-1 ring-rose-50 rounded-2xl
 }
 
 @utility online{

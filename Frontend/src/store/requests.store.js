@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import  axiosInstance from "../lib/axios.js";
+import toast from "react-hot-toast";
 
 const initialState={
     selectedNoticeTab:"",
@@ -92,22 +93,46 @@ const requestStore =create((set,get)=>({
         }
     },
 
-    acceptInvitation:async ()=>{
+    acceptInvitation:async (grpId)=>{
+       try {
+         const resp=await axiosInstance.post(`/group/acceptInvitation`,{groupId:grpId})
+         toast.success("Invitation is accepted")
+         console.log(resp.data.message)
+       } catch (error) {
+        console.log(error)
+       }
 
     },
 
     rejectInvitation:async()=>{
+        try {
+         const resp=await axiosInstance.post(`/group/rejectInvitation`,{groupId:grpId})
+        //  console.log(resp.data.message)
+        toast.success("Invitation is rejected")
+       } catch (error) {
+        console.log(error)
+       }
 
     },
 
-    acceptMessageReqeust:async(req)=>{
-        console.log("In acceptMessageReqeust")
+    acceptMessageReqeust:async(reqId)=>{
+        try {
+         const resp=await axiosInstance.post(`/message/acceptMessageRequest`,{requestId:reqId})
+        //  console.log(resp.data.message)
+        toast.success("Request is accepted")
+       } catch (error) {
+        console.log(error)
+       }
     },
 
-    rejectMessageReqeust:async(req)=>{
-        console.log("In rejectMessageReqeust")
-
-
+    rejectMessageReqeust:async(reqId)=>{
+        try {
+         const resp=await axiosInstance.post(`/message/rejectMessageRequest`,{requestId:reqId})
+        //  console.log(resp.data.message)
+        toast.success("Request is rejected")
+       } catch (error) {
+        console.log(error)
+       }
     },
      reset:()=>{
         // console.log("Reseting the requestStore")

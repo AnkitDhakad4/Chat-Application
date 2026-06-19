@@ -85,7 +85,7 @@ const createGroup = async (req, res) => {
   try {
     const { description, name } = req.body;
     const user = req.user;
-    console.log(user);
+    // console.log(description,name);
     if (name.trim().length == 0) {
       return res.status(400).json({ message: "Provide a name to the group" });
     }
@@ -111,7 +111,7 @@ const createGroup = async (req, res) => {
         .json({ message: "Unable to fetch the Group data" });
     }
 
-    // console.log(grpData);
+    // console.log("groupIs created successfully   ",grpData);
     return res
       .status(200)
       .json({ message: "Group is created successfully", data: grpData });
@@ -124,7 +124,7 @@ const addMembers = async function (req, res) {
   try {
     const { members, groupId } = req.body;
     const user = req.user;
-
+    console.log(members,groupId)
     if (members.length == 0) {
       return res
         .status(400)
@@ -167,7 +167,7 @@ const addMembers = async function (req, res) {
 
     const requests = await Promise.all(invitationPromises);
     const createdRequests = requests.filter((reqs) => reqs !== null);
-
+    console.log(createdRequests)
     return res.status(200).json({
       message: "Request to join the group is sent to the users successfully",
       data: createdRequests,
@@ -221,18 +221,17 @@ const groupInvitationsToUser = async function (req, res) {
 const groupInvitationAcceptance = async function (req, res) {
   try {
     const user = req.user;
-    const { groupId, adminId } = req.body;
+    const { groupId } = req.body;
 
-    if (!groupId || !adminId) {
+    if (!groupId ) {
       return res
         .status(403)
         .json({ message: "Please provide the groupId or the adminId" });
     }
 
-    console.log("groupId", groupId, "\nadminId", adminId, "\nuserId", user._id);
+    console.log("groupId", groupId);
     const pendingInvite = await groupRequest.findOne({
       groupId: groupId,
-      adminId: adminId,
       invitedUserId: user._id,
       status: "pending",
     });
@@ -242,7 +241,7 @@ const groupInvitationAcceptance = async function (req, res) {
         .json({ message: "You have not been invited to join this group" });
     }
 
-    const isGroupExist = await Group.findOne({ _id: groupId, admin: adminId });
+    const isGroupExist = await Group.findOne({ _id: groupId});
 
     if (!isGroupExist) {
       return res.status(400).json({
@@ -280,17 +279,16 @@ const groupInvitationAcceptance = async function (req, res) {
 const groupInvitationRejection = async function (req, res) {
   try {
     const user = req.user;
-    const { groupId, adminId } = req.body;
+    const { groupId } = req.body;
 
-    if (!groupId || !adminId) {
+    if (!groupId ) {
       return res
         .status(403)
-        .json({ message: "Please provide the groupId or the adminId" });
+        .json({ message: "Please provide the groupId " });
     }
 
     const pendingInvite = await groupRequest.findOne({
       groupId: groupId,
-      adminId: adminId,
       invitedUserId: user._id,
       status: "pending",
     });
@@ -300,7 +298,7 @@ const groupInvitationRejection = async function (req, res) {
         .json({ message: "You have not been invited to join this group" });
     }
 
-    const isGroupExist = await Group.findOne({ _id: groupId, admin: adminId });
+    const isGroupExist = await Group.findOne({ _id: groupId });
 
     if (!isGroupExist) {
       return res.status(400).json({
@@ -441,67 +439,58 @@ const getGroupInfo = async function (req, res) {
 
 const removeMembers = async function (req, res) {
   try {
-    const { membersToKick } = req.body;
-    const { groupId } = req.params;
+    const { membersToKick, groupId } = req.body;
     const user = req.user;
 
-    if (membersToKick.length === 0) {
-      return res.status(400).json({
-        message: "atleast 1 memeber is required to remove from the group",
-      });
-    }
-
+    // 1. Validation checks
     if (!groupId) { 
       return res.status(400).json({ message: "Provide the groupId properly" });
     }
 
-    const matchGroupAdmin = await Group.findOne({
-      admin: user._id,
-      _id: groupId,
-    });
-
-    if (!matchGroupAdmin) {
-      return res
-        .status(403)
-        .json({ message: "You are not the admin of this group" });
+    if (!membersToKick || membersToKick.length === 0) {
+      return res.status(400).json({
+        message: "At least 1 member is required to remove from the group",
+      });
     }
 
-    const memberStringIds=matchGroupAdmin.members.map((memid)=>memid.toString())
-    const removationPromises = membersToKick.map(async (member) => {
-      
-// the user who rejected the invitation will not be in the group so we can not remove it from the group also or the user is not  member of  group
-      if (!memberStringIds.includes(member)) {
-        return null;
-      } else {
-        return await groupRequest.findOneAndDelete({
-          invitedUserId: member,
-          groupId: groupId,
-        });
-      }
-    });
-    const newData = await Group.findOneAndUpdate(
-      { _id: groupId },
-      { $pull: { members: { $in: membersToKick } } },
-      { returnDocument: "after" },
-    );
+    // 2. Remove members from the Group roster (Verifies admin identity atomically)
+    const updatedGroup = await Group.findOneAndUpdate(
+      { 
+        _id: groupId, 
+        admin: user._id 
+      },
+      { 
+        $pull: { members: { $in: membersToKick } } 
+      },
+      { returnDocument: "after" }
+    ).populate("members", "-password");
 
-    if (!newData) {
-      return res
-        .status(404)
-        .json({ message: "Error while updating the members list in DB" });
+    // 3. If no group was modified, the target group doesn't exist or caller isn't the admin
+    if (!updatedGroup) {
+      return res.status(403).json({ 
+        message: "Action forbidden. Group not found or you are not the group admin." 
+      });
     }
 
-     const rawResp=await Promise.all(removationPromises);
-    const resp = rawResp.filter((item) => item !== null);
+    // 4. Clean up Invitation Requests from the GroupRequest collection
+    // Deletes any matching invitations for these users for this specific group
+    const deletionResult = await groupRequest.deleteMany({
+      groupId: groupId,
+      invitedUserId: { $in: membersToKick }
+    });
 
-    return res
-      .status(200)
-      .json({ message: "Members are removed successfully", data: newData,removedMembers:resp });
+    // 5. Return the brand new data state along with deletion telemetry
+    console.log("members removed new members are",updatedGroup)
+    return res.status(200).json({ 
+      message: "Members and their invitations removed successfully", 
+      data: updatedGroup,
+      deletedInvitationsCount: deletionResult
+    });
+
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
-
 const deleteGroup = async function (req, res) {
   try {
     const { groupId } = req.params;

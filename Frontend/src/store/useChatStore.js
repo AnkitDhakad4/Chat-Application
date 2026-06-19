@@ -9,7 +9,7 @@ const initialState={
   chatPartners: [],
   tempMsgStore: [],
   contacts: [],
-  selectedTab:"", 
+  selectedTab:null,
   // localStorage.getItem("selectedTab") || "Chats",
   selectedUser: null,
   messages: [],
@@ -46,7 +46,7 @@ const useChatStore = create((set, get) => ({
 
   getchatPartners: async () => {
     const { chatPartners } = get();
-    if (chatPartners && chatPartners.length > 0) return chatPartners;
+    // if (chatPartners && chatPartners.length > 0) return chatPartners;
 
     set({ isUsersLoading: true });
     try {
@@ -64,7 +64,7 @@ const useChatStore = create((set, get) => ({
   getContacts: async () => {
     const { contacts, chatPartners } = get();
 
-    if (contacts && contacts.length > 0) return contacts;
+    // if (contacts && contacts.length > 0) return contacts;
 
     set({ isUsersLoading: true });
     try {
@@ -142,23 +142,23 @@ const useChatStore = create((set, get) => ({
         { text: message, image: image },
       );
 
-      const newContacts = contacts.filter(
-        (user) => user._id !== selectedUser._id,
-      );
-      const newchatPartners = contacts.filter(
-        (user) => user._id === selectedUser._id,
-      );
+      // const newContacts = contacts.filter(
+      //   (user) => user._id !== selectedUser._id,
+      // );
+      // const newchatPartners = contacts.filter(
+      //   (user) => user._id === selectedUser._id,
+      // );
 
-      if (newchatPartners.length > 0) {
-        set({
-          contacts: newContacts,
-          chatPartners: chatPartners.concat(newchatPartners),
-        });
-      }
-      console.log("Message in sendMessage is ",resp.data.message)
+      // if (newchatPartners.length > 0) {
+      //   set({
+      //     contacts: newContacts,
+      //     chatPartners: chatPartners.concat(newchatPartners),
+      //   });
+      // }
+      // console.log("Message in sendMessage is ",resp.data.message)
       set({ messages: [...get().messages, resp.data.message] });
     } catch (error) {
-      console.log(error);
+      console.log(error.response);
       //   toast.error(error.response?.data?.error)
     }
   },
@@ -207,7 +207,7 @@ const useChatStore = create((set, get) => ({
     socket.on("newMessage", (msg) => {
       const isMessageFromSelectedUser =
         msg.senderId === selectedUser._id ||
-        msg.recieverId === selectedUser._id;
+        msg.receiverId === selectedUser._id;
 
       if (!isMessageFromSelectedUser) return;
 
@@ -230,7 +230,7 @@ const useChatStore = create((set, get) => ({
 
   unSubscribeMessage: () => {
     const socket = authStore.getState().socket;
-    socket.off("newMessage");
+    socket?.off("newMessage");
   },
 
   reset:()=>{

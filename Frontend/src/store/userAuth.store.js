@@ -14,6 +14,7 @@ const initialState={
   isCheckingAuth: false,
   isLoading: false, 
   user: {},
+  loggedInUser:{},
   socket: null,
   onlineUsers: new Set()
 }
@@ -66,6 +67,7 @@ const authStore = create((set, get) => ({
       
       const response = await axiosInstance.post("/users/login", data);
       set({ user: response.data.data, authStatus: true });
+      set({ loggedInUser: response.data.data });
       get().connect();
       toast.success("Login Successfully !");
     } catch (error) {

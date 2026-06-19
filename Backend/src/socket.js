@@ -20,7 +20,7 @@ io.use(socketAuthMiddleWare);
 //to store the online users
 const userSocketMap = {};
 
-export function getReceiverId(userId){
+function getReceiverId(userId){
   return userSocketMap[userId];
 }
 
@@ -49,4 +49,4 @@ io.on("connection", (socket) => {
   });
 });
 
-export { app, server, io };
+export { app, server, io,getReceiverId };

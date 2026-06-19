@@ -225,8 +225,11 @@ function MessagePage() {
 
   useEffect(()=>{
       subscribeMessage()
+      async function getMsg(){
+        await getMessages(selectedUser._id)
+      }
 
-
+      getMsg();
       return ()=>{
         unSubscribeMessage();
       }

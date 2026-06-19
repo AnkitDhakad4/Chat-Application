@@ -4,20 +4,27 @@ import usechatStore from "../store/useChatStore.js";
 import authStore from "../store/userAuth.store.js";
 import { EllipsisVertical, LogOut } from "lucide-react";
 import groupStore from "../store/group.store.js";
+import requestStore from "../store/requests.store.js";
 function Sidebar() {
   const { selectedTab, setSelectedTab, isUsersLoading } = usechatStore();
   
   const { user, logout } = authStore();
-  const {setSelectedUser}=usechatStore();
+  const {setSelectedUser,getContacts,getchatPartners}=usechatStore();
   const {setSelectedGroup}=groupStore();
-  const handleClick = (e) => {
+  const {infoAbout,setInfoAbout,getMessageRequests,getGroupRequests}=requestStore()
+  const handleClick = async (e) => {
     const tab = e.currentTarget.value;
 
     if(tab==='Activity')
     {
+      await getMessageRequests()
+      await getGroupRequests()
       setSelectedUser(null)
       setSelectedGroup(null);
     }
+    await getContacts()
+    await getchatPartners()
+    setInfoAbout(null)
     setSelectedTab(tab);
   };
 

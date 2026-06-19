@@ -4,6 +4,38 @@ import toast from "react-hot-toast";
 import useChatStore from "../store/useChatStore.js";
 import { useEffect } from "react";
 import { useLayoutEffect } from "react";
+import { useState } from "react";
+
+
+function Profiles({item,isRequested}){
+   const {
+ 
+    sentMessageRequest,
+    
+  } = requestStore();
+    const handleSendRequest = async (targetUserId) => {
+    await sentMessageRequest(targetUserId);
+  };
+  const [justNow ,setJustNow]=useState(false)
+  return(
+    justNow ? (
+                    <span className="flex items-center gap-1 bg-[#F1F5F9] text-[#64748B] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#CBD5E1]">
+                      <Clock className="size-3.5" /> Requested
+                    </span>
+                  ) : isRequested ? (
+                    <span className="flex items-center gap-1 bg-[#F1F5F9] text-[#64748B] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#CBD5E1]">
+                      <Clock className="size-3.5" /> Requested
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() =>{ handleSendRequest(item._id);setJustNow(true)}}
+                      className="bg-[#FF2D78] hover:bg-[#E02467] text-white font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1 transition-all duration-200 cursor-pointer shadow-sm"
+                    >
+                      <UserPlus className="size-3.5" /> Connect
+                    </button>
+                  )
+  );
+}
 
 function ContactsPage() {
   const {
@@ -35,10 +67,8 @@ function ContactsPage() {
     getReqs();
   }, [getSentRequests]);
 
-  const handleSendRequest = async (targetUserId) => {
-    await sentMessageRequest(targetUserId);
-  };
 
+  
   return (
     <div className="flex flex-col h-full flex-1 border-y border-r border-[#E2E8F0] bg-white">
       {/* Upper Section Header Banner */}
@@ -86,18 +116,23 @@ function ContactsPage() {
                   </div>
 
                   {/* Right Column Context Action Trigger Toggle Switch state */}
-                  {isRequested ? (
+                  {/* {!justNow ? (
+                    <span className="flex items-center gap-1 bg-[#F1F5F9] text-[#64748B] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#CBD5E1]">
+                      <Clock className="size-3.5" /> Requested
+                    </span>
+                  ) : isRequested ? (
                     <span className="flex items-center gap-1 bg-[#F1F5F9] text-[#64748B] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#CBD5E1]">
                       <Clock className="size-3.5" /> Requested
                     </span>
                   ) : (
                     <button
-                      onClick={() => handleSendRequest(item._id)}
+                      onClick={() =>{ handleSendRequest(item._id);setJustNow(true)}}
                       className="bg-[#FF2D78] hover:bg-[#E02467] text-white font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1 transition-all duration-200 cursor-pointer shadow-sm"
                     >
                       <UserPlus className="size-3.5" /> Connect
                     </button>
-                  )}
+                  )} */}
+                  <Profiles item={item} isRequested={isRequested}/>
                 </div>
               );
             })

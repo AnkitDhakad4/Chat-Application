@@ -10,7 +10,7 @@ const requestToMessage=async function(req,res){
   try {
     
     const {id:reciever}=req.params;
-    console.log(reciever)
+    // console.log(reciever)
     const user=req.user;
 
     if(!reciever)
@@ -23,7 +23,7 @@ const requestToMessage=async function(req,res){
       receiverId:reciever,
       status:'pending'
     })
-    console.log(request)
+    // console.log(request)
 
     if(!request)
     {
@@ -60,37 +60,82 @@ const getAllSendedRequest=async function(req,res){
  }
 }
 
-const acceptMessageRequest=async function(req,res){
-  try {
-    const user=req.user;
-    const {requestId}=req.body;
+// const acceptMessageRequest=async function(req,res){
+//   try {
+//     const user=req.user;
+//     const {requestId}=req.body;
   
-    if(!requestId)
-    {
-      return res.status(400).json({message:"request id is required"});
-    }
+//     if(!requestId)
+//     {
+//       return res.status(400).json({message:"request id is required"});
+//     }
   
-    const acceptIt=await MessageRequest.findOneAndUpdate({_id:requestId},{status:'accepted'},{returnDocument:'after'})
+//     const acceptIt=await MessageRequest.findOneAndUpdate({_id:requestId},{status:'accepted'},{returnDocument:'after'})
 
     
-      if(!acceptIt)
-      {
-        return res.status(503).json({message:"Error while accepting the request"});
-      }
-    const receiverId=acceptIt.receiverId;
+//       if(!acceptIt)
+//       {
+//         return res.status(503).json({message:"Error while accepting the request"});
+//       }
+//     const receiverId=acceptIt.senderId;
 
-    const updateParteners=await chatParteners.findOneAndUpdate({userId:user._id},{$addToSet:{partners:receiverId}},{upsert:true,returnDocument:'after'})
+//     const updateParteners=await chatParteners.findOneAndUpdate({userId:user._id},{$addToSet:{partners:receiverId}},{upsert:true,returnDocument:'after'})
+//       console.log("Updated parteners ",updateParteners)
+//     if(!updateParteners)
+//     {
+//       return res.status(503).json({message:"Error while updating the chatParteners"});
+//     }
+  
+//     return res.status(200).json({message:"request is accepted",data:acceptIt});
+//   } catch (error) {
+//     return res.status(500).json({message:error.message});
+//   }
+// }
 
-    if(!updateParteners)
-    {
-      return res.status(503).json({message:"Error while updating the chatParteners"});
+const acceptMessageRequest = async function (req, res) {
+  try {
+    const user = req.user; // User A (the one accepting)
+    const { requestId } = req.body;
+  
+    if (!requestId) {
+      return res.status(400).json({ message: "request id is required" });
     }
   
-    return res.status(200).json({message:"request is accepted",data:acceptIt});
+    const acceptIt = await MessageRequest.findOneAndUpdate(
+      { _id: requestId },
+      { status: 'accepted' },
+      { returnDocument: 'after' }
+    );
+
+    if (!acceptIt) {
+      return res.status(503).json({ message: "Error while accepting the request" });
+    }
+
+    const receiverId = acceptIt.senderId; // User B (the one who sent it)
+
+    // Update User A's partners (add User B)
+    const updateA = await chatParteners.findOneAndUpdate(
+      { userId: user._id },
+      { $addToSet: { partners: receiverId } },
+      { upsert: true, returnDocument: 'after' }
+    );
+
+    // Update User B's partners (add User A) - This makes it mutual!
+    const updateB = await chatParteners.findOneAndUpdate(
+      { userId: receiverId },
+      { $addToSet: { partners: user._id } },
+      { upsert: true, returnDocument: 'after' }
+    );
+  
+    if (!updateA || !updateB) {
+      return res.status(503).json({ message: "Error while updating mutual chat partners" });
+    }
+  
+    return res.status(200).json({ message: "Request is accepted mutually", data: acceptIt });
   } catch (error) {
-    return res.status(500).json({message:error.message});
+    return res.status(500).json({ message: error.message });
   }
-}
+};
 
 
 
@@ -123,7 +168,7 @@ const getAllRequestForUser=async function(req,res){
   try {
     const user=req.user;
     
-    const requests=await MessageRequest.find({receiverId:user._id,status:'pending'})
+    const requests=await MessageRequest.find({receiverId:user._id,status:'pending'}).populate('senderId','name about profilePic')
   
     if(!requests)
     {
@@ -191,6 +236,7 @@ const createMessage = async function (req, res) {
 
     const sender = req.user.id;
     const { id: receiver } = req.params;
+    console.log("sender ",sender,"receiver ",receiver)
     // let url = "";
     // if (image) {
     //   url = await uploadOnCloudinary(image, "Messages");
@@ -211,16 +257,18 @@ const createMessage = async function (req, res) {
       text: text,
     });
 
-    // console.log("message is created successfully ",message)
+    console.log("message is created successfully ",message)
  
     
     // todo : to implement the socket.io for real time message sending
-    const receiverSocketId = getReceiverId(reciever);
-
+    const receiverSocketId = getReceiverId(receiver);
+    console.log("receiver Socket id is",receiverSocketId)
     if (receiverSocketId) {
+      console.log("Message in emiiting")
       io.to(receiverSocketId).emit("newMessage", message);
     }
 
+    
     return res.status(200).json({ message: message });
   } catch (error) {
     return res
@@ -229,44 +277,96 @@ const createMessage = async function (req, res) {
   }
 };
 
+// const getChatPartners = async function (req, res) {
+//   try {
+//     const userId = req.user.id;
+
+    
+//   const parteners=await chatParteners.findOne({userId:userId}).populate('partners','email name profilePic about lastSeen')
+// const data = parteners ? parteners.partners.filter((prtnr)=>prtnr._id!=userId) : [];
+
+// // parteners.filter((prtnr)=>prtnr._id !=user._id)
+//     //console.log("Chat parteners are ", parteners);
+//     // console.log("chatPartners:- ",data)
+//       console.log("Chat parteners are",data)
+//       console.log("Chat parteners are",parteners)
+//     return res
+//       .status(200)
+//       .json({ message: "Here is all the chat partners ", data: data });
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: "Error while fetching the chat partners", error:error.message });
+//   }
+// };
 const getChatPartners = async function (req, res) {
   try {
     const userId = req.user.id;
 
-    
-  const parteners=await chatParteners.findOne({userId:userId}).populate('partners','email name profilePic about lastSeen')
-const data = parteners ? parteners.partners.filter((prtnr)=>prtnr._id!=userId) : [];
+    const parteners = await chatParteners
+      .findOne({ userId: userId })
+      .populate('partners', 'email name profilePic about lastSeen');
 
-// parteners.filter((prtnr)=>prtnr._id !=user._id)
-    //console.log("Chat parteners are ", parteners);
-    // console.log("chatPartners:- ",data)
+    // Filter out self just in case, or default to empty array
+    const data = parteners 
+      ? parteners.partners.filter((prtnr) => prtnr._id.toString() !== userId.toString()) 
+      : [];
+
     return res
       .status(200)
       .json({ message: "Here is all the chat partners ", data: data });
   } catch (error) {
-    res
+    return res
       .status(500)
-      .json({ message: "Error while fetching the chat partners", error:error.message });
+      .json({ message: "Error while fetching the chat partners", error: error.message });
   }
 };
+
+// const getAllContacts = async function (req, res) {
+//   try {
+//     const userId = req.user.id;
+
+//     // console.log(req.user)
+//     const contacts = await User.find({ _id: { $ne: userId } }).select(
+//       "-password -dob",
+//     );
+//     // console.log(contacts)
+//     //console.log("All contacts are ", contacts);
+//     return res
+//       .status(200)
+//       .json({ message: "Here is all the contacts ", data: contacts });
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ message: "Error while getting the all contacts", error });
+//   }
+// };
 
 const getAllContacts = async function (req, res) {
   try {
     const userId = req.user.id;
 
-    // console.log(req.user)
-    const contacts = await User.find({ _id: { $ne: userId } }).select(
-      "-password -dob",
-    );
-    // console.log(contacts)
-    //console.log("All contacts are ", contacts);
+    // 1. Fetch User's existing chat partners list
+    const userPartnersDoc = await chatParteners.findOne({ userId: userId });
+    
+    // 2. Extract partner IDs if document exists, otherwise default to an empty array
+    const partnerIds = userPartnersDoc ? userPartnersDoc.partners : [];
+
+    // 3. Find contacts who are NOT the current user AND NOT already chat partners
+    const contacts = await User.find({ 
+      _id: { 
+        $ne: userId,        // Exclude self
+        $nin: partnerIds    // Exclude existing chat partners
+      } 
+    }).select("-password -dob");
+
     return res
       .status(200)
       .json({ message: "Here is all the contacts ", data: contacts });
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Error while getting the all contacts", error });
+      .json({ message: "Error while getting the all contacts", error: error.message });
   }
 };
 

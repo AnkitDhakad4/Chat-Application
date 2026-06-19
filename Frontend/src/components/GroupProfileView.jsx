@@ -54,7 +54,8 @@ function GroupProfileView(props) {
               {/* <p className="text-xs font-mono">{user.lastSeen}</p> */}
             </div>
            {upper ? <p className="font-liberation truncate max-w-full text-xs text-gray-500 ">{group.groupDescription}</p>:
-           <p className="font-liberation text-xs text-gray-500 ">{group.members.length} Members</p>}
+           <p className="font-liberation text-xs text-gray-500 ">
+            {group.members.length}  Members</p>}
           </div>
           
         </div>

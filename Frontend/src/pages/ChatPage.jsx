@@ -9,17 +9,44 @@ import Info from '../components/Info.jsx'
 import NoticePageRendering from "../components/NoticePageRendering.jsx";
 import ContactsPage from "../components/ContactPage.jsx";
 import groupStore from "../store/group.store.js";
+import CreateGroup from "../components/CreateGroup.jsx";
 
 function ChatPage() {
   const { selectedUser,selectedTab } = useChatStore();
 const {infoAbout,setInfoAbout}=requestStore()
-const {selectedGroup}=groupStore()
+const {selectedGroup,oneGroupIscreated}=groupStore()
+
+const renderMainContent = () => {
+  // 1. Check Info first
+  if (infoAbout) return <Info />;
+
+  // 2. Check Contacts tab next
+  if (selectedTab === 'Contacts') return <ContactsPage />;
+
+  if(selectedTab==='Groups' && !selectedGroup) 
+    {
+      if(oneGroupIscreated)
+      {
+        return <NoChatPage/>
+      }
+      
+      return <CreateGroup/>
+    
+    }
+
+  // 3. Check if an active conversation exists
+  // (Using ?.id or whatever key verifies a real group/user object exists)
+  if (selectedUser || selectedGroup) return <MessagePage />;
+
+  // 4. Default fallback when everything else is empty/null
+  return <NoChatPage />;
+};
   return (
     <div className="flex flex-row  h-full  w-full">
       <Sidebar />
 
       {selectedTab==='Activity'?<NoticePageRendering/> :<Middlepanel />}
-      {infoAbout ?
+      {/* {infoAbout ?
       (<Info/> ):
         selectedTab!=='Contacts'  ? 
             // (selectedTab==='Contacts' ? <ContactsPage/> :<NoChatPage /> )
@@ -28,6 +55,8 @@ const {selectedGroup}=groupStore()
               :<MessagePage /> )
              :( <ContactsPage />
       )}
+       */}
+       {renderMainContent()}
       
       
     </div>

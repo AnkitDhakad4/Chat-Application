@@ -7,17 +7,19 @@ import groupStore from "../store/group.store.js";
 
 const Info = () => {
   const { selectedNoticeTab, setInfoAbout } = requestStore();
-  const { selectedUser, selectedTab, setSelectedUser } = useChatStore();
+  const { selectedUser, selectedTab, setSelectedUser, chatPartners } =
+    useChatStore();
   const user = selectedUser;
 
-  console.log("User in the Info is ", user);
+  console.log("chatPartners in the info are ", chatPartners);
 
-  const { onlineUsers } = authStore();
+  const { onlineUsers,loggedInUser } = authStore();
   const onLineUsers = new Set(onlineUsers);
-  const isOnline = onLineUsers.has(user._id);
+
   const [showRemoveMembers, setShowRemoveMembers] = useState(false);
+  const [showAddMembers, setShowAddMembers] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState([]);
-  const { selectedGroup } = groupStore();
+  const { selectedGroup,addMembersInGroup,removeMembersFromGroup} = groupStore();
   const group = selectedGroup;
   if (selectedTab === "Chats") {
     return (
@@ -42,7 +44,7 @@ const Info = () => {
           <div className="relative">
             <div className="p-1 bg-gradient-to-r from-pink-500 to-cyan-400 rounded-lg">
               <img
-                src={user.avatar}
+                src={user.profilePic}
                 alt={user.name}
                 className="w-24 h-24 rounded-lg object-cover border-2 "
               />
@@ -54,9 +56,9 @@ const Info = () => {
           </h1>
 
           <p
-            className={`text-xs  tracking-wide mt-1 ${isOnline ? "text-green-600" : "text-black"}`}
+            className={`text-xs  tracking-wide mt-1 ${onLineUsers.has(user._id) ? "text-green-600" : "text-black"}`}
           >
-            {isOnline ? "Online..." : "Offline..."}
+            {onLineUsers.has(user._id) ? "Online..." : "Offline..."}
           </p>
         </div>
 
@@ -190,7 +192,12 @@ const Info = () => {
 
             {/* Primary Execution CTA Buttons */}
             <div className="flex gap-3">
-              <button className="flex-1 py-2.5 rounded-xl bg-[#FF2D78] hover:bg-[#e02266] text-white text-sm font-semibold shadow-sm transition-colors">
+              <button
+                onClick={() => {
+                  setShowAddMembers(true);
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-[#FF2D78] hover:bg-[#e02266] text-white text-sm font-semibold shadow-sm transition-colors"
+              >
                 Add Member
               </button>
 
@@ -260,9 +267,10 @@ const Info = () => {
                 </button>
 
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     console.log("Members To Remove:", selectedMembers);
                     // TODO: Call the api funtion to remove members
+                    await removeMembersFromGroup(selectedMembers,selectedGroup._id)
                     setShowRemoveMembers(false);
                     setSelectedMembers([]);
                   }}
@@ -274,8 +282,76 @@ const Info = () => {
             </div>
           </div>
         )}
+        {showAddMembers && (
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="w-[450px] max-h-[75vh] bg-white rounded-2xl p-5 shadow-2xl border border-slate-100 flex flex-col">
+              <h2 className="text-lg font-bold text-center text-[#111827] border-b pb-3.5 border-slate-100">
+                Add Members
+              </h2>
+
+              {/* Selectable Roster Check-list */}
+              <div className="mt-3.5 space-y-0.5 max-h-[45vh] overflow-y-auto scrollbar-none flex-1 py-1">
+                {chatPartners?.map((member) => (
+                  <label
+                    key={member._id}
+                    className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#F9FAFB] cursor-pointer transition-colors border border-transparent hover:border-slate-100 select-none"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedMembers.includes(member._id)}
+                      onChange={() => {
+                        setSelectedMembers((prev) =>
+                          prev.includes(member._id)
+                            ? prev.filter((id) => id !== member._id)
+                            : [...prev, member._id],
+                        );
+                      }}
+                      className="w-4 h-4 rounded text-red-500 focus:ring-red-400 border-slate-300 cursor-pointer"
+                    />
+
+                    <img
+                      src={member.profilePic}
+                      alt={"photo"}
+                      className="w-9 h-9 rounded-full object-cover border border-slate-100"
+                    />
+
+                    <p className="text-sm font-medium text-[#111827] truncate flex-1">
+                      {member.name}
+                    </p>
+                  </label>
+                ))}
+              </div>
+
+              {/* Roster Mutation Actions Control Panel */}
+              <div className="flex justify-end gap-2.5 mt-4 pt-3.5 border-t border-slate-100">
+                <button
+                  onClick={() => {
+                    setShowAddMembers(false);
+                    setSelectedMembers([]);
+                  }}
+                  className="px-4 py-2 text-sm font-medium rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={async() => {
+                    console.log("Members To Remove:", selectedMembers);
+                    // TODO: Call the api funtion to add members
+                    await addMembersInGroup(selectedMembers,selectedGroup._id)
+                    setShowRemoveMembers(false);
+                    setSelectedMembers([]);
+                  }}
+                  // disabled={loggedInUser._id !== group.admin}
+                  className="px-4 py-2 text-sm font-semibold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-sm transition-colors"
+                >
+                  Add 
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      
     );
   }
 };
