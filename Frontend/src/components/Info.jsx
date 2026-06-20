@@ -339,7 +339,7 @@ const Info = () => {
                     console.log("Members To Remove:", selectedMembers);
                     // TODO: Call the api funtion to add members
                     await addMembersInGroup(selectedMembers,selectedGroup._id)
-                    setShowRemoveMembers(false);
+                    setShowAddMembers(false);
                     setSelectedMembers([]);
                   }}
                   // disabled={loggedInUser._id !== group.admin}

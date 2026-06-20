@@ -7,7 +7,9 @@ const initialState={
      selectedGroup:null,
      allGroups:[],
      oneGroupIscreated:false,
-    isGroupsLoading:true
+    isGroupsLoading:true,
+    isGroupMessageLoading:false,
+    groupsMessages: {},
 }
 const groupStore=create((set,get)=>({
     ...initialState,
@@ -17,6 +19,43 @@ const groupStore=create((set,get)=>({
         set({selectedGroup:grp})
     },
 
+    sendMessageInGroup:async({text,groupId,image})=>{
+        try {
+
+            const resp=await axiosInstance.post('/group/sendMessage',{text,groupId,image})
+            const newMessage=resp.data.data
+            const currentMessages=get().groupsMessages[groupId] ||[];
+            
+            console.log("resp after currentMessages ",currentMessages)
+            set({
+                groupsMessages:{
+                    ...get().groupsMessages,
+                    [groupId]:[...currentMessages,newMessage]
+                }
+            })
+            console.log("Message it been seted")
+           
+        } catch (error) {
+            console.log(error?.response?.data || error.message)
+        }
+    },
+
+    getGroupMessages:async(id)=>{
+        try {
+            console.log("in getGroupMessages id is   ",id)
+            const resp=await axiosInstance.post('/group/getAllMessages',{groupId:id})
+            const newMessages=resp.data.data
+
+            console.log("in getGroupMessages",newMessages)
+            set({groupsMessages:{
+                ...get().groupsMessages,
+                [id]:newMessages
+            }})
+            toast.success(resp.data.message)
+        } catch (error) {
+            console.log(error.response.data)
+        }
+    },
 
     createGroup:async (name,description)=>{
         try {
@@ -27,12 +66,15 @@ const groupStore=create((set,get)=>({
             console.log(error?.data?.message)
         }
     },
+
     setoneGroupIscreated:()=>{
         set({oneGroupIscreated:true})
     },
+
     addMembersInGroup:async (members,groupId)=>{
         try {
             const resp=await axiosInstance.post('/group/addMembers',{members,groupId})
+            toast.success(resp.data.message)
         } catch (error) {
             toast.error(error.response?.data?.message);
             console.log(error?.data?.message)

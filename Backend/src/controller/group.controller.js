@@ -58,8 +58,9 @@ const createGroupMessages=async function(req,res){
         .json({ message: "You are not the member of this group" });
     }
 
+    console.log("In group message send",groupId,text,image)
     const message=await Message.create({groupId:data._id,text:text,image:image,senderId:user._id})
-
+    console.log(message)
     if(!message)
     {
       return res
