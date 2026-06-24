@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Group from "../models/group.model.js";
 import groupRequest from "../models/groupRequest.model.js";
 import Message from '../models/message.model.js'
+import { io } from "../socket.js";
 
 
 const getGroupMessages=async function(req,res){
@@ -34,7 +35,7 @@ const getGroupMessages=async function(req,res){
 const createGroupMessages=async function(req,res){
   try {
     const user=req.user
-    const {groupId,text,image}=req.body
+    const {groupId,text,image,senderSocketId}=req.body
 
     if(!groupId)
     {
@@ -58,15 +59,21 @@ const createGroupMessages=async function(req,res){
         .json({ message: "You are not the member of this group" });
     }
 
-    console.log("In group message send",groupId,text,image)
-    const message=await Message.create({groupId:data._id,text:text,image:image,senderId:user._id})
-    console.log(message)
+    // console.log("In group message send",groupId,text,image)
+    const message=await (await Message.create({groupId:data._id,text:text,image:image,senderId:user._id})).populate('senderId','name profilePic')
+    // console.log(message)
     if(!message)
     {
       return res
         .status(404)
         .json({ message: "Can not get the messages of the group" });
     }
+
+   
+
+      io.to(groupId).emit("newGroupMessage",message)
+   
+
 
       return res
         .status(201)

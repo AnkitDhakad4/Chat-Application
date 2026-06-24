@@ -233,6 +233,8 @@ const acceptRejectedRequest=async function(req,res){
 const createMessage = async function (req, res) {
   try {
     const { image, text } = req.body;
+    console.log("image is",image)
+    console.log("text is",text)
 
     const sender = req.user.id;
     const { id: receiver } = req.params;
@@ -245,6 +247,8 @@ const createMessage = async function (req, res) {
 
     const isEligible=await MessageRequest.findOne({$or:[{senderId:sender,receiverId:receiver,status:'accepted'},{senderId:receiver,receiverId:sender,status:'accepted'}]})
 
+    
+    
     if(!isEligible )
     {
       return res.status(401).json({message:"Acceptance required to message."})
@@ -394,8 +398,9 @@ const getMessageByUserId = async function (req, res) {
 
 const generateUploadToken = (req, res) => {
   const { folder } = req.body;
+  console.log(folder)
   const { timestamp, signature, apiKey } = generateCloudinarySignature(folder);
-
+  console.log(timestamp,signature,apiKey)
   return res
     .status(200)
     .json({

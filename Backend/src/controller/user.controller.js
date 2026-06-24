@@ -165,7 +165,7 @@ const updateProfilePic=async function(req,res){
 
     
     const updatedUser=await User.findByIdAndUpdate(userId,{profilePic:url},{new:true}).select("-password -dob")//this new returns the updated User
-    // console.log("Updated user is ",updatedUser)
+    
     return res.status(200).json({message:"Profile is updated successfully",data:updatedUser})
     
   } catch (error) {
