@@ -1,8 +1,10 @@
 import { create } from "zustand";
 import axiosInstance from "../lib/axios.js";
 import toast from "react-hot-toast";
-import authStore from "./userAuth.store.js";
+// import authStore from "./userAuth.store.js";
 import { devtools } from "zustand/middleware";
+import socket from "../socket/socket.js";
+import authStore from "./userAuth.store.js";
 
 
 const initialState={
@@ -109,7 +111,7 @@ const useChatStore = create((set, get) => ({
 
   },
 
-  sendMessage: async (image, message) => {
+  sendMessage: async ({messageText,url}) => {
     // const { user } = authStore.getState();
     // const { messages, selectedUser } = get();
 
@@ -136,10 +138,11 @@ const useChatStore = create((set, get) => ({
     // set({ messages: [...get().messages, artificialMessage] });
 
     try {
+      console.log("message in send message ",messageText,url)
       const { contacts, selectedUser, chatPartners } = get();
       const resp = await axiosInstance.post(
         `/message/send/${selectedUser._id}`,
-        { text: message, image: image },
+        { text: messageText, image: url },
       );
 
       // const newContacts = contacts.filter(
@@ -158,7 +161,7 @@ const useChatStore = create((set, get) => ({
       // console.log("Message in sendMessage is ",resp.data.message)
       set({ messages: [...get().messages, resp.data.message] });
     } catch (error) {
-      console.log(error.response);
+      console.log(error);
       //   toast.error(error.response?.data?.error)
     }
   },
@@ -181,7 +184,7 @@ const useChatStore = create((set, get) => ({
     set({ isImageUploading: true });
     try {
       const resp = await fetch(
-        `https://api.cloudinary.com/v1_1/ankitdhakad/image/upload`,
+        `https://api.cloudinary.com/v1_1/ankitdhakad/image/upload/`,
         {
           method: "POST",
           body: formData,
@@ -202,14 +205,22 @@ const useChatStore = create((set, get) => ({
     const { selectedUser, isSoundOn } = get();
     if (!selectedUser) return;
 
-    const socket = authStore.getState().socket;
+    // const socket = authStore.getState().socket;
     // const {messages}=get()
     socket.on("newMessage", (msg) => {
-      const isMessageFromSelectedUser =
-        msg.senderId === selectedUser._id ||
-        msg.receiverId === selectedUser._id;
 
-      if (!isMessageFromSelectedUser) return;
+      const authUser=authStore.getState().user;
+      const selectedUser=get().selectedUser;
+
+
+      // console.log("in subscribe message authuser",authUser)
+      if(!selectedUser) return;
+
+      const incomming=msg.senderId===selectedUser._id && msg.receiverId === authUser._id;
+      const outgoing=msg.receiverId ===selectedUser._id && msg.senderId ===authUser._id;
+      
+
+      if (!incomming && !outgoing) return;
 
       set({ messages: [...get().messages, msg] });
 
@@ -229,7 +240,7 @@ const useChatStore = create((set, get) => ({
   },
 
   unSubscribeMessage: () => {
-    const socket = authStore.getState().socket;
+    // const socket = authStore.getState().socket;
     socket?.off("newMessage");
   },
 

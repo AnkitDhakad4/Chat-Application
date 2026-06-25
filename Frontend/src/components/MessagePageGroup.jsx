@@ -159,7 +159,7 @@ const time = new Date(msg.createdAt)
 
 
 function MessagePageGroup() {
-    const {selectedGroup,setSelectedGroup,isGroupMessageLoading,groupsMessages,sendMessageInGroup,getGroupMessages}=groupStore()
+    const {selectedGroup,setSelectedGroup,isGroupMessageLoading,groupsMessages,sendMessageInGroup,getGroupMessages,subscribeForGroupMessage,unsubscribeForGroupMessage}=groupStore()
      const grpMessages = groupsMessages[selectedGroup?._id]
    
      const {infoAbout,setInfoAbout}=requestStore()
@@ -177,6 +177,15 @@ function MessagePageGroup() {
         getMessages()
         }
     },[selectedGroup?._id,getGroupMessages])
+
+    useEffect(()=>{
+      if(selectedGroup)
+        subscribeForGroupMessage()
+
+      return ()=>{
+        unsubscribeForGroupMessage()
+      }
+    },[selectedGroup])
 
     const handleSubmitForGroup = async (e) => {
     e.preventDefault();
@@ -246,12 +255,12 @@ function MessagePageGroup() {
     if (msg.senderId._id === user._id || msg.senderId===user._id) {
       {
         /* user is sender */
-        return <SendMessageInGroup key={msg._id} msg={msg} />;
+        return <SendMessageInGroup  msg={msg} />;
       }
     } else {
       {
         /* user is reciever */
-        return <RecievedMessageInGroup key={msg._id} msg={msg} />;
+        return <RecievedMessageInGroup  msg={msg} />;
       }
     }
   }
@@ -285,7 +294,7 @@ const scrollViewRef = useRef(null);
 
         {/* main message section */}
         <div className="h-80/100 w-full">
-          <div className="h-full w-full overflow-y-scroll scrollbar rung flex gap-2 flex-col  ">
+          <div className="h-full w-full overflow-y-scroll scrollbar  flex gap-2 flex-col  ">
             {false ? (
               <div className='flex items-center justify-center p-2 gap-2'>
                 <Loader2Icon className="size-4.5 animate-spin" /> 

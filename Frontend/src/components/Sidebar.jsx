@@ -2,34 +2,75 @@ import React from "react";
 import { Link, Route } from "react-router-dom";
 import usechatStore from "../store/useChatStore.js";
 import authStore from "../store/userAuth.store.js";
-import { EllipsisVertical, LogOut } from "lucide-react";
+import { EllipsisVertical, LogOut,Loader2, User } from "lucide-react";
 import groupStore from "../store/group.store.js";
 import requestStore from "../store/requests.store.js";
+import { useRef } from "react";
+import { useState } from "react";
+import UserProfile from "./UserProfile.jsx";
+
 function Sidebar() {
-  const { selectedTab, setSelectedTab, isUsersLoading } = usechatStore();
+  const { selectedTab, setSelectedTab, isUsersLoading,getTokenForUpload,uploadOnCloudinary,isImageUploading } = usechatStore();
   
-  const { user, logout } = authStore();
-  const {setSelectedUser,getContacts,getchatPartners}=usechatStore();
-  const {setSelectedGroup}=groupStore();
-  const {infoAbout,setInfoAbout,getMessageRequests,getGroupRequests}=requestStore()
+  const { user, logout,updateProfile } = authStore();
+  const inst=useRef()
+  const clickOnIcon=(e)=>{
+    console.log(e)
+    inst.current?.click();
+  }
+  
+  const [imageUploading, setimageUploadingg] = useState(false)
+  
+  const [preview,setPreview] =useState()
+  const [previewURL,setpreviewURL]=useState();
+  const handleImageChange=async(e)=>{
+    console.log(e)
+    const file=e.currentTarget?.files[0]
+    const url=await URL.createObjectURL(file)
+    setpreviewURL(url)
+  
+    try {
+      const {timestamp,signature,apiKey}=await getTokenForUpload('profilePics')
+      const formData=new FormData()
+      formData.append("api_key", apiKey);
+      formData.append("timestamp", timestamp);
+      formData.append("signature", signature);
+      formData.append("folder", "profilePics");
+      formData.append('file',file)
+      
+     
+      const data=await uploadOnCloudinary(formData)
+      console.log(data.secure_url)
+      await updateProfile(data.secure_url)
+
+    } catch (error) {
+      console.log(error?.message)
+    }
+
+  }
+
+  console.log("User in sideBar",user)
+  const { setSelectedUser, getContacts, getchatPartners } = usechatStore();
+  const { setSelectedGroup } = groupStore();
+  const { infoAbout, setInfoAbout, getMessageRequests, getGroupRequests } = requestStore();
+
   const handleClick = async (e) => {
     const tab = e.currentTarget.value;
 
-    if(tab==='Activity')
-    {
-      await getMessageRequests()
-      await getGroupRequests()
-      setSelectedUser(null)
+    if (tab === 'Activity') {
+      await getMessageRequests();
+      await getGroupRequests();
+      setSelectedUser(null);
       setSelectedGroup(null);
     }
-    await getContacts()
-    await getchatPartners()
-    setInfoAbout(null)
+    await getContacts();
+    await getchatPartners();
+    setInfoAbout(null);
     setSelectedTab(tab);
   };
 
   const [openMenu, setOpenMenu] = React.useState(false);
-
+  const [profileViewer,setprofileViewer]=React.useState(false)
   const components = [
     {
       name: "Chats",
@@ -47,58 +88,39 @@ function Sidebar() {
       name: "Activity",
       icon: "./icons/bell.png",
     },
-    // ,
-    // {
-    //   name: "Settings",
-    //   icon: "./icons/setting.png",
-    // },
   ];
 
   return (
-    <div className=" border border-[#E2E8F0]  bg-[#FFFFFF] text-black flex flex-col overflow-hidden w-1/5 h-full font-liberation justify-evenly  ">
+    <div className="group border border-[#E2E8F0] bg-[#FFFFFF] text-black flex flex-col overflow-hidden w-22 hover:w-1/5 h-full font-liberation justify-evenly transition-all duration-300 ease-in-out z-30">
+      
       {/* logo and new chat */}
       <div className="flex flex-col gap-4 p-4 rounded-lg">
-        <div className="ring-1 ring-black flex items-center gap-2 p-1.5">
-          <img
+        <div className="group-hover:ring-1 ring-black flex items-center gap-2 p-1.5 justify-center group-hover:justify-start">
+          <img  
             src="./chatFlowLogo.png"
             alt="logo"
-            className="w-12 h-12 pt-1 rounded-full"
+            className="h-12 pt-1 pl-1 rounded-full min-w-[48px]"
           />
-          <div className="flex flex-col justify-end">
-            <p className="text-xl font-bold text-[#0F172A]  p-0">
+          {/* Replaced 'hidden' with smooth max-width and opacity transitions */}
+          <div className="flex flex-col justify-end whitespace-nowrap max-w-0 opacity-0 scale-95 group-hover:max-w-xs group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 ease-in-out overflow-hidden">
+            <p className="text-xl font-bold text-[#0F172A] p-0">
               <Link to="/">Chatflow</Link>
             </p>
             <span className="font-serif text-xs">Modern Messaging</span>
           </div>
         </div>
 
-        <div className="my-[24px]">
-          <button className="text-lg text-white p-2 rounded-lg flex items-center gap-2 justify-center bg-[#FF2D78] w-full shadow-lg">
-            <span
-              className="
-size-3
-rounded-full
-ring-1
-flex items-center justify-center
-text-sm
-font-bold
-leading-none
-"
-            >
-              +
-            </span>
-            <span>New Chat</span>
-          </button>
-        </div>
+        <div className="my-[24px]"></div>
       </div>
+
       {/* chat options */}
-      <div className=" ring-black flex justify-center flex-1  p-1  ">
-        <div className="flex flex-col  gap-3 w-4/5">
+      <div className="ring-black flex justify-center flex-1 p-1">
+        <div className="flex flex-col gap-3 w-full px-2 group-hover:w-4/5 group-hover:px-0 transition-all duration-300">
           {components.map((component, ind) => {
             return (
               <button
                 className={` ${selectedTab === component.name ? "bg-[#FF2D78] text-[#efe6e6] hover:text-[#efe6e6] duration-0" : ""}
-              }  flex h-10  justify-start px-4 items-center gap-2.5  font-liberation font-bold text-[#475569] bg-[#F3F4F6] focus:bg-[#FF2D78] hover:bg-[#FF2D78]/10 hover:text-[#FF2D78] hover:cursor-pointer transition-colors duration-200 rounded-md `}
+                } flex h-10 justify-center group-hover:justify-start px-0 group-hover:px-4 items-center gap-2.5 font-liberation font-bold text-[#475569] bg-[#F3F4F6] focus:bg-[#FF2D78] hover:bg-[#FF2D78]/10 hover:text-[#FF2D78] hover:cursor-pointer transition-colors duration-200 rounded-md w-full overflow-hidden`}
                 value={component.name}
                 key={component.name}
                 onClick={handleClick}
@@ -107,9 +129,12 @@ leading-none
                 <img
                   src={component.icon}
                   alt={component.name}
-                  className="size-6 hover:text-[#FF2D78]"
+                  className="size-6 min-w-[24px] hover:text-[#FF2D78]"
                 />
-                <span>{component.name}</span>
+                {/* Fixed text lag: Smoothly shrinks layout space & opacity at 300ms match */}
+                <span className="whitespace-nowrap max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-300 ease-in-out inline-block overflow-hidden">
+                  {component.name}
+                </span>
               </button>
             );
           })}
@@ -117,17 +142,37 @@ leading-none
       </div>
 
       {/* User Profile */}
-      <div className=" relative ">
-        <div className=" rounded-full   border-[2px] border-[#E2E8F0] w-9/10 ml-4"></div>
-        <div className="flex w-full pt-3 px-2 pb-1.5 gap-2">
-          <img
-            src={user.profilePic || "./chatFlowLogo.png"}
-            alt="avatar"
-            className="size-10 mt-0.5  object-cover rounded-xl"
-          />
-          <div className="flex flex-col text-[#0F172A]">
-            <p className="font-bold text-lg">{user.name}</p>
-            <p className="font-light text-[#0F172A]/50 text-xs pl-0.5">
+      <div className="relative w-full">
+        <div className="rounded-full border-[2px] border-[#E2E8F0] w-9/10 mx-auto group-hover:ml-4 transition-all duration-300"></div>
+        <div className="relative flex w-full pt-3 px-4 group-hover:px-2 pb-1.5 gap-2 justify-center group-hover:justify-start">
+         <div className="relative size-10 mt-0.5 min-w-[40px] group/avatar cursor-pointer" onClick={clickOnIcon}>
+              {/* The Profile Image */}
+              <img
+                src={ previewURL||user.profilePic || "./chatFlowLogo.png"}
+                alt="avatar"
+                className="w-full h-full object-cover rounded-xl"
+              />
+
+              {/* The Hover Overlay */}
+              <div className="absolute inset-0 bg-gray-500/80 rounded-xl flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200">
+                {!isImageUploading?<span className="text-[8px]  text-white uppercase tracking-wider ">
+                  change
+                </span>:<Loader2 className="text-white animate-spin"/>  }
+              </div>
+            </div>
+
+              {/* The Hidden File Input */}
+              <input 
+                onChange={handleImageChange}
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                ref={inst} 
+              />
+          {/* Profile details text transition patch */}
+          <div className="flex flex-col text-[#0F172A] max-w-0 opacity-0 group-hover:max-w-[55%] group-hover:opacity-100 transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap">
+            <p className="font-bold text-lg truncate">{user.name}</p>
+            <p className="font-light text-[#0F172A]/50 text-xs pl-0.5 truncate">
               {user.about}
             </p>
           </div>
@@ -138,37 +183,50 @@ leading-none
             onClick={() => {
               setOpenMenu((prv) => !prv);
             }}
-            className="ml-auto rounded-lg p-2 text-[#64748B] transition-colors duration-200 hover:bg-[#E2E8F0] hover:text-[#0F172A] hover:cursor-pointer"
+            className="opacity-0 w-0 group-hover:w-auto group-hover:opacity-100 ml-auto rounded-lg p-2 text-[#64748B] transition-all duration-300 hover:bg-[#E2E8F0] hover:text-[#0F172A] hover:cursor-pointer overflow-hidden"
           >
             <EllipsisVertical className="size-5" />
           </button>
           {openMenu && (
-            <div className="absolute bottom-14 right-3 z-20 w-40 rounded-lg border border-[#E2E8F0] bg-white p-1.5 font-liberation shadow-xl shadow-slate-200/80">
+            <div className="absolute hidden group-hover:block bottom-14 right-3 z-20 w-40 rounded-lg border border-[#E2E8F0] bg-white p-1.5 font-liberation shadow-xl shadow-slate-200/80">
               <ul>
                 <li>
                   <button
                     type="button"
-                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-[#DC2626] transition-colors duration-200 hover:bg-[#FEF2F2] hover:cursor-pointer"
+                    className="flex  w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-[#DC2626] transition-colors duration-200 hover:bg-[#FEF2F2] hover:cursor-pointer"
                     onClick={logout}
                   >
                     <LogOut className="size-4" />
                     <span>Logout</span>
                   </button>
                 </li>
+              <li>
+                 <button 
+                 type="button"
+                    className="flex  w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-[#DC2626] transition-colors duration-200 hover:bg-[#FEF2F2] hover:cursor-pointer"
+           
+                 onClick={()=>{
+                  setprofileViewer((prv)=>(!prv))
+                  setOpenMenu(false)}
+                }
+                 >
+                  <User className="size-4"/>
+                  <span>Profile</span>
+                  </button>
+                  
+                </li>
+
+        
               </ul>
             </div>
           )}
         </div>
       </div>
+    
+          {profileViewer && <UserProfile setprofileViewer={setprofileViewer}/>}
+    
     </div>
   );
 }
 
 export default Sidebar;
-
-{
-  /* <div className="flex  justify-start px-4 items-center gap-2.5 h-8 font-liberation font-bold text-[#475569] bg-[#F3F4F6] focus:bg-[#FF2D78] hover:bg-[#FF2D78]/10 hover:text-[#FF2D78] hover:cursor-pointer transition-colors duration-200 rounded-md ">
-            <img src="./icons/telephone.png" alt="chats" className="size-6" />
-            <span>Chats</span>
-          </div> */
-}

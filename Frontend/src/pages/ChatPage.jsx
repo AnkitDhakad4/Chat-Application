@@ -42,7 +42,7 @@ const renderMainContent = () => {
   return <NoChatPage />;
 };
   return (
-    <div className="flex flex-row  h-full  w-full">
+    <div className=" relative flex flex-row  h-full  w-full">
       <Sidebar />
 
       {selectedTab==='Activity'?<NoticePageRendering/> :<Middlepanel />}

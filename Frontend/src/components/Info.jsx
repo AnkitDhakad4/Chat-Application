@@ -168,7 +168,7 @@ const Info = () => {
                   <img
                     src={member.profilePic}
                     alt={member.fullName}
-                    className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-slate-100"
+                    className={`w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 ${onlineUsers.has(member._id)?"border-green-600":"border-slate-100"}`}
                   />
 
                   <div className="flex flex-col min-w-0 flex-1">

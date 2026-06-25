@@ -29,6 +29,7 @@ import MessagePageGroup from "./MessagePageGroup.jsx";
 
 
 
+
 function SendMessageInGroup({msg}) {
     
 
@@ -164,7 +165,7 @@ const time = new Date(msg.createdAt)
 
 
 function MessagePage() {
-  const { selectedUser, messages, sendMessage, getMessages,isMessageLoading,subscribeMessage,unSubscribeMessage,setSelectedUser, selectedTab, setSelectedTab, isUsersLoading  } = useChatStore();
+  const { selectedUser, messages, sendMessage, getMessages,isMessageLoading,subscribeMessage,unSubscribeMessage,setSelectedUser, selectedTab, setSelectedTab, isUsersLoading,getTokenForUpload,uploadOnCloudinary,isImageUploading  } = useChatStore();
   const { onlineUsers, user } = authStore();
 
     const grpMessages = [
@@ -223,7 +224,11 @@ function MessagePage() {
         if (
           new Date(messages[i].createdAt).toISOString().split("T")[0] === Day
         ) {
-          elements.push(showMessage(messages[i]));
+          
+          if(messages[i]?.text?.length > 0 || messages[i]?.image!=="")
+          {
+            elements.push(showMessage(messages[i]));
+          }
         } else {
           i--;
           break;
@@ -235,14 +240,10 @@ function MessagePage() {
 
   const showMessage = (msg) => {
     if (msg.senderId === user._id) {
-      {
-        /* user is sender */
-      }
+    
       return <SendMessage key={msg._id} msg={msg} />;
     } else {
-      {
-        /* user is reciever */
-      }
+      // user is receiver
       return <RecievedMessage key={msg._id} msg={msg} />;
     }}
 
@@ -293,21 +294,40 @@ function MessagePage() {
   const [inputImage, setInputImage] = useState(null);
   const inputFileRef = useRef(null);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      console.log(file);
-      setInputImage(file);
-    }
+
+  const [previewUrl, setPreviewUrl] = useState(null)
+  const handleFileChange = async (e) => {
+    const file = e.target?.files[0];
+    setInputImage(file)
+    setPreviewUrl(URL.createObjectURL(file));
+
   };
 
 
   const handleSubmitForUser = async (e) => {
     e.preventDefault();
 
+    let url="";
+    if (inputImage) {
+      const tokens=await getTokenForUpload('messages')
+      console.log(tokens)
+      // const {timestamp,signature,apiKey}=await getTokenForUpload('profilePics')
+      const formData=new FormData();
+      formData.append('api_key',tokens.apiKey)
+      formData.append('signature',tokens.signature)
+      formData.append('timestamp',tokens.timestamp)
+      formData.append('folder','messages')
+      formData.append('file',inputImage)
+     
+      
+      const data=await uploadOnCloudinary(formData)
+      url=data.secure_url
+    }
+
+
     const formData = new FormData();
     formData.append("text", messageText);
-    formData.append("image", inputImage);
+    formData.append("image", url);
 
     // for(let[key,value] of formData.entries())
     // {
@@ -321,12 +341,14 @@ function MessagePage() {
     }
     
     try {
-      // await sendMessage("", messageText);
+      await sendMessage({messageText,url});
     } catch (error) {
       console.log(error);
       toast.error(error.message);
     } finally {
       setMessageText("");
+      setInputImage(null)
+      setPreviewUrl(null)
     }
 
   };
@@ -370,71 +392,99 @@ function MessagePage() {
       return <NoChatPage />;
     }
 
-  return (
-    <div className="flex flex-col h-full flex-1 border-y border-r border-[#E2E8F0]">
-      {/* upper section */}
-      <div className="flex h-1/10 border-b border-[#E2E8F0]">
-        <ChevronLeft 
-          onClick={() => { setSelectedUser(null) }}
-          className="self-center size-9 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer"
+ return (
+  <div className="relative flex flex-col h-full flex-1 border-y border-r border-[#E2E8F0]">
+    {/* upper section */}
+    <div className="flex h-1/10 border-b border-[#E2E8F0]">
+      <ChevronLeft 
+        onClick={() => { setSelectedUser(null) }}
+        className="self-center size-9 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer"
+      />
+      <ProfileHeader
+        upper={true}
+        onlineUsers={onlineUsers}
+        user={selectedUser}
+        outsideClass="hover:cursor-pointer w-1/2 pl-2 p-1 flex items-center gap-1"
+      />
+      <div className="flex-1 flex justify-end items-center gap-5">
+        <Info 
+          onClick={() => { setInfoAbout('User') }}
+          className="size-7 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer" 
         />
-        <ProfileHeader
-          upper={true}
-          onlineUsers={onlineUsers}
-          user={selectedUser}
-          outsideClass="hover:cursor-pointer w-1/2 pl-2 p-1 flex items-center gap-1"
-        />
-        <div className="flex-1 flex justify-end items-center gap-5">
-          <Info 
-            onClick={() => { setInfoAbout('User') }}
-            className="size-7 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer" 
-          />
-          <EllipsisVertical className="mx-2 size-6 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer" />
-        </div>
-      </div>
-
-      {/* main message section */}
-      <div className="h-80/100 w-full">
-        <div className="h-full w-full overflow-y-scroll scrollbar rung flex gap-2 flex-col p-4">
-          {isMessageLoading ? (
-            <div className='flex items-center justify-center p-2 gap-2'>
-              <Loader2Icon className="size-4.5 animate-spin" /> 
-              <p className="font-inter">Loading...</p>
-            </div>
-          ) : (
-            handleMessageRenderingAccordingToTime(messages)
-          )}
-          <div className="w-0 h-0" ref={scrollViewRef}></div>
-        </div>
-      </div>
-
-      {/* message input */}
-      <div className="px-8 rung h-10/100 flex-1 flex items-center justify-evenly">
-        <form onSubmit={handleSubmitForUser} className="w-full flex justify-evenly items-center">
-          <input
-            type="text"
-            className="border-[#E5E7EB] border-2 bg-[#F9FAFB] p-2 w-4/5 rounded-2xl"
-            placeholder="send message"
-            onChange={handleChange}
-            value={messageText}
-          />
-          <button type="button" onClick={() => inputFileRef.current.click()}>
-            <Image className="size-9 hover:cursor-pointer" />
-            <input
-              className="hidden"
-              type="file"
-              accept="image/*"
-              ref={inputFileRef}
-              onChange={handleFileChange}
-            />
-          </button>
-          <button type="submit" className="hover:cursor-pointer">
-            <SendHorizontal className="size-9 p-0.5 flex justify-center items-center rung rounded-lg bg-[#FF2D78] text-[#FFFFFF]" />
-          </button>
-        </form>
+        <EllipsisVertical className="mx-2 size-6 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer" />
       </div>
     </div>
-  );
+
+    {/* main message section */}
+    <div className="h-80/100 w-full">
+      <div className="h-full w-full overflow-y-scroll scrollbar flex gap-2 flex-col p-4">
+        {isMessageLoading ? (
+          <div className='flex items-center justify-center p-2 gap-2'>
+            <Loader2Icon className="size-4.5 animate-spin" /> 
+            <p className="font-inter">Loading...</p>
+          </div>
+        ) : (
+          handleMessageRenderingAccordingToTime(messages)
+        )}
+        <div className="w-0 h-0" ref={scrollViewRef}></div>
+      </div>
+    </div>
+
+    {/* message input wrapper container */}
+    <div className="absolute bottom-0 w-full py-2 px-8 bg-white rounded-t-2xl flex flex-col gap-2 items-start shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+      
+      {/* Conditionally rendered preview section: Shows ONLY if an image preview URL exists */}
+      {previewUrl && (
+        <div className="flex items-center pl-2">
+          <div className="relative mt-2 group">
+            {/* Cancel Button - clears the preview state and resets the native file input element */}
+            <XIcon 
+              onClick={() => {
+                setPreviewUrl(null);
+                setInputImage(null);
+                if (inputFileRef.current) inputFileRef.current.value = ""; // Clear file selector memory
+              }}
+              className="absolute -top-1.5 -right-1.5 size-5 bg-white border border-gray-300 shadow-sm p-0.5 text-gray-600 hover:text-red-500 hover:cursor-pointer rounded-full transition-transform hover:scale-110 z-10"
+            />
+            {/* Responsive visual container for the user's selected photo */}
+            <img 
+              src={previewUrl} 
+              alt="Upload preview"
+              className="size-20 object-cover rounded-xl border border-gray-200 shadow-sm"
+            />
+            {isImageUploading && <Loader2Icon className="absolute top-7.5 right-7.5 text-gray-700 animate-spin"/>}
+
+          </div>
+        </div>
+      )}
+      
+      <form onSubmit={handleSubmitForUser} className="w-full flex justify-evenly items-center">
+        <input
+          type="text"
+          className="border-[#E5E7EB] border-2 bg-[#F9FAFB] p-2 w-4/5 rounded-2xl"
+          placeholder="send message"
+          onChange={handleChange}
+          value={messageText}
+        />
+        <button type="button" onClick={() => inputFileRef.current.click()}>
+          <Image className="size-9 hover:cursor-pointer text-[#6B7280] hover:text-[#FF2D78] transition-colors" />
+          <input
+            className="hidden"
+            type="file"
+            accept="image/*"
+            ref={inputFileRef}
+            onChange={handleFileChange}
+          />
+        </button>
+        <button 
+        disabled={isImageUploading}
+        type="submit" className="hover:cursor-pointer">
+          <SendHorizontal className="size-9 p-0.5 flex justify-center items-center rung rounded-lg bg-[#FF2D78] text-[#FFFFFF]" />
+        </button>
+      </form>
+    </div>
+  </div>
+);
 }
 
 export default MessagePage;

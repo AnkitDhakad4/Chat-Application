@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
-import {io} from "socket.io-client";
+// import {io} from "socket.io-client";
 import useChatStore from './useChatStore.js'
 import groupStore from "./group.store.js";
 import requestStore from "./requests.store.js";
+import socket from "../socket/socket.js";
 
 const baseUrl = import.meta.env.VITE_SOCKET_URL;
 console.log(baseUrl)
@@ -16,7 +17,8 @@ const initialState={
   user: {},
   loggedInUser:{},
   socket: null,
-  onlineUsers: new Set()
+  onlineUsers: new Set(),
+  isUserUpdating:false
 }
 
 
@@ -112,16 +114,31 @@ const authStore = create((set, get) => ({
       set({isLoading:false})
     }
   },
+
+  updateUser:async(formData)=>{
+    try {
+      set({isUserUpdating:true})
+      const resp=await axiosInstance.post('/users/updateProfile',formData)
+      console.log("Updated user ",resp.data.data)
+      set({user:resp.data.data})
+       toast.success("Profile updated successfully")
+    } catch (error) {
+      console.log(error?.message)
+    } finally{
+      set({isUserUpdating:false})
+    }
+  }
+,
   connect: () => {
     if (!get().authStatus || get().socket?.connected) return;
 
     get().socket?.removeAllListeners();//it removes all callback means custom events 
     get().socket?.disconnect();//it disconnnects the connection to prevent the duplicate connections
 
-    const socket = io(baseUrl, {
-      withCredentials: true,
-      autoConnect: false,
-    });
+    // const socket = io(baseUrl, {
+    //   withCredentials: true,
+    //   autoConnect: false,
+    // });
 
     
     // console.log("socket is created ", socket)

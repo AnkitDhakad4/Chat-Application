@@ -20,16 +20,7 @@ function ProfileHeader(props) {
     
     if(!fromContactPage)
       {setSelectedUser(user)
-        //  async function getMsg(){
-        //       try {
-        //         console.log("getting the msg")
-        //         await getMessages(user._id)
-        //       } catch (error) {
-        //         console.log(error)
-        //       }
-        //     }
-        
-        //     getMsg();
+       
       }
   }
 
