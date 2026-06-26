@@ -197,10 +197,10 @@ function Middlepanel() {
           allGroups.map((group) => (
             // hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full
             <GroupProfileView
-            upper={true}
+          
             key={group._id}
               group={group}
-              outsideClass="hover:cursor-pointer  h-12/100  p-1 flex items-center gap-1 w-full"
+              outsideClass="hover:cursor-pointer   h-12/100  p-1 flex items-center gap-1 w-full"
             />
             
           ))

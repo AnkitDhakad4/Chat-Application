@@ -6,7 +6,7 @@ function GroupProfileView(props) {
 
 
   const {group,outsideClass,upper}=props
-  console.log("Props are",group)
+  console.log("Props are",)
     
     
     // console.log(group)
@@ -38,14 +38,14 @@ function GroupProfileView(props) {
 
   return (
     <div
-          className={outsideClass}
+          className={`${outsideClass}  `}
           onClick={()=>{selectGroup(group)}}
           // key={group._id} 
            >
           <div className="relative h-full ">
             <img
               src={group.groupIcon || './avatar.png'}
-              className="h-full p-1 object-cover rounded-full "
+                className={`p-1 object-cover rounded-full ${props.upper ? "h-full w-14 " :"h-16 w-16"} `}
             />
           </div>
           <div className=" h-full flex-1   min-w-0 flex justify-center flex-col">

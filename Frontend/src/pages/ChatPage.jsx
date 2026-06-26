@@ -25,13 +25,9 @@ const renderMainContent = () => {
 
   if(selectedTab==='Groups' && !selectedGroup) 
     {
-      if(oneGroupIscreated)
-      {
-        return <NoChatPage/>
-      }
       
-      return <CreateGroup/>
-    
+        return !oneGroupIscreated? <NoChatPage isGroupSelected={true}/>:<CreateGroup/>
+      
     }
 
   // 3. Check if an active conversation exists

@@ -34,7 +34,7 @@ function ProfileHeader(props) {
             <div className={`${onlineUsers.has(user._id)&& !props.upper ? 'online':'' } absolute size-3 shrink-0 `}></div>
             <img
               src={user.profilePic || './avatar.png'}
-              className="h-full p-1 object-cover rounded-full "
+              className={`p-1 object-cover rounded-full ${props.upper ? "h-full w-14 " :"h-16 w-16"} `}
             />
           </div>
           <div className=" h-full flex-1   min-w-0 flex justify-center flex-col">

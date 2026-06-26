@@ -71,7 +71,7 @@ const createGroupMessages=async function(req,res){
 
    
 
-      io.to(groupId).emit("newGroupMessage",message)
+      io.to(groupId).except(senderSocketId).emit("newGroupMessage",message)
    
 
 
@@ -91,20 +91,25 @@ const createGroupMessages=async function(req,res){
 
 const createGroup = async (req, res) => {
   try {
-    const { description, name } = req.body;
+    
+    const { description,  groupName,members,groupIcon } = req.body;
     const user = req.user;
-    // console.log(description,name);
-    if (name.trim().length == 0) {
+    if (groupName.trim().length == 0) {
       return res.status(400).json({ message: "Provide a name to the group" });
     }
 
+    
+
+
     const grp = await Group.create({
-      groupName: name,
+      groupName: groupName,
       groupDescription: description,
+      groupIcon:groupIcon,
       admin: user._id,
-      members: [user._id],
+      members: [user._id,...members],
     });
 
+    
     if (!grp) {
       return res
         .status(501)
@@ -119,11 +124,12 @@ const createGroup = async (req, res) => {
         .json({ message: "Unable to fetch the Group data" });
     }
 
-    // console.log("groupIs created successfully   ",grpData);
+   
     return res
       .status(200)
       .json({ message: "Group is created successfully", data: grpData });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ message: error.message });
   }
 };

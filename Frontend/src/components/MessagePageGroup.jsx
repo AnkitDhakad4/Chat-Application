@@ -161,7 +161,9 @@ const time = new Date(msg.createdAt)
 function MessagePageGroup() {
     const {selectedGroup,setSelectedGroup,isGroupMessageLoading,groupsMessages,sendMessageInGroup,getGroupMessages,subscribeForGroupMessage,unsubscribeForGroupMessage}=groupStore()
      const grpMessages = groupsMessages[selectedGroup?._id]
-   
+
+    const {isImageUploading,getTokenForUpload,uploadOnCloudinary}=useChatStore()
+
      const {infoAbout,setInfoAbout}=requestStore()
     useEffect(()=>{
         if(selectedGroup)
@@ -187,13 +189,45 @@ function MessagePageGroup() {
       }
     },[selectedGroup])
 
+    
+     const [messageText, setMessageText] = useState("");
+    const handleChange = (e) => {
+      setMessageText(e.target.value);
+    };
+
+    const inputFileRef = useRef(null);
+    const [inputImage, setInputImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null)
+    const handleFileChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        // console.log(file);
+        setInputImage(file);
+        const prv=URL.createObjectURL(file)
+        setImagePreview(prv)
+      }
+    };
+
     const handleSubmitForGroup = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("text", messageText);
-    formData.append("image", inputImage);
-    formData.append("groupId", selectedGroup._id);
+    
+    let url="";
+    if (inputImage) {
+      const tokens=await getTokenForUpload('groupMessages')
+      console.log(tokens)
+      // const {timestamp,signature,apiKey}=await getTokenForUpload('profilePics')
+      const formData=new FormData();
+      formData.append('api_key',tokens.apiKey)
+      formData.append('signature',tokens.signature)
+      formData.append('timestamp',tokens.timestamp)
+      formData.append('folder','groupMessages')
+      formData.append('file',inputImage)
+     
+      
+      const data=await uploadOnCloudinary(formData)
+      url=data.secure_url
+    }
 
     if(messageText.trim().length===0 && !inputImage)
     {
@@ -202,36 +236,19 @@ function MessagePageGroup() {
     }
     
     try {
-        console.log("IN the send message to group")
-      await sendMessageInGroup({text:messageText,groupId:selectedGroup._id,image:inputImage});
+        console.log("In the send message to group")
+      await sendMessageInGroup({text:messageText,groupId:selectedGroup._id,image:url});
     } catch (error) {
       console.log(error);
       toast.error(error.message);
     } finally {
-      setMessageText("");
+       setMessageText("");
+      setInputImage(null)
+      setImagePreview(null)
     }
-
   };
 
   const { onlineUsers, user } = authStore();
-  
-
-  const [messageText, setMessageText] = useState("");
-    const handleChange = (e) => {
-      setMessageText(e.target.value);
-    };
-  
-    const [inputImage, setInputImage] = useState(null);
-    const inputFileRef = useRef(null);
-  
-    const handleFileChange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        console.log(file);
-        setInputImage(file);
-      }
-    };
-    
     const handleMessageRenderingAccordingToTimeInGroup = (messages) => {
     let elements = [];
     for (let i = 0; i < messages?.length; i++) {
@@ -272,7 +289,7 @@ const scrollViewRef = useRef(null);
 
   
     return (
-      <div className="flex flex-col h-full flex-1 border-y border-r border-[#E2E8F0]">
+      <div className="relative flex flex-col h-full flex-1 border-y border-r border-[#E2E8F0]">
         {/* upper section */}
         <div className="flex h-1/10 border-b border-[#E2E8F0]">
           <ChevronLeft 
@@ -281,6 +298,7 @@ const scrollViewRef = useRef(null);
           />
           <GroupProfileView
             group={selectedGroup}
+            upper={true}
             outsideClass="hover:cursor-pointer w-1/2 pl-2 p-1 flex items-center gap-1"
           />
           <div className="flex-1 flex justify-end items-center gap-5">
@@ -309,30 +327,58 @@ const scrollViewRef = useRef(null);
         </div>
 
         {/* message input */}
-        <div className="px-8  h-10/100 flex-1 flex items-center justify-evenly">
-          <form onSubmit={handleSubmitForGroup} className="w-full flex justify-evenly items-center">
-            <input
-              type="text"
-              className="border-[#E5E7EB] border-2 bg-[#F9FAFB] p-2 w-4/5 rounded-2xl"
-              placeholder="send message"
-              onChange={handleChange}
-              value={messageText}
+        <div className="absolute bottom-0 w-full py-2 px-8 bg-white rounded-t-2xl flex flex-col gap-2 items-start shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+      
+      {/* Conditionally rendered preview section: Shows ONLY if an image preview URL exists */}
+      {imagePreview && (
+        <div className="flex items-center pl-2">
+          <div className="relative mt-2 group">
+            {/* Cancel Button - clears the preview state and resets the native file input element */}
+            <XIcon 
+              onClick={() => {
+                setImagePreview(null);
+                setInputImage(null);
+                if (inputFileRef.current) inputFileRef.current.value = ""; // Clear file selector memory
+              }}
+              className="absolute -top-1.5 -right-1.5 size-5 bg-white border border-gray-300 shadow-sm p-0.5 text-gray-600 hover:text-red-500 hover:cursor-pointer rounded-full transition-transform hover:scale-110 z-10"
             />
-            <button type="button" onClick={() => inputFileRef.current.click()}>
-              <Image className="size-9 hover:cursor-pointer" />
-              <input
-                className="hidden"
-                type="file"
-                accept="image/*"
-                ref={inputFileRef}
-                onChange={handleFileChange}
-              />
-            </button>
-            <button type="submit" className="hover:cursor-pointer">
-              <SendHorizontal className="size-9 p-0.5 flex justify-center items-center rung rounded-lg bg-[#FF2D78] text-[#FFFFFF]" />
-            </button>
-          </form>
+            {/* Responsive visual container for the user's selected photo */}
+            <img 
+              src={imagePreview} 
+              alt="Upload preview"
+              className="size-20 object-cover rounded-xl border border-gray-200 shadow-sm"
+            />
+            {isImageUploading && <Loader2Icon className="absolute top-7.5 right-7.5 text-gray-700 animate-spin"/>}
+
+          </div>
         </div>
+      )}
+      
+      <form onSubmit={handleSubmitForGroup} className="w-full flex justify-evenly items-center">
+        <input
+          type="text"
+          className="border-[#E5E7EB] border-2 bg-[#F9FAFB] p-2 w-4/5 rounded-2xl"
+          placeholder="send message"
+          onChange={handleChange}
+          value={messageText}
+        />
+        <button type="button" onClick={() => inputFileRef.current.click()}>
+          <Image className="size-9 hover:cursor-pointer text-[#6B7280] hover:text-[#FF2D78] transition-colors" />
+          <input
+            className="hidden"
+            type="file"
+            accept="image/*"
+            ref={inputFileRef}
+            onChange={handleFileChange}
+          />
+        </button>
+        <button 
+        disabled={isImageUploading}
+        type="submit" className="hover:cursor-pointer">
+          <SendHorizontal className="size-9 p-0.5 flex justify-center items-center rung rounded-lg bg-[#FF2D78] text-[#FFFFFF]" />
+        </button>
+      </form>
+    </div>
       </div>
     );
   

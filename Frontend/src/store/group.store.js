@@ -50,15 +50,15 @@ const groupStore = create((set, get) => ({
       });
       const newMessage = resp.data.data;
       const currentMessages = get().groupsMessages[groupId] || [];
-
-      if (!socketIsConnected) {
+      
+      // if (!get().socketIsConnected) {
         set({
           groupsMessages: {
             ...get().groupsMessages,
             [groupId]: [...currentMessages, newMessage],
           },
         });
-      }
+      // }
     } catch (error) {
       console.log(error?.response?.data || error.message);
     }
@@ -79,27 +79,26 @@ const groupStore = create((set, get) => ({
           [id]: newMessages,
         },
       });
-      toast.success(resp.data.message);
+      // toast.success(resp.data.message);
     } catch (error) {
       console.log(error.response.data);
     }
   },
 
-  createGroup: async (name, description) => {
+  createGroup: async (body) => {
     try {
-      const resp = await axiosInstance.post("/group/createGroup", {
-        name,
-        description,
-      });
+      console.log(body)
+      const resp = await axiosInstance.post("/group/createGroup", body);
       toast.success(resp.data.message);
-      set({ oneGroupIscreated: true });
+      // set({ oneGroupIscreated: true });
     } catch (error) {
+      console.log(error)
       console.log(error?.data?.message);
     }
   },
 
-  setoneGroupIscreated: () => {
-    set({ oneGroupIscreated: true });
+  setoneGroupIscreated: (arg) => {
+    set({ oneGroupIscreated: arg });
   },
 
   addMembersInGroup: async (members, groupId) => {

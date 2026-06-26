@@ -50,7 +50,7 @@ function UserProfile( {setprofileViewer} ) {
     e.preventDefault();
     console.log("Submitting updated userSchema payload:", profile);
 
-     const file=inputImage
+    const file=inputImage
     if(inputImage)
     {
         try {
@@ -100,9 +100,9 @@ function UserProfile( {setprofileViewer} ) {
           </svg>
         </button>
 
-        {/* =========================================================
+
             LEFT COLUMN: Avatar Upload & Graphic Header
-            ========================================================= */}
+          
         <div className="w-full md:w-[45%] bg-[#E5E5E5] p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-300/50">
           <h2 className="text-xl md:text-2xl font-black uppercase tracking-wide text-slate-800 self-start mb-8 md:absolute md:top-8 md:left-8">
             Edit Your Profile
@@ -137,9 +137,8 @@ function UserProfile( {setprofileViewer} ) {
           <span className="text-xs text-slate-400 mt-2 font-medium">Supported formats: JPG, PNG</span>
         </div>
 
-        {/* =========================================================
-            RIGHT COLUMN: Text Field Form
-            ========================================================= */}
+  
+            {/* RIGHT COLUMN: Text Field Form */}
         <form onSubmit={handleSubmit} className="w-full md:w-[55%] p-8 md:pt-16 flex flex-col justify-between">
           
           <div className="space-y-4">

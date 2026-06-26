@@ -395,7 +395,7 @@ function MessagePage() {
  return (
   <div className="relative flex flex-col h-full flex-1 border-y border-r border-[#E2E8F0]">
     {/* upper section */}
-    <div className="flex h-1/10 border-b border-[#E2E8F0]">
+    <div className="flex h-1/10  border-b border-[#E2E8F0]">
       <ChevronLeft 
         onClick={() => { setSelectedUser(null) }}
         className="self-center size-9 text-[#6B7280] hover:text-[#FF2D78] hover:cursor-pointer"
@@ -404,7 +404,7 @@ function MessagePage() {
         upper={true}
         onlineUsers={onlineUsers}
         user={selectedUser}
-        outsideClass="hover:cursor-pointer w-1/2 pl-2 p-1 flex items-center gap-1"
+        outsideClass="hover:cursor-pointer w-1/2  pl-2 p-1 flex items-center gap-1"
       />
       <div className="flex-1 flex justify-end items-center gap-5">
         <Info 
