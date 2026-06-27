@@ -10,7 +10,7 @@ const requestToMessage=async function(req,res){
   try {
     
     const {id:reciever}=req.params;
-    // console.log(reciever)
+    
     const user=req.user;
 
     if(!reciever)
@@ -23,7 +23,7 @@ const requestToMessage=async function(req,res){
       receiverId:reciever,
       status:'pending'
     })
-    // console.log(request)
+    
 
     if(!request)
     {
@@ -33,7 +33,7 @@ const requestToMessage=async function(req,res){
     return res.status(200).json({message:"Request is sended to user successfully",data:request})
 
   } catch (error) {
-    console.log(error.message)
+    // 
     return res.status(500).json({message:error.message})
   }
 }
@@ -41,7 +41,7 @@ const requestToMessage=async function(req,res){
 const getAllSendedRequest=async function(req,res){
  try {
    const user=req.user;
-  //  console.log("in getAllSendedRequest")
+   
  const requests=await MessageRequest.find({
        senderId:user._id,
        status:'pending'
@@ -50,7 +50,7 @@ const getAllSendedRequest=async function(req,res){
       return res.status(404).json({ message: "Could not retrieve requests data structure" });
     }
 
-    console.log(requests)
+    // 
       return res.status(200).json({ 
       message: "All sent requests fetched successfully", 
       data: requests
@@ -80,7 +80,7 @@ const getAllSendedRequest=async function(req,res){
 //     const receiverId=acceptIt.senderId;
 
 //     const updateParteners=await chatParteners.findOneAndUpdate({userId:user._id},{$addToSet:{partners:receiverId}},{upsert:true,returnDocument:'after'})
-//       console.log("Updated parteners ",updateParteners)
+      
 //     if(!updateParteners)
 //     {
 //       return res.status(503).json({message:"Error while updating the chatParteners"});
@@ -233,17 +233,17 @@ const acceptRejectedRequest=async function(req,res){
 const createMessage = async function (req, res) {
   try {
     const { image, text } = req.body;
-    console.log("image is",image)
-    console.log("text is",text)
+    // 
+    // 
 
     const sender = req.user.id;
     const { id: receiver } = req.params;
-    console.log("sender ",sender,"receiver ",receiver)
+    // 
     // let url = "";
     // if (image) {
     //   url = await uploadOnCloudinary(image, "Messages");
     // }
-    // console.log("Message in create message ",text,image)
+    
 
     const isEligible=await MessageRequest.findOne({$or:[{senderId:sender,receiverId:receiver,status:'accepted'},{senderId:receiver,receiverId:sender,status:'accepted'}]})
 
@@ -259,22 +259,24 @@ const createMessage = async function (req, res) {
       receiverId: receiver,
       image: image,
       text: text,
-    });
+    })
 
-    console.log("message is created successfully ",message)
+    const newmessage=await message.populate('senderId', 'name profilePic');
+    // 
  
     
     // todo : to implement the socket.io for real time message sending
     const receiverSocketId = getReceiverId(receiver);
-    console.log("receiver Socket id is",receiverSocketId)
+    // 
     if (receiverSocketId) {
-      console.log("Message in emiiting")
-      io.to(receiverSocketId).emit("newMessage", message);
+      // 
+      io.to(receiverSocketId).emit("newMessage", newmessage);
     }
 
     
-    return res.status(200).json({ message: message });
+    return res.status(200).json({ message: newmessage });
   } catch (error) {
+    // 
     return res
       .status(500)
       .json({ message: "Error while sending the message ", error });
@@ -290,10 +292,10 @@ const createMessage = async function (req, res) {
 // const data = parteners ? parteners.partners.filter((prtnr)=>prtnr._id!=userId) : [];
 
 // // parteners.filter((prtnr)=>prtnr._id !=user._id)
-//     //console.log("Chat parteners are ", parteners);
-//     // console.log("chatPartners:- ",data)
-//       console.log("Chat parteners are",data)
-//       console.log("Chat parteners are",parteners)
+    // 
+    // 
+      
+      
 //     return res
 //       .status(200)
 //       .json({ message: "Here is all the chat partners ", data: data });
@@ -330,12 +332,12 @@ const getChatPartners = async function (req, res) {
 //   try {
 //     const userId = req.user.id;
 
-//     // console.log(req.user)
+    // 
 //     const contacts = await User.find({ _id: { $ne: userId } }).select(
 //       "-password -dob",
 //     );
-//     // console.log(contacts)
-//     //console.log("All contacts are ", contacts);
+    // 
+    // 
 //     return res
 //       .status(200)
 //       .json({ message: "Here is all the contacts ", data: contacts });
@@ -384,23 +386,23 @@ const getMessageByUserId = async function (req, res) {
         { senderId: senderId, receiverId: receiverId },
         { senderId: receiverId, receiverId: senderId },
       ],
-    });
-
-    // console.log("Messages with this user are ", messages);
+    }).populate('senderId', 'name profilePic');;
+    const newmessages=messages
+    
     return res.status(200).json({
       message: "ALl message of this user is received with this person",
-      data: messages,
+      data: newmessages,
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
-
+// 
 const generateUploadToken = (req, res) => {
   const { folder } = req.body;
-  console.log(folder)
+  // 
   const { timestamp, signature, apiKey } = generateCloudinarySignature(folder);
-  console.log(timestamp,signature,apiKey)
+  // 
   return res
     .status(200)
     .json({

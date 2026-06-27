@@ -70,9 +70,10 @@ const authStore = create((set, get) => ({
       const response = await axiosInstance.post("/users/login", data);
       set({ user: response.data.data, authStatus: true });
       set({ loggedInUser: response.data.data });
-      get().connect();
+       get().connect();
       toast.success("Login Successfully !");
-    } catch (error) {
+    } catch (error) { 
+      console.log(error)
       toast.error(error.response?.data?.message);
     } finally {
       set({ isLoading: false });    
@@ -130,28 +131,32 @@ const authStore = create((set, get) => ({
   }
 ,
   connect: () => {
-    if (!get().authStatus || get().socket?.connected) return;
 
-    get().socket?.removeAllListeners();//it removes all callback means custom events 
-    get().socket?.disconnect();//it disconnnects the connection to prevent the duplicate connections
+    // if (!get().authStatus || socket?.connected) return;
 
-    // const socket = io(baseUrl, {
-    //   withCredentials: true,
-    //   autoConnect: false,
-    // });
 
+    socket?.removeAllListeners();//it removes all callback means custom events 
+   
     
-    // console.log("socket is created ", socket)
-    socket.on("getOnlineUsers", (userIds) => {
-      // console.log("rsponse from the getOnlineUser in frontend ",userIds)
-      set({ onlineUsers: new Set(userIds) });
-    });
+    socket?.disconnect();//it disconnnects the connection to prevent the duplicate connections
 
-    socket.connect();
-    set({ socket });
+  
+    
+   
+     
+      socket.on("getOnlineUsers", (userIds) => {
+        console.log("rsponse from the getOnlineUser in frontend ",userIds)
+        set({ onlineUsers: new Set(userIds) });
+      });
+
+      socket.connect()
+  
+
+   
+    // set({ socket }); 
   },
   disconnect: () => {
-    const socket = get().socket;
+    // const socket = get().socket;
     if (!socket) return;
 
     socket.removeAllListeners();

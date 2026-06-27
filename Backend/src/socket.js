@@ -29,9 +29,9 @@ function getReceiverId(userId){
 // and socket is that particular users connection instance
 io.on("connection", async (socket) => {
   
-  
+  userSocketMap.era
   const userId = socket.user_id;
-  console.log("A user is connected to socket with id ", socket.id, socket.user.name, userId);
+  // console.log("A user is connected to socket with id ", socket.id, socket.user.name, userId);
 
   userSocketMap[userId] = socket.id;
 
@@ -42,7 +42,7 @@ io.on("connection", async (socket) => {
       
 
       groups.forEach((grp)=>{
-        console.log(grp._id.toString())
+        // console.log(grp._id.toString())
         socket.join(grp._id.toString())
       })
   } catch (error) {
@@ -52,7 +52,7 @@ io.on("connection", async (socket) => {
 
   socket.on("disconnect", () => {
     //here we used the socket bcz that particular user is disconnected and we will run this when only to get that he is disonnected
-    // console.log(`user: ${socket.user.name} is disconnected`);
+    console.log(`user: ${socket.user.name} is disconnected`);
     
     delete userSocketMap[userId];
 

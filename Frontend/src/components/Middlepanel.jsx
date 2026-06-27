@@ -26,7 +26,7 @@ function Middlepanel() {
   const [searchVal, setSearchVal] = useState("");
 
   const { onlineUsers } = authStore();
-
+  
   const handleChange = (e) => {
     setSearchVal(e.target.value);
   };

@@ -168,50 +168,50 @@ function MessagePage() {
   const { selectedUser, messages, sendMessage, getMessages,isMessageLoading,subscribeMessage,unSubscribeMessage,setSelectedUser, selectedTab, setSelectedTab, isUsersLoading,getTokenForUpload,uploadOnCloudinary,isImageUploading  } = useChatStore();
   const { onlineUsers, user } = authStore();
 
-    const grpMessages = [
-        {
-            "_id": "6a36f9f792b1ba1a0df518ff",
-            "senderId": {
-                "_id": "6a34d792475c1dd5dff2d518",
-                "name": "A",
-                "profilePic": ""
-            },
-            "text": "Message by user a",
-            "image": "https://lh4.googleusercontent.com/proxy/SpJhKhirUm0YNLmdSuU5tuJqw_4H-VOkYwl55F2qVo__jQqn_IWXXTXsP95e1oI6-quM7xS3VPobQ5jVqGWK3s-aU7N1NiM0orygMqgD5SjIJsixVdniw4mW7qai57gWWnkKRCWr3lHkTA36hXZPL6HQ3cpAYkDpN-UbXM_hWMFtK2hsNzkMxs079TE0YP8ZYe77KRrn7Poz5RKFyp5qzsVPEnTlu1SwHTqzifZQ",
-            "groupId": "6a36f74392b1ba1a0df517d5",
-            "createdAt": "2026-06-20T20:37:11.236Z",
-            "updatedAt": "2026-06-20T20:37:11.236Z",
-            "__v": 0
-        },
-        {
-            "_id": "6a36fa7192b1ba1a0df51909",
-            "senderId": {
-                "_id": "6a34d88f475c1dd5dff2d549",
-                "name": "B",
-                "profilePic": "https://lh4.googleusercontent.com/proxy/SpJhKhirUm0YNLmdSuU5tuJqw_4H-VOkYwl55F2qVo__jQqn_IWXXTXsP95e1oI6-quM7xS3VPobQ5jVqGWK3s-aU7N1NiM0orygMqgD5SjIJsixVdniw4mW7qai57gWWnkKRCWr3lHkTA36hXZPL6HQ3cpAYkDpN-UbXM_hWMFtK2hsNzkMxs079TE0YP8ZYe77KRrn7Poz5RKFyp5qzsVPEnTlu1SwHTqzifZQ"
-            },
-            "text": "Message by user b",
-            "image": "https://lh4.googleusercontent.com/proxy/SpJhKhirUm0YNLmdSuU5tuJqw_4H-VOkYwl55F2qVo__jQqn_IWXXTXsP95e1oI6-quM7xS3VPobQ5jVqGWK3s-aU7N1NiM0orygMqgD5SjIJsixVdniw4mW7qai57gWWnkKRCWr3lHkTA36hXZPL6HQ3cpAYkDpN-UbXM_hWMFtK2hsNzkMxs079TE0YP8ZYe77KRrn7Poz5RKFyp5qzsVPEnTlu1SwHTqzifZQ",
-            "groupId": "6a36f74392b1ba1a0df517d5",
-            "createdAt": "2026-06-20T20:39:13.152Z",
-            "updatedAt": "2026-06-20T20:39:13.152Z",
-            "__v": 0
-        }
-    ];
+    // const grpMessages = [
+    //     {
+    //         "_id": "6a36f9f792b1ba1a0df518ff",
+    //         "senderId": {
+    //             "_id": "6a34d792475c1dd5dff2d518",
+    //             "name": "A",
+    //             "profilePic": ""
+    //         },
+    //         "text": "Message by user a",
+    //         "image": "https://lh4.googleusercontent.com/proxy/SpJhKhirUm0YNLmdSuU5tuJqw_4H-VOkYwl55F2qVo__jQqn_IWXXTXsP95e1oI6-quM7xS3VPobQ5jVqGWK3s-aU7N1NiM0orygMqgD5SjIJsixVdniw4mW7qai57gWWnkKRCWr3lHkTA36hXZPL6HQ3cpAYkDpN-UbXM_hWMFtK2hsNzkMxs079TE0YP8ZYe77KRrn7Poz5RKFyp5qzsVPEnTlu1SwHTqzifZQ",
+    //         "groupId": "6a36f74392b1ba1a0df517d5",
+    //         "createdAt": "2026-06-20T20:37:11.236Z",
+    //         "updatedAt": "2026-06-20T20:37:11.236Z",
+    //         "__v": 0
+    //     },
+    //     {
+    //         "_id": "6a36fa7192b1ba1a0df51909",
+    //         "senderId": {
+    //             "_id": "6a34d88f475c1dd5dff2d549",
+    //             "name": "B",
+    //             "profilePic": "https://lh4.googleusercontent.com/proxy/SpJhKhirUm0YNLmdSuU5tuJqw_4H-VOkYwl55F2qVo__jQqn_IWXXTXsP95e1oI6-quM7xS3VPobQ5jVqGWK3s-aU7N1NiM0orygMqgD5SjIJsixVdniw4mW7qai57gWWnkKRCWr3lHkTA36hXZPL6HQ3cpAYkDpN-UbXM_hWMFtK2hsNzkMxs079TE0YP8ZYe77KRrn7Poz5RKFyp5qzsVPEnTlu1SwHTqzifZQ"
+    //         },
+    //         "text": "Message by user b",
+    //         "image": "https://lh4.googleusercontent.com/proxy/SpJhKhirUm0YNLmdSuU5tuJqw_4H-VOkYwl55F2qVo__jQqn_IWXXTXsP95e1oI6-quM7xS3VPobQ5jVqGWK3s-aU7N1NiM0orygMqgD5SjIJsixVdniw4mW7qai57gWWnkKRCWr3lHkTA36hXZPL6HQ3cpAYkDpN-UbXM_hWMFtK2hsNzkMxs079TE0YP8ZYe77KRrn7Poz5RKFyp5qzsVPEnTlu1SwHTqzifZQ",
+    //         "groupId": "6a36f74392b1ba1a0df517d5",
+    //         "createdAt": "2026-06-20T20:39:13.152Z",
+    //         "updatedAt": "2026-06-20T20:39:13.152Z",
+    //         "__v": 0
+    //     }
+    // ];
 
   useEffect(()=>{
       if(selectedUser)
       {
-        subscribeMessage()
+        // subscribeMessage()
       async function getMsg(){
         await getMessages(selectedUser?._id)
       }
 
       getMsg();
     }
-    return ()=>{
-      unSubscribeMessage();
-    }
+    // return ()=>{
+    //   // unSubscribeMessage();
+    // }
   },[selectedUser,subscribeMessage,unSubscribeMessage])
 
 
@@ -239,7 +239,8 @@ function MessagePage() {
   };
 
   const showMessage = (msg) => {
-    if (msg.senderId === user._id) {
+    
+    if (msg.senderId._id === user._id) {
     
       return <SendMessage key={msg._id} msg={msg} />;
     } else {

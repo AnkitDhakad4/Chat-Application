@@ -10,11 +10,25 @@ import NoticePageRendering from "../components/NoticePageRendering.jsx";
 import ContactsPage from "../components/ContactPage.jsx";
 import groupStore from "../store/group.store.js";
 import CreateGroup from "../components/CreateGroup.jsx";
+// import {requestNotificationPermission} from '../components/UserProfile.jsx'
 
 function ChatPage() {
-  const { selectedUser,selectedTab } = useChatStore();
+  const { selectedUser,selectedTab,subscribeMessage,unSubscribeMessage,setSelectedUser } = useChatStore();
 const {infoAbout,setInfoAbout}=requestStore()
 const {selectedGroup,oneGroupIscreated}=groupStore()
+
+ React.useEffect(()=>{
+      
+      subscribeMessage()
+  
+    return ()=>{
+      unSubscribeMessage();
+    }
+  },[subscribeMessage,unSubscribeMessage])
+
+
+
+
 
 const renderMainContent = () => {
   // 1. Check Info first

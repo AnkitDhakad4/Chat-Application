@@ -24,7 +24,7 @@ function Sidebar() {
   const [preview,setPreview] =useState()
   const [previewURL,setpreviewURL]=useState();
   const handleImageChange=async(e)=>{
-    console.log(e)
+    // console.log(e)
     const file=e.currentTarget?.files[0]
     const url=await URL.createObjectURL(file)
     setpreviewURL(url)
@@ -40,7 +40,7 @@ function Sidebar() {
       
      
       const data=await uploadOnCloudinary(formData)
-      console.log(data.secure_url)
+      // console.log(data.secure_url)
       await updateProfile(data.secure_url)
 
     } catch (error) {
@@ -49,7 +49,7 @@ function Sidebar() {
 
   }
 
-  console.log("User in sideBar",user)
+  // console.log("User in sideBar",user)
   const { setSelectedUser, getContacts, getchatPartners } = usechatStore();
   const { setSelectedGroup } = groupStore();
   const { infoAbout, setInfoAbout, getMessageRequests, getGroupRequests } = requestStore();

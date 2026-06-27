@@ -132,7 +132,7 @@ const groupStore = create((set, get) => ({
     try {
       set({ isGroupsLoading: true });
       const resp = await axiosInstance.post("/group/allGroups");
-      console.log(resp.data.data);
+      // console.log(resp.data.data);
       set({ allGroups: resp.data.data });
     } catch (error) {
       console.log(error);

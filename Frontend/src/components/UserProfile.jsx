@@ -101,7 +101,7 @@ function UserProfile( {setprofileViewer} ) {
         </button>
 
 
-            LEFT COLUMN: Avatar Upload & Graphic Header
+
           
         <div className="w-full md:w-[45%] bg-[#E5E5E5] p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-300/50">
           <h2 className="text-xl md:text-2xl font-black uppercase tracking-wide text-slate-800 self-start mb-8 md:absolute md:top-8 md:left-8">
@@ -255,5 +255,9 @@ function UserProfile( {setprofileViewer} ) {
     </div>
   );
 }
+
+
+
+
 
 export default UserProfile;

@@ -33,7 +33,7 @@ const requestStore =create((set,get)=>({
     },
     setInfoAbout:(usrOrGrp)=>{
         set({infoAbout:usrOrGrp})
-        console.log(usrOrGrp)
+        // console.log(usrOrGrp)
 
     },
     setSelectedNoticeTab:(noticeTab)=>{
