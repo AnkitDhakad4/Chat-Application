@@ -219,7 +219,7 @@ function MessagePage() {
     let elements = [];
     for (let i = 0; i < messages.length; i++) {
       let Day = new Date(messages[i].createdAt).toISOString().split("T")[0];
-      elements.push(<DayShow key={Math.random()} day={Day} />);
+      elements.push(<DayShow key={`date-header-${Day}`} day={Day} />);
       for (; i < messages.length; i++) {
         if (
           new Date(messages[i].createdAt).toISOString().split("T")[0] === Day

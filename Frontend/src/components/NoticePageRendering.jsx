@@ -66,14 +66,14 @@ function GroupInvitation({invt}) {
   const { acceptMessageReqeust, rejectMessageReqeust } = requestStore();
 const {acceptInvitation,rejectInvitation}=requestStore()
 
-  const accepted = async (id) => {
+  const accepted = async (id,invtId) => {
     console.log("In accepted");
-    await acceptInvitation(id);
+    await acceptInvitation(id,invtId);
   };
 
-  const rejected = async (id) => {
+  const rejected = async (id,invtId) => {
     console.log("In rejected");
-    await rejectInvitation(id);
+    await rejectInvitation(id,invtId);
   };
   return (
     <div className=" h-1/10 flex p-0.5 items-center justify-evenly ">
@@ -86,14 +86,14 @@ const {acceptInvitation,rejectInvitation}=requestStore()
       </div>
       <div className="flex flex-col gap-1 pt-1 ">
         <button
-          onClick={()=>{accepted(invt.groupId._id)}}
+          onClick={()=>{accepted(invt.groupId._id,invt._id)}}
           className="bg-[#166534] hover:bg-[#15803d] text-white font-medium text-xs px-2 py-0.5  rounded-xl cursor-pointer transition-all duration-200 flex items-center"
         >
           Accept
         </button>
 
         <button
-          onClick={()=>{rejected(invt.groupId._id)}}
+          onClick={()=>{rejected(invt.groupId._id,invt._id)}}
           className="bg-[#5b0e0e] hover:bg-[#991b1b] text-neutral-300 hover:text-white font-medium text-xs px-2 py-0.5 rounded-xl cursor-pointer transition-all duration-200 flex items-center"
         >
           Reject
@@ -270,7 +270,7 @@ function NoticePageRendering() {
         </div>
 
         <div className="flex-1 w-full p-2">
-          {groupInvitations.map((invt)=>(<GroupInvitation invt={invt}/>))}
+          {groupInvitations.map((invt)=>(<GroupInvitation key={invt._id} invt={invt}/>))}
           
         </div>
       </div>

@@ -477,7 +477,7 @@ const removeMembers = async function (req, res) {
         $pull: { members: { $in: membersToKick } } 
       },
       { returnDocument: "after" }
-    ).populate("members", "-password");
+    ).populate('members','name email about profilePic lastSeen');
 
     // 3. If no group was modified, the target group doesn't exist or caller isn't the admin
     if (!updatedGroup) {
@@ -486,6 +486,7 @@ const removeMembers = async function (req, res) {
       });
     }
 
+    console.log(updatedGroup)
     // 4. Clean up Invitation Requests from the GroupRequest collection
     // Deletes any matching invitations for these users for this specific group
     const deletionResult = await groupRequest.deleteMany({
@@ -537,29 +538,28 @@ const deleteGroup = async function (req, res) {
   }
 };
 
-const updateIcon = async function (req, res) {
+const updateGroupDetails = async function (req, res) {
   try {
     const { groupId } = req.params;
-    const { iconUrl } = req.body;
+    const { iconUrl,groupName,description } = req.body;
     const user = req.user;
 
     if (!groupId) {
       return res.status(400).json({ message: "Provide the groupId properly" });
     }
-
+    console.log(groupId,iconUrl,groupName,description)
     const updatedData = await Group.findOneAndUpdate(
       {
-        $or: [
-          { _id: groupId, members: user._id },
-          { _id: groupId, admin: user._id },
-        ],
+       _id:groupId
+          
       },
       {
-        $set: { groupIcon: iconUrl },
+        $set: { groupIcon: iconUrl,groupDescription:description,groupName:groupName },
       },
       { returnDocument: "after" },
-    );
+    ).populate('members','name email about profilePic lastSeen');;
 
+      console.log(updatedData)
     if (!updatedData) {
       return res
         .status(404)
@@ -579,7 +579,7 @@ export {
   getGroupInfo,
   removeMembers,
   deleteGroup,
-  updateIcon,
+  updateGroupDetails,
   groupInvitationsToUser,
   groupInvitationAcceptance,
   groupInvitationRejection,

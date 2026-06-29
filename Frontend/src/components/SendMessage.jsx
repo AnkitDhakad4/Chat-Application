@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { XIcon } from 'lucide-react'
+import { Loader2Icon, XIcon } from 'lucide-react'
 
 function SendMessage({msg}) {
     
@@ -53,7 +53,11 @@ function SendMessage({msg}) {
          </div> 
        )}
 
-       <p className='text-[#6B7280] text-xs flex gap-1 pr-1'>{time}</p>
+       <p className='text-[#6B7280] text-xs flex gap-1 pr-1'>{time} 
+
+        <span>{msg?.isSending ?<Loader2Icon className='size-4'/>:""}</span>
+       </p>
+       
     </div>
   )
 }

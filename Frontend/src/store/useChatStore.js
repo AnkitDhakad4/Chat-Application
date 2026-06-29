@@ -120,30 +120,21 @@ const useChatStore = create((set, get) => ({
   },
 
   sendMessage: async ({messageText,url}) => {
-    // const { user } = authStore.getState();
-    // const { messages, selectedUser } = get();
+    const { user } = authStore.getState();
+    const { messages, selectedUser } = get();
 
-    // const artificialMessage = {
-    //   _id: {
-    //     $oid: new Date().toISOString()
-    //   },
-    //   senderId: {
-    //     $oid: user._id,
-    //   },
-    //   recieverId: {
-    //     $oid: selectedUser._id,
-    //   },
-    //   text: message,
-    //   image: image,
-    //   createdAt: {
-    //     $date: new Date().toISOString(),
-    //   },
-    //   updatedAt: {
-    //     $date: new Date().toISOString(),
-    //   },
-    //   __v: 0,
-    // };
-    // set({ messages: [...get().messages, artificialMessage] });
+    const prvmessages=[...messages]
+    const optimisticId=`temp-${Date.now()}`
+    const artificialMessage={
+      _id:optimisticId,
+      senderId:{_id:user._id},
+      receiverId:selectedUser._id,
+      text:messageText,
+      image:url,
+      createdAt:new Date().toISOString(),
+      isSending:true,
+    }
+    set({ messages: [...prvmessages, artificialMessage] });
 
     try {
       // console.log("message in send message ",messageText,url)
@@ -153,23 +144,13 @@ const useChatStore = create((set, get) => ({
         { text: messageText, image: url },
       );
 
-      // const newContacts = contacts.filter(
-      //   (user) => user._id !== selectedUser._id,
-      // );
-      // const newchatPartners = contacts.filter(
-      //   (user) => user._id === selectedUser._id,
-      // );
-
-      // if (newchatPartners.length > 0) {
-      //   set({
-      //     contacts: newContacts,
-      //     chatPartners: chatPartners.concat(newchatPartners),
-      //   });
-      // }
-      // console.log("Message in sendMessage is ",resp.data.message)
-      set({ messages: [...get().messages, resp.data.message] });
+      const savedMessage=resp.data.message
+      set((state)=>({
+        messages:state.messages.map((msg)=>(msg._id ===optimisticId? savedMessage:msg))
+      }));
     } catch (error) {
       console.log(error);
+      set({messages:prvmessages})
       //   toast.error(error.response?.data?.error)
     }
   },
@@ -187,6 +168,7 @@ const useChatStore = create((set, get) => ({
       console.error(error);
     }
   },
+  
   uploadOnCloudinary: async (formData) => {
     console.log("In upload on cloudinary");
     set({ isImageUploading: true });

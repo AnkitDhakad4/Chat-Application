@@ -4,6 +4,7 @@ import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
 import socket from "../socket/socket";
 import authStore from "./userAuth.store.js";
+
 const initialState = {
   selectedGroup: null,
   allGroups: [],
@@ -13,6 +14,7 @@ const initialState = {
   groupsMessages: {},
   socketIsConnected: false,
   notificationCount:{},
+  isUpdatingGroup:false
 };
 const groupStore = create((set, get) => ({
   ...initialState,
@@ -24,23 +26,26 @@ const groupStore = create((set, get) => ({
 
   sendMessageInGroup: async ({ text, groupId, image }) => {
 
-    // const user=authStore.getState().user
+    const {user}=authStore.getState()
+    const {groupsMessages}=get()
+    const newInstanceOfGroupMessages={...groupsMessages}
+    const tempId=`temp-${Date.now()}`
+    const tempMsg = {
+      senderId: {
+        _id: user._id,
+        name: user.name,
+        profilePic: user.profilePic,
+      },
+      text: text,
+      image: image,
+      groupId: groupId,
+      _id: tempId,
+      createdAt: new Date().toISOString(),
+       isSending:true
+    };
 
-    // const tempMsg = {
-    //   senderId: {
-    //     _id: user._id,
-    //     name: user.name,
-    //     profilePic: user.profilePic,
-    //   },
-    //   text: text,
-    //   image: image,
-    //   groupId: groupId,
-    //   _id: Date.now(),
-    //   createdAt: Date.now(),
-    //   updatedAt: Date.now(),
-    //   __v: 0,
-    // };
-
+    const currentMessages=get().groupsMessages[groupId] ||[]
+    set({groupsMessages:{...groupsMessages,[groupId]:[...currentMessages,tempMsg]}})
     try {
       const resp = await axiosInstance.post("/group/sendMessage", {
         text,
@@ -49,17 +54,20 @@ const groupStore = create((set, get) => ({
         senderSocketId: socket?.id,
       });
       const newMessage = resp.data.data;
-      const currentMessages = get().groupsMessages[groupId] || [];
       
       // if (!get().socketIsConnected) {
-        set({
+        set((state)=>{
+          const freshGroupMessages = state.groupsMessages[groupId] || [];
+          return {
           groupsMessages: {
-            ...get().groupsMessages,
-            [groupId]: [...currentMessages, newMessage],
+            ...state.groupsMessages,
+            [groupId]: freshGroupMessages.map((msg)=>(msg._id===tempId ?newMessage:msg)),
           },
+        }
         });
       // }
     } catch (error) {
+      set({groupsMessages:newInstanceOfGroupMessages})
       console.log(error?.response?.data || error.message);
     }
   },
@@ -97,6 +105,34 @@ const groupStore = create((set, get) => ({
     }
   },
 
+ updateGroup: async (data, grpId) => {
+  try {
+    set({isUpdatingGroup:true})
+    console.log("Updated user ", data, grpId);
+    const resp = await axiosInstance.post(`/group/updateGroupDetails/${grpId}`, data);
+    const updatedGroup = resp?.data?.data;
+
+    if (!updatedGroup) return;
+
+    
+    const newGroupData = get().allGroups.map((grp) => 
+      grp._id === grpId ? updatedGroup : grp
+    );
+
+    
+    set({ 
+      selectedGroup: updatedGroup,
+      allGroups: newGroupData 
+    });
+    toast.success("Group is updated successfully")
+  } catch (error) {
+    toast.error("error while updating in the group")
+    console.log(error);
+  } finally
+  {
+    set({isUpdatingGroup:false})
+  }
+},
   setoneGroupIscreated: (arg) => {
     set({ oneGroupIscreated: arg });
   },
@@ -116,18 +152,32 @@ const groupStore = create((set, get) => ({
 
   removeMembersFromGroup: async (members, groupId) => {
     try {
+      const {selectedGroup,allGroups}=get()
       const resp = await axiosInstance.post("/group/removeMembers", {
         membersToKick: members,
         groupId,
       });
+
+      if(!resp)
+      {
+        toast.error("error while removing the members")
+      }
       toast.success(
         "Member is removed successfully it will render after relogin",
       );
+
+      // const newMembers=selectedGroup.members.map((mem)=>(!members.includes(mem._id)))
+      const newAllGroup=allGroups.map((grp)=>(grp._id === resp.data?.data?._id ? resp?.data?.data : grp))
+      console.log("Updated ",newAllGroup)
+      set({selectedGroup:resp.data.data,allGroups:[...newAllGroup]})
+
     } catch (error) {
-      toast.error(error.response?.data?.message);
+      console.log(error)
+      // toast.error(error.response?.data?.message);
       console.log(error?.data?.message);
     }
   },
+  
   getAllGroups: async () => {
     try {
       set({ isGroupsLoading: true });

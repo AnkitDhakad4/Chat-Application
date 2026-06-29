@@ -53,13 +53,13 @@ function UserProfile( {setprofileViewer} ) {
     const file=inputImage
     if(inputImage)
     {
-        try {
+    try {
       const {timestamp,signature,apiKey}=await getTokenForUpload('profilePics')
       const formData=new FormData()
       formData.append("api_key", apiKey);
       formData.append("timestamp", timestamp);
       formData.append("signature", signature);
-      formData.append("folder", "profilePics");
+      formData.append("folder", "groupPics");
       formData.append('file',file)
         
      
