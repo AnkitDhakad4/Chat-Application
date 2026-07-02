@@ -7,7 +7,7 @@ import uploadOnCloudinary from '../Database/cloudinary.js'
 
 const signup = async function (req, res) {
   try {
-    // console.log(req.body)
+    console.log(req.body)
     const { name, profilePic, password, dob, contact, email } = req.body;
 
     if ([name, email, password].some((ele) => !ele || ele.trim().length == 0)) {
@@ -52,7 +52,7 @@ const signup = async function (req, res) {
     //   findedUser.name,
     //   ENV.APP_LINK,
     // );
-    // console.log("After sending an email data is :", data);
+    console.log("After sending an email data is :", data);
 
     if (!findedUser) {
       return res
@@ -80,7 +80,7 @@ const signup = async function (req, res) {
 const login = async function (req, res) {
   try {
     const { email, password } = req.body;
-    console.log("Email and password in the login controller is ", req.body);
+    // console.log("Email and password in the login controller is ", req.body);
 
     if (
       [email, password].forEach((ele) =>
@@ -117,7 +117,7 @@ const login = async function (req, res) {
       .status(200)
       .json({ message: "User is logged in successfully ", data: userResponse });
   } catch (error) {
-    console.log("Error while login the user ", error.message);
+    // console.log("Error while login the user ", error.message);
     return res.status(500).json({
       message: "There is some error while login",
       error: error.message,
@@ -140,7 +140,7 @@ const logout = async function (req, res) {
         .json({ message: "User is logout successfully" });
     }
   } catch (error) {
-    // console.log("Error while verifyin the JWT Token ", error.message);
+    console.log("Error while verifyin the JWT Token ", error.message);
     return res
       .status(401)
       .json({ message: "Token is not valid", error: error.message });
@@ -165,7 +165,7 @@ const updateProfilePic=async function(req,res){
 
     
     const updatedUser=await User.findByIdAndUpdate(userId,{profilePic:url},{new:true}).select("-password -dob")//this new returns the updated User
-    // console.log("Updated user is ",updatedUser)
+    
     return res.status(200).json({message:"Profile is updated successfully",data:updatedUser})
     
   } catch (error) {
@@ -174,4 +174,34 @@ const updateProfilePic=async function(req,res){
 
 }
 
-export { signup, login, logout,check,updateProfilePic };
+const updateProfile=async function(req,res){
+  try {
+    const { name, profilePic, dob, contact,about } = req.body;
+    const user=req.user
+
+    
+    
+  
+// console.log("Before chacking")
+    const checkUser=await User.findById(user._id);
+    if(!check)
+    {
+      return res.status(400).json({message:"User not fold!!"})
+    }
+    // console.log("Before updating")
+    const updatedProfile=await User.findOneAndUpdate({_id:user._id},{name,profilePic,dob,contact,about},{returnDocument:'after'}).select('-password')
+  
+    // console.log("updated profile is   ",updatedProfile)
+    if(!updatedProfile)
+    {
+      return res.status(403).json({message:"Error while updaing the profile"})
+    }
+  
+    return res.status(200).json({message:"Profile Updated Successfully",data:updatedProfile})
+  } catch (error) {
+    // console.log(error)
+      return res.status(500).json({message:"server error"})
+  }
+
+}
+export { signup, login, logout,check,updateProfilePic,updateProfile };

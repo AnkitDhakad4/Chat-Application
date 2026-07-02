@@ -1,19 +1,36 @@
 import { create } from "zustand";
 import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
-import {io} from "socket.io-client";
+// import {io} from "socket.io-client";
+import useChatStore from './useChatStore.js'
+import groupStore from "./group.store.js";
+import requestStore from "./requests.store.js";
+import socket from "../socket/socket.js";
 
 const baseUrl = import.meta.env.VITE_SOCKET_URL;
 console.log(baseUrl)
 
-
-const authStore = create((set, get) => ({
+const initialState={
   authStatus: false,
   isCheckingAuth: false,
-  isLoading: false,
+  isLoading: false, 
   user: {},
+  loggedInUser:{},
   socket: null,
-  onlineUsers: null,
+  onlineUsers: new Set(),
+  isUserUpdating:false
+}
+
+
+const authStore = create((set, get) => ({
+  // authStatus: false,
+  // isCheckingAuth: false,
+  // isLoading: false, 
+  // user: {},
+  // socket: null,
+  // onlineUsers: new Set(),
+  ...initialState,
+
 
   signup: async (data) => {
     set({ isLoading: true });
@@ -52,9 +69,11 @@ const authStore = create((set, get) => ({
       
       const response = await axiosInstance.post("/users/login", data);
       set({ user: response.data.data, authStatus: true });
-      get().connect();
+      set({ loggedInUser: response.data.data });
+       get().connect();
       toast.success("Login Successfully !");
-    } catch (error) {
+    } catch (error) { 
+      console.log(error)
       toast.error(error.response?.data?.message);
     } finally {
       set({ isLoading: false });    
@@ -63,14 +82,21 @@ const authStore = create((set, get) => ({
   logout: async () => {
     // console.log("In log out")
     try {
+      useChatStore.getState().setSelectedUser(null);
       await axiosInstance.post("/users/logout");
       get().disconnect();
-      toast.success("I will wait for you! 🥺 👋👋", {
+  
+
+      // set({ authStatus: false });
+      console.log("Reseting another stores")
+      useChatStore.getState().reset();
+      groupStore.getState().reset();
+      requestStore.getState().reset();
+      set({...initialState});
+          toast.success("I will wait for you! 🥺 👋👋", {
         autoClose: 3000,
         pauseOnHover: true,
       });
-
-      set({ authStatus: false });
     } catch (error) {
       toast.error(error.response?.data?.message);
     }
@@ -89,29 +115,48 @@ const authStore = create((set, get) => ({
       set({isLoading:false})
     }
   },
+
+  updateUser:async(formData)=>{
+    try {
+      set({isUserUpdating:true})
+      const resp=await axiosInstance.post('/users/updateProfile',formData)
+      console.log("Updated user ",resp.data.data)
+      set({user:resp.data.data})
+       toast.success("Profile updated successfully")
+    } catch (error) {
+      console.log(error?.message)
+    } finally{
+      set({isUserUpdating:false})
+    }
+  }
+,
   connect: () => {
-    if (!get().authStatus || get().socket?.connected) return;
 
-    get().socket?.removeAllListeners();//it removes all callback means custom events 
-    get().socket?.disconnect();//it disconnnects the connection to prevent the duplicate connections
+    // if (!get().authStatus || socket?.connected) return;
 
-    const socket = io(baseUrl, {
-      withCredentials: true,
-      autoConnect: false,
-    });
 
+    socket?.removeAllListeners();//it removes all callback means custom events 
+   
     
-    // console.log("socket is created ", socket)
-    socket.on("getOnlineUsers", (userIds) => {
-      // console.log("rsponse from the getOnlineUser in frontend ",userIds)
-      set({ onlineUsers: new Set(userIds) });
-    });
+    socket?.disconnect();//it disconnnects the connection to prevent the duplicate connections
 
-    socket.connect();
-    set({ socket });
+  
+    
+   
+     
+      socket.on("getOnlineUsers", (userIds) => {
+        console.log("rsponse from the getOnlineUser in frontend ",userIds)
+        set({ onlineUsers: new Set(userIds) });
+      });
+
+      socket.connect()
+  
+
+   
+    // set({ socket }); 
   },
   disconnect: () => {
-    const socket = get().socket;
+    // const socket = get().socket;
     if (!socket) return;
 
     socket.removeAllListeners();
@@ -122,6 +167,10 @@ const authStore = create((set, get) => ({
 
     set({ socket: null, onlineUsers: [] });
   },
+   reset:()=>{
+    set({...initialState})
+  }
+  
 }));
 
 export default authStore;

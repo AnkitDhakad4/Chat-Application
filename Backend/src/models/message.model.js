@@ -6,7 +6,7 @@ const messageSchema=new mongoose.Schema(
             type:mongoose.Schema.Types.ObjectId,
             ref:'User'
         },
-        recieverId:{
+        receiverId:{
             type:mongoose.Schema.Types.ObjectId,
             ref:'User'
         },
@@ -15,6 +15,10 @@ const messageSchema=new mongoose.Schema(
         },
         image:{
             type:String
+        },
+        groupId:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Group"
         }
     },
     {
@@ -22,7 +26,7 @@ const messageSchema=new mongoose.Schema(
     }
 )
 
-
+messageSchema.index({groupId:1,senderId:1})
 const Message=mongoose.model('Message',messageSchema)
 
 export default Message

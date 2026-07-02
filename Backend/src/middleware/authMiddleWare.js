@@ -29,6 +29,7 @@ const authentication = async function (req, res, next) {
         .json({ message: "Validation error: user is not found" });
     }
 
+    // console.log("finded user in auth middleware",findedUser  )
     req.user = findedUser;
     next();
   } catch (error) {

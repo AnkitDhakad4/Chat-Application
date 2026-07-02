@@ -1,18 +1,39 @@
 import { create } from "zustand";
 import axiosInstance from "../lib/axios.js";
 import toast from "react-hot-toast";
+// import authStore from "./userAuth.store.js";
+import { devtools } from "zustand/middleware";
+import socket from "../socket/socket.js";
 import authStore from "./userAuth.store.js";
-const useChatStore = create((set, get) => ({
+import {triggerNotification} from '../utils/notification.util.jsx'
+
+const initialState={
   chatPartners: [],
   tempMsgStore: [],
   contacts: [],
-  selectedTab: localStorage.getItem("selectedTab") || "Chats",
+  selectedTab:null,
+  // localStorage.getItem("selectedTab") || "Chats",
   selectedUser: null,
   messages: [],
   isUsersLoading: false,
   isMessageLoading: false,
   isSoundOn: localStorage.getItem("isSoundOn") === "true",
   isImageUploading: false,
+  notificationsToUsers:new Set()
+}
+const useChatStore = create((set, get) => ({
+  // chatPartners: [],
+  // tempMsgStore: [],
+  // contacts: [],
+  // selectedTab:"", 
+  // // localStorage.getItem("selectedTab") || "Chats",
+  // selectedUser: null,
+  // messages: [],
+  // isUsersLoading: false,
+  // isMessageLoading: false,
+  // isSoundOn: localStorage.getItem("isSoundOn") === "true",
+  // isImageUploading: false,
+  ...initialState,
 
   toggleSound: () => {
     const nextSoundState = !get().isSoundOn;
@@ -28,12 +49,12 @@ const useChatStore = create((set, get) => ({
 
   getchatPartners: async () => {
     const { chatPartners } = get();
-    if (chatPartners && chatPartners.length > 0) return chatPartners;
+    // if (chatPartners && chatPartners.length > 0) return chatPartners;
 
     set({ isUsersLoading: true });
     try {
       const resp = await axiosInstance.get("/message/chats");
-            // console.log("data in getchatPartners is ", resp.data.data);
+            console.log("data in getchatPartners is ", resp.data);
       set({ chatPartners: resp.data.data });
       return resp.data.data
     } catch (error) {
@@ -46,7 +67,7 @@ const useChatStore = create((set, get) => ({
   getContacts: async () => {
     const { contacts, chatPartners } = get();
 
-    if (contacts && contacts.length > 0) return contacts;
+    // if (contacts && contacts.length > 0) return contacts;
 
     set({ isUsersLoading: true });
     try {
@@ -75,10 +96,11 @@ const useChatStore = create((set, get) => ({
     try {
       console.log("In getMessages ")
       const res = await axiosInstance.get(`/message/${id}`);
-      console.log(res)
+      // console.log(res)
       set({ messages: res.data.data });
-      console.log("messages are ",res.data.data)
+      // console.log("messages are ",res.data.data)
     } catch (error) {
+      console.log(error)
       toast.error(error.response?.data?.error);
     } finally {
       set({ isMessageLoading: false });
@@ -86,61 +108,49 @@ const useChatStore = create((set, get) => ({
   },
 
   setSelectedUser: (user) => {
-    console.log(user)
-    set({ selectedUser: user });
+    // console.log(user)
+    const currentNotifications=get().notificationsToUsers
+    if(currentNotifications && currentNotifications?.has(user?._id))
+    {
+      currentNotifications.delete(user._id)
+    }
+
+    set({ selectedUser: user ,notificationsToUsers:currentNotifications});
 
   },
 
-  sendMessage: async (image, message) => {
-    // const { user } = authStore.getState();
-    // const { messages, selectedUser } = get();
+  sendMessage: async ({messageText,url}) => {
+    const { user } = authStore.getState();
+    const { messages, selectedUser } = get();
 
-    // const artificialMessage = {
-    //   _id: {
-    //     $oid: new Date().toISOString()
-    //   },
-    //   senderId: {
-    //     $oid: user._id,
-    //   },
-    //   recieverId: {
-    //     $oid: selectedUser._id,
-    //   },
-    //   text: message,
-    //   image: image,
-    //   createdAt: {
-    //     $date: new Date().toISOString(),
-    //   },
-    //   updatedAt: {
-    //     $date: new Date().toISOString(),
-    //   },
-    //   __v: 0,
-    // };
-    // set({ messages: [...get().messages, artificialMessage] });
+    const prvmessages=[...messages]
+    const optimisticId=`temp-${Date.now()}`
+    const artificialMessage={
+      _id:optimisticId,
+      senderId:{_id:user._id},
+      receiverId:selectedUser._id,
+      text:messageText,
+      image:url,
+      createdAt:new Date().toISOString(),
+      isSending:true,
+    }
+    set({ messages: [...prvmessages, artificialMessage] });
 
     try {
+      // console.log("message in send message ",messageText,url)
       const { contacts, selectedUser, chatPartners } = get();
       const resp = await axiosInstance.post(
         `/message/send/${selectedUser._id}`,
-        { text: message, image: image },
+        { text: messageText, image: url },
       );
 
-      const newContacts = contacts.filter(
-        (user) => user._id !== selectedUser._id,
-      );
-      const newchatPartners = contacts.filter(
-        (user) => user._id === selectedUser._id,
-      );
-
-      if (newchatPartners.length > 0) {
-        set({
-          contacts: newContacts,
-          chatPartners: chatPartners.concat(newchatPartners),
-        });
-      }
-      console.log("Message in sendMessage is ",resp.data.message)
-      set({ messages: [...get().messages, resp.data.message] });
+      const savedMessage=resp.data.message
+      set((state)=>({
+        messages:state.messages.map((msg)=>(msg._id ===optimisticId? savedMessage:msg))
+      }));
     } catch (error) {
       console.log(error);
+      set({messages:prvmessages})
       //   toast.error(error.response?.data?.error)
     }
   },
@@ -158,12 +168,13 @@ const useChatStore = create((set, get) => ({
       console.error(error);
     }
   },
+  
   uploadOnCloudinary: async (formData) => {
     console.log("In upload on cloudinary");
     set({ isImageUploading: true });
     try {
       const resp = await fetch(
-        `https://api.cloudinary.com/v1_1/ankitdhakad/image/upload`,
+        `https://api.cloudinary.com/v1_1/ankitdhakad/image/upload/`,
         {
           method: "POST",
           body: formData,
@@ -182,16 +193,36 @@ const useChatStore = create((set, get) => ({
 
   subscribeMessage: () => {
     const { selectedUser, isSoundOn } = get();
-    if (!selectedUser) return;
-
-    const socket = authStore.getState().socket;
+    
+    // if (!selectedUser) return;
+    // const socket = authStore.getState().socket;
     // const {messages}=get()
     socket.on("newMessage", (msg) => {
-      const isMessageFromSelectedUser =
-        msg.senderId === selectedUser._id ||
-        msg.recieverId === selectedUser._id;
 
-      if (!isMessageFromSelectedUser) return;
+        console.log(get().selectedUser)
+        console.log(msg)
+        if(get().selectedUser?._id !== msg.senderId._id)
+        {
+           const currentState=get().notificationsToUsers
+            set({notificationsToUsers:new Set([...currentState,msg.senderId._id])})
+          triggerNotification(msg.senderId.name,msg.text,msg.senderId.profilePic)
+        }
+    
+// receiverId
+      const authUser=authStore.getState().user;
+      const selectedUser=get().selectedUser;
+
+      console.log("Message gotten in the socket io is ",msg)
+      
+
+      // console.log("in subscribe message authuser",authUser)
+      if(!selectedUser) return;
+
+      const incomming=msg.senderId._id===selectedUser._id && msg.receiverId === authUser._id;
+      const outgoing=msg.receiverId ===selectedUser._id && msg.senderId._id ===authUser._id;
+      
+
+      if (!incomming && !outgoing) return;
 
       set({ messages: [...get().messages, msg] });
 
@@ -211,9 +242,14 @@ const useChatStore = create((set, get) => ({
   },
 
   unSubscribeMessage: () => {
-    const socket = authStore.getState().socket;
-    socket.off("newMessage");
+    // const socket = authStore.getState().socket;
+    socket?.off("newMessage");
   },
+
+  reset:()=>{
+    // console.log("Reseting the useChatstore")
+    set({...initialState})
+  }
 }));
 
 export default useChatStore;
