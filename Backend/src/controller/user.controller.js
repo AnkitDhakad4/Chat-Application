@@ -47,12 +47,7 @@ const signup = async function (req, res) {
       "-password -dob",
     );
 
-    // const data = await welcomeEmail(
-    //   findedUser.email,
-    //   findedUser.name,
-    //   ENV.APP_LINK,
-    // );
-    console.log("After sending an email data is :", data);
+    
 
     if (!findedUser) {
       return res
@@ -62,10 +57,11 @@ const signup = async function (req, res) {
 
     const token = generateToken(findedUser._id);
 
+    const isProduction = ENV.NODE_ENV === "production";
     const option = {
-      secure: ENV.NODE_ENV == "development" ? false : true,
-      samesite: "strict", //CSRF attack,
-      httpOnly: true, //XSS attack:cross-site scriptting
+      secure: isProduction, 
+      sameSite: isProduction ? "none" : "lax", // Crucial for cross-origin hosting like Render + Vercel
+      httpOnly: true, 
     };
 
     return res
@@ -83,7 +79,7 @@ const login = async function (req, res) {
     // console.log("Email and password in the login controller is ", req.body);
 
     if (
-      [email, password].forEach((ele) =>
+      !email || !password || [email, password].some((ele) =>
         ele?.trim().length == 0 ? true : false,
       )
     ) {
@@ -92,7 +88,7 @@ const login = async function (req, res) {
         .json({ message: "Email & password must required to login" });
     }
 
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
 
     if (!user) {
       return res
@@ -111,9 +107,15 @@ const login = async function (req, res) {
     }
 
     const token = generateToken(user._id);
+    const isProduction = ENV.NODE_ENV === "production";
+    const option = {
+      secure: isProduction, 
+      sameSite: isProduction ? "none" : "lax", // Crucial for cross-origin hosting like Render + Vercel
+      httpOnly: true, 
+    };
 
     return res
-      .cookie("accessToken", token)
+      .cookie("accessToken", token, option)
       .status(200)
       .json({ message: "User is logged in successfully ", data: userResponse });
   } catch (error) {
@@ -132,11 +134,18 @@ const logout = async function (req, res) {
     return res.status(400).json({ message: "User is not login" });
   }
 
+  const isProduction = ENV.NODE_ENV === "production";
+    const option = {
+      secure: isProduction, 
+      sameSite: isProduction ? "none" : "lax", // Crucial for cross-origin hosting like Render + Vercel
+      httpOnly: true, 
+    };
+
   try {
     const verification = jwt.verify(token, ENV.jwtSecretKey,{maxAge:'1h'});
     if (verification) {
       return res
-        .clearCookie("accessToken")
+        .clearCookie("accessToken", option)
         .json({ message: "User is logout successfully" });
     }
   } catch (error) {
