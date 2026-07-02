@@ -25,6 +25,6 @@ useEffect(() => {
       <Toaster/>
     </>
   );
-}
+} 
 
 export default App;
