@@ -13,6 +13,7 @@ const io = new Server(server, {
     origin: ENV.originLink || "http://localhost:5173",
     credentials: true,
   },
+  transports: ["websocket", "polling"]
 });
 
 io.use(socketAuthMiddleWare);
@@ -29,7 +30,7 @@ function getReceiverId(userId){
 // and socket is that particular users connection instance
 io.on("connection", async (socket) => {
   
-  userSocketMap.era
+  
   const userId = socket.user_id;
   // console.log("A user is connected to socket with id ", socket.id, socket.user.name, userId);
 
