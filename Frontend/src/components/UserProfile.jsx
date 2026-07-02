@@ -59,7 +59,7 @@ function UserProfile( {setprofileViewer} ) {
       formData.append("api_key", apiKey);
       formData.append("timestamp", timestamp);
       formData.append("signature", signature);
-      formData.append("folder", "groupPics");
+      formData.append("folder", "profilePics");
       formData.append('file',file)
         
      

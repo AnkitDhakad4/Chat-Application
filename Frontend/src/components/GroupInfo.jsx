@@ -53,12 +53,12 @@ const handleSubmit=async () => {
           if(pendingIconFile)
           {
             try {
-              const {timestamp,signature,apiKey}=await getTokenForUpload('profilePics')
+              const {timestamp,signature,apiKey}=await getTokenForUpload('groupPics')
               const formData=new FormData()
               formData.append("api_key", apiKey);
               formData.append("timestamp", timestamp);
               formData.append("signature", signature);
-              formData.append("folder", "profilePics");
+              formData.append("folder", "groupPics");
               formData.append('file',pendingIconFile)
               const data=await uploadOnCloudinary(formData)
               url=data.secure_url;
