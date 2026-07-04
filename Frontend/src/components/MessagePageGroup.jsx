@@ -180,14 +180,14 @@ function MessagePageGroup() {
         }
     },[selectedGroup?._id,getGroupMessages])
 
-    useEffect(()=>{
-      if(selectedGroup)
-        subscribeForGroupMessage()
+      // useEffect(()=>{
+      //   if(selectedGroup)
+      //     subscribeForGroupMessage()
 
-      return ()=>{
-        unsubscribeForGroupMessage()
-      }
-    },[selectedGroup])
+      //   return ()=>{
+      //     unsubscribeForGroupMessage()
+      //   }
+      // },[selectedGroup])
 
     
      const [messageText, setMessageText] = useState("");

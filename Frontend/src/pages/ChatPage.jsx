@@ -27,9 +27,9 @@ const {selectedGroup,oneGroupIscreated,subscribeForGroupMessage,unsubscribeForGr
       unSubscribeMessage();
       unsubscribeForGroupMessage();
     }
-  },[subscribeMessage,unSubscribeMessage])
+  },[subscribeMessage,unSubscribeMessage,subscribeForGroupMessage,unsubscribeForGroupMessage,selectedGroup])
 
-
+  
 
 
 

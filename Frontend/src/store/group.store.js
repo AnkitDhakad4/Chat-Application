@@ -85,16 +85,18 @@ const groupStore = create((set, get) => ({
         groupId: id,
       });
       const newMessages = resp.data.data;
-
-     
+      
+     if(get().selectedGroup._id !== newMessages.groupId)
+     {
       set({
         groupsMessages: {
           ...get().groupsMessages,
           [id]: newMessages,
         },
       });
+     }
      
-      // toast.success(resp.data.message);
+      toast.success(resp.data.message);
     } catch (error) {
       console.log(error.response.data);
     }
@@ -220,7 +222,7 @@ const groupStore = create((set, get) => ({
         const currentState=get().notificationsToGroups
             set({notificationsToGroups:new Set([...currentState,data._id])})
         
-        triggerGroupNotification(data.groupName,newmsg.senderId.name,newmsg.text,data.groupIcon)
+          triggerGroupNotification(data.groupName,newmsg.senderId.name,newmsg.text,data.groupIcon)
       }
     });
   },
