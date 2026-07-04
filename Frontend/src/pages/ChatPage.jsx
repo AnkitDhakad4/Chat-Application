@@ -16,14 +16,16 @@ function ChatPage() {
   const { selectedUser,selectedTab,subscribeMessage,unSubscribeMessage,setSelectedUser } = useChatStore();
   
 const {infoAbout,setInfoAbout}=requestStore()
-const {selectedGroup,oneGroupIscreated}=groupStore()
+const {selectedGroup,oneGroupIscreated,subscribeForGroupMessage,unsubscribeForGroupMessage}=groupStore()
 
  React.useEffect(()=>{
       
       subscribeMessage()
+      subscribeForGroupMessage()
   
     return ()=>{
       unSubscribeMessage();
+      unsubscribeForGroupMessage();
     }
   },[subscribeMessage,unSubscribeMessage])
 

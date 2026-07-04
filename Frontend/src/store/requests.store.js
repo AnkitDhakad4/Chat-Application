@@ -103,7 +103,7 @@ const requestStore = create((set, get) => ({
       const updatedGroupInvitations = groupInvitations.filter(
         (invt) => (invt._id !== invtId)
       );
-        console.log("updatedGroupInvitations,",updatedGroupInvitations)
+        
       set({ groupInvitations: [...updatedGroupInvitations] });
       toast.success("Invitation is accepted");
       
@@ -163,7 +163,7 @@ const requestStore = create((set, get) => ({
         (invt) => (invt._id !== reqId)
       );
       set({ messageRequests: [...updatedMessageRequests] });
-      //  console.log(resp.data.message)
+      
       toast.success("Request is rejected");
     } catch (error) {
       console.log(error);

@@ -67,12 +67,12 @@ function GroupInvitation({invt}) {
 const {acceptInvitation,rejectInvitation}=requestStore()
 
   const accepted = async (id,invtId) => {
-    console.log("In accepted");
+    
     await acceptInvitation(id,invtId);
   };
 
   const rejected = async (id,invtId) => {
-    console.log("In rejected");
+    
     await rejectInvitation(id,invtId);
   };
   return (

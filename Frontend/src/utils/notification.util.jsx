@@ -45,7 +45,7 @@ export const triggerNotification = (senderName, messageText, avatarUrl) => {
   );
 },{duration:1000});
 
-  // 3. Trigger System Desktop Notification (If window is unfocused/minimized)
+ 
   if (Notification.permission === "granted" && document.hidden) {
     new Notification(`New message from ${senderName}`, {
       body: messageText,
@@ -54,6 +54,69 @@ export const triggerNotification = (senderName, messageText, avatarUrl) => {
   }
 };
 
+
+export const triggerGroupNotification = (
+  groupName,
+  senderName,
+  messageText,
+  groupAvatar
+) => {
+  console.log(groupName)
+  console.log(senderName)
+  console.log(messageText)
+  console.log(groupAvatar)
+  notificationSound
+    .play()
+    .catch(() =>
+      console.error("Error while playing notification sound")
+    );
+
+  toast.custom(
+    (t) => {
+      return (
+        <div
+          className={`${
+            t.visible ? "animate-enter" : "animate-leave"
+          } max-w-md w-full bg-white shadow-lg rounded-xl pointer-events-auto flex ring-1 ring-black/5 p-3`}
+        >
+          <div className="flex-1 flex items-center gap-3 min-w-0">
+            <img
+              src={groupAvatar || "/default-group.png"}
+              alt={groupName}
+              className="h-11 w-11 rounded-full object-cover border border-slate-200 flex-shrink-0"
+            />
+
+            <div className="flex flex-col min-w-0 flex-1">
+              <p className="text-sm font-semibold text-[#111827] truncate">
+                {groupName}
+              </p>
+
+              <p className="text-xs font-medium text-[#FF2D78] truncate">
+                {senderName}
+              </p>
+
+              <p className="text-xs text-slate-500 truncate mt-0.5">
+                {messageText}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center border-l border-slate-100 ml-3 pl-3">
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="text-xs font-semibold text-[#FF2D78] hover:text-[#e02266]"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      );
+    },
+    {
+      duration: 1000,
+    }
+  );
+}
 // Request desktop system authorization early in app initialization lifecycle
 export const requestNotificationPermission = async () => {
   if ("Notification" in window && Notification.permission === "default") {

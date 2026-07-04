@@ -38,7 +38,7 @@ function Middlepanel() {
 
   const handleBell = () => {
     toggleSound();
-    console.log("Now sound is ", isSoundOn);
+   
   };
 
   

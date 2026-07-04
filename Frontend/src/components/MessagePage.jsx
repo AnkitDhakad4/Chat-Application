@@ -271,7 +271,7 @@ function MessagePage() {
   };
 
  const showMessageInGroup = (msg) => {
-  console.log(msg)
+  // console.log(msg)
     if (msg.senderId._id === user._id) {
       {
         /* user is sender */
@@ -311,7 +311,7 @@ function MessagePage() {
     let url="";
     if (inputImage) {
       const tokens=await getTokenForUpload('messages')
-      console.log(tokens)
+      
       // const {timestamp,signature,apiKey}=await getTokenForUpload('profilePics')
       const formData=new FormData();
       formData.append('api_key',tokens.apiKey)

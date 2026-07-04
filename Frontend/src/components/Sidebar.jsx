@@ -24,7 +24,7 @@ function Sidebar() {
   const [preview,setPreview] =useState()
   const [previewURL,setpreviewURL]=useState();
   const handleImageChange=async(e)=>{
-    // console.log(e)
+  
     const file=e.currentTarget?.files[0]
     const url=await URL.createObjectURL(file)
     setpreviewURL(url)
@@ -49,7 +49,7 @@ function Sidebar() {
 
   }
 
-  // console.log("User in sideBar",user)
+ 
   const { setSelectedUser, getContacts, getchatPartners } = usechatStore();
   const { setSelectedGroup } = groupStore();
   const { infoAbout, setInfoAbout, getMessageRequests, getGroupRequests } = requestStore();
@@ -153,7 +153,7 @@ function Sidebar() {
                 className="w-full h-full object-cover rounded-xl"
               />
 
-              {/* The Hover Overlay */}
+              {/*  Hover  */}
               <div className="absolute inset-0 bg-gray-500/80 rounded-xl flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200">
                 {!isImageUploading?<span className="text-[8px]  text-white uppercase tracking-wider ">
                   change
@@ -161,7 +161,7 @@ function Sidebar() {
               </div>
             </div>
 
-              {/* The Hidden File Input */}
+              {/* File Input */}
               <input 
                 onChange={handleImageChange}
                 type="file" 
@@ -169,7 +169,7 @@ function Sidebar() {
                 className="hidden" 
                 ref={inst} 
               />
-          {/* Profile details text transition patch */}
+          
           <div className="flex flex-col text-[#0F172A] max-w-0 opacity-0 group-hover:max-w-[55%] group-hover:opacity-100 transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap">
             <p className="font-bold text-lg truncate">{user.name}</p>
             <p className="font-light text-[#0F172A]/50 text-xs pl-0.5 truncate">

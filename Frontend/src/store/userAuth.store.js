@@ -35,7 +35,7 @@ const authStore = create((set, get) => ({
   signup: async (data) => {
     set({ isLoading: true });
     try {
-      console.log(data);
+     
       const res = await axiosInstance.post("/users/signup", data);
       set({ user: res.data.data, authStatus: true });
       get().connect();
@@ -51,12 +51,12 @@ const authStore = create((set, get) => ({
     set({ isCheckingAuth: true });
     try {
       const response = await axiosInstance.get("/users/check");
-      console.log(response.data);
+     
       set({ user: response.data.data, authStatus: true });
       get().connect();
       toast.success('Welcome !!');
     } catch (error) {
-      console.log("error for is toast ", error);
+      
       toast.error(error.response?.data?.message);
     } finally {
       set({ isCheckingAuth: false });
@@ -105,7 +105,7 @@ const authStore = create((set, get) => ({
     try {
       set({isLoading:true})
       const resp=await axiosInstance.post('/users/updateProfilePic',{url})
-      console.log("Profile is updated successfully ",resp.data.data)
+     
       set({user:resp.data.data})
       toast.success("Profile pic updated successfully")
     } catch (error) {
@@ -120,7 +120,7 @@ const authStore = create((set, get) => ({
     try {
       set({isUserUpdating:true})
       const resp=await axiosInstance.post('/users/updateProfile',formData)
-      console.log("Updated user ",resp.data.data)
+    
       set({user:resp.data.data})
        toast.success("Profile updated successfully")
     } catch (error) {
@@ -145,7 +145,7 @@ const authStore = create((set, get) => ({
    
      
       socket.on("getOnlineUsers", (userIds) => {
-        console.log("rsponse from the getOnlineUser in frontend ",userIds)
+       
         set({ onlineUsers: new Set(userIds) });
       });
 
@@ -156,13 +156,13 @@ const authStore = create((set, get) => ({
     // set({ socket }); 
   },
   disconnect: () => {
-    // const socket = get().socket;
+  
     if (!socket) return;
 
     socket.removeAllListeners();
     if (socket.connected) {
       socket.disconnect();
-      // console.log("User is disconnected successfully");
+    
     }
 
     set({ socket: null, onlineUsers: [] });

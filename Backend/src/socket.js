@@ -28,6 +28,7 @@ function getReceiverId(userId){
 // here
 // io is the whole server
 // and socket is that particular users connection instance
+
 io.on("connection", async (socket) => {
   
   

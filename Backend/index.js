@@ -11,7 +11,7 @@ connection()
     server.listen(PORT,()=>{
         
         console.log("mongoDB is connected successfully",res.connection.host)
-        console.log(`app is working on port https://localhost:${PORT}`)
+        // console.log(`app is working on port https://localhost:${PORT}`)
     })
 })
 .catch((err)=>{
