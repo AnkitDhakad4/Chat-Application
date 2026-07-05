@@ -38,7 +38,7 @@ const renderMainContent = () => {
   if (infoAbout) return <Info />;
 
   // 2. Check Contacts tab next
-  if (selectedTab === 'Contacts') return <ContactsPage />;
+  // if (selectedTab === 'Contacts') return <ContactsPage />;
 
   if(selectedTab==='Groups' && !selectedGroup) 
     {

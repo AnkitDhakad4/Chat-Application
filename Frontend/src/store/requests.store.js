@@ -8,7 +8,7 @@ const initialState = {
   groupInvitations: [],
   rejectedMessageRequests: [],
   rejectedGroupInvitations: [],
-  sentRequests: [],
+  sentRequests:new Set(),
   infoAbout: null,
 };
 // it return all these states(variables) and actions(methods)
@@ -27,7 +27,7 @@ const requestStore = create((set, get) => ({
       const request = await axiosInstance.get(
         `/message/messageRequest/${userId}`,
       );
-      console.log(request.data);
+      set({sentRequests:new Set(get().sentRequests).add(userId)})
     } catch (error) {
       console.log(error);
     }
@@ -44,7 +44,7 @@ const requestStore = create((set, get) => ({
     try {
       const resp = await axiosInstance.post("/message/getAllRequests");
 
-      console.log(resp.data);
+     
       set({ messageRequests: resp.data.data });
     } catch (error) {
       console.log(error);
@@ -62,7 +62,7 @@ const requestStore = create((set, get) => ({
   rejectedMessageRequest: async () => {
     try {
       const resp = await axiosInstance.post("/message/rejectMessageRequest");
-      console.log(resp.data.data);
+      
       set({ rejectedMessageRequests: resp.data.data });
     } catch (error) {
       console.error(error);
@@ -81,8 +81,10 @@ const requestStore = create((set, get) => ({
   getSentRequests: async () => {
     try {
       const reqs = await axiosInstance.get("/message/getSentRequests");
-      console.log("sented requests are ", reqs.data.data);
-      set({ sentRequests: reqs.data.data });
+      
+      const data=reqs.data.data.map((rq)=>rq.receiverId)
+      
+      set({ sentRequests: new Set(data) });
     } catch (error) {
       console.log(error);
     }
@@ -99,7 +101,7 @@ const requestStore = create((set, get) => ({
         console.log("there is some error");
         return;
       }
-      console.log(invtId)
+      
       const updatedGroupInvitations = groupInvitations.filter(
         (invt) => (invt._id !== invtId)
       );
@@ -140,7 +142,7 @@ const requestStore = create((set, get) => ({
       const resp = await axiosInstance.post(`/message/acceptMessageRequest`, {
         requestId: reqId,
       });
-      //  console.log(resp.data.message)
+     
       const { messageRequests } = get();
       const updatedMessageRequests = messageRequests.filter(
         (invt) => (invt._id !== reqId)
