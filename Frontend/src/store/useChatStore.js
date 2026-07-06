@@ -54,7 +54,7 @@ const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const resp = await axiosInstance.get("/message/chats");
-            console.log("data in getchatPartners is ", resp.data);
+          
       set({ chatPartners: resp.data.data });
       return resp.data.data
     } catch (error) {
@@ -94,7 +94,7 @@ const useChatStore = create((set, get) => ({
   getMessages: async (id) => {
     set({ isMessageLoading: true });
     try {
-      console.log("In getMessages ")
+     
       const res = await axiosInstance.get(`/message/${id}`);
       // console.log(res)
       set({ messages: res.data.data });
@@ -137,7 +137,7 @@ const useChatStore = create((set, get) => ({
     set({ messages: [...prvmessages, artificialMessage] });
 
     try {
-      // console.log("message in send message ",messageText,url)
+     
       const { contacts, selectedUser, chatPartners } = get();
       const resp = await axiosInstance.post(
         `/message/send/${selectedUser._id}`,
@@ -158,7 +158,7 @@ const useChatStore = create((set, get) => ({
   getTokenForUpload: async (folder) => {
     try {
       const resp = await axiosInstance.post("/message/uploadToken", { folder });
-      // console.log("resp from getTokenForUpload", resp);
+     
       return {
         timestamp: resp.data.data.timestamp,
         signature: resp.data.data.signature,
@@ -170,7 +170,7 @@ const useChatStore = create((set, get) => ({
   },
   
   uploadOnCloudinary: async (formData) => {
-    console.log("In upload on cloudinary");
+    
     set({ isImageUploading: true });
     try {
       const resp = await fetch(
@@ -199,8 +199,7 @@ const useChatStore = create((set, get) => ({
     // const {messages}=get()
     socket.on("newMessage", (msg) => {
 
-        console.log(get().selectedUser)
-        console.log(msg)
+        
         if(get().selectedUser?._id !== msg.senderId._id)
         {
            const currentState=get().notificationsToUsers
@@ -208,11 +207,11 @@ const useChatStore = create((set, get) => ({
           triggerNotification(msg.senderId.name,msg.text,msg.senderId.profilePic)
         }
     
-// receiverId
+
       const authUser=authStore.getState().user;
       const selectedUser=get().selectedUser;
 
-      console.log("Message gotten in the socket io is ",msg)
+    
       
 
       // console.log("in subscribe message authuser",authUser)

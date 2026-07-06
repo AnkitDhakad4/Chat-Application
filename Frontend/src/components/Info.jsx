@@ -12,7 +12,7 @@ const Info = () => {
     useChatStore();
   const user = selectedUser;
 
-  console.log("chatPartners in the info are ", chatPartners);
+  
 
   const { onlineUsers,loggedInUser } = authStore();
   const onLineUsers = new Set(onlineUsers);

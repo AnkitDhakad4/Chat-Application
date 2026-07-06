@@ -22,7 +22,7 @@ const authentication = async function (req, res, next) {
     }
 
     const findedUser = await User.findById(decoded.id).select("-password -dob");
-
+    
     if (!findedUser) {
       return res
         .status(401)

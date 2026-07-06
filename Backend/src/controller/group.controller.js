@@ -62,6 +62,7 @@ const createGroupMessages=async function(req,res){
     // console.log("In group message send",groupId,text,image)
     const message=await (await Message.create({groupId:data._id,text:text,image:image,senderId:user._id})).populate('senderId','name profilePic')
     // console.log(message)
+    // [{path:'senderId',select:'name profilePic'},{path:'groupId', select:'groupName'}]
     if(!message)
     {
       return res
@@ -71,7 +72,7 @@ const createGroupMessages=async function(req,res){
 
    
 
-      io.to(groupId).except(senderSocketId).emit("newGroupMessage",message)
+      io.to(groupId).except(senderSocketId).emit("newGroupMessage",message,data)
    
 
 
@@ -243,7 +244,7 @@ const groupInvitationAcceptance = async function (req, res) {
         .json({ message: "Please provide the groupId or the adminId" });
     }
 
-    console.log("groupId", groupId);
+    // console.log("groupId", groupId);
     const pendingInvite = await groupRequest.findOne({
       groupId: groupId,
       invitedUserId: user._id,
@@ -270,6 +271,8 @@ const groupInvitationAcceptance = async function (req, res) {
       { returnDocument: "after" },
     ).populate("members", "name profilePic about");
 
+    // socket.join(groupId.toString());
+
     if (!addToGroup) {
       return res
         .status(501)
@@ -286,6 +289,7 @@ const groupInvitationAcceptance = async function (req, res) {
       .status(200)
       .json({ message: "you joined the group successfully", data: addToGroup });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ message: error.message });
   }
 };

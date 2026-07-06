@@ -5,141 +5,163 @@ import useChatStore from "../store/useChatStore.js";
 import { useEffect } from "react";
 import { useLayoutEffect } from "react";
 import { useState } from "react";
+import authStore from "../store/userAuth.store.js";
+import groupStore from "../store/group.store.js";
+import { VolumeX,Volume2,Search,LoaderCircle} from "lucide-react";
 
 
-function Profiles({item,isRequested}){
-   const {
- 
-    sentMessageRequest,
-    
-  } = requestStore();
-    const handleSendRequest = async (targetUserId) => {
-    await sentMessageRequest(targetUserId);
+
+function ContactProfileCard({ item, isRequested }) {
+  const { sentMessageRequest,sentRequests } = requestStore();
+  const [justNow, setJustNow] = useState(false);
+
+  const handleSendRequest = async (targetUserId) => {
+    try {
+      await sentMessageRequest(targetUserId);
+    } catch (error) {
+      console.error("Failed to send request:", error);
+    }
   };
-  const [justNow ,setJustNow]=useState(false)
-  return(
-    justNow ? (
-                    <span className="flex items-center gap-1 bg-[#F1F5F9] text-[#64748B] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#CBD5E1]">
-                      <Clock className="size-3.5" /> Requested
-                    </span>
-                  ) : isRequested ? (
-                    <span className="flex items-center gap-1 bg-[#F1F5F9] text-[#64748B] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#CBD5E1]">
-                      <Clock className="size-3.5" /> Requested
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() =>{ handleSendRequest(item._id);setJustNow(true)}}
-                      className="bg-[#FF2D78] hover:bg-[#E02467] text-white font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1 transition-all duration-200 cursor-pointer shadow-sm"
-                    >
-                      <UserPlus className="size-3.5" /> Connect
-                    </button>
-                  )
+
+  const hasRequested = sentRequests.has(item._id);
+
+  return (
+    <div 
+    key={item._id}
+    className=" h-12/100  p-1 flex items-center gap-2 w-full">
+      
+      {/* Left Column: Avatar + Profile Core Identity Details */}
+      <div className="flex items-center gap-0.5 flex-1 min-w-0">
+        <div className="relative flex-shrink-0">
+          <img
+            className="p-0.5     object-cover size-16 rounded-full "
+            src={item.profilePic || "./avatar.png"}
+            alt={item.name}
+          />
+        </div>
+        
+        <div className="flex flex-col truncate  flex-1">
+          <p className="font-liberation text-[#0F172A] text-lg font-bold">
+            {item.name}
+          </p>
+          <p className="font-liberation truncate max-w-full text-xs text-gray-500 ">
+            {item.about } 
+          </p>
+        </div>
+      </div>
+
+      {/* Right Column: Context Action Trigger Toggle Button */}
+      <div className="flex-shrink-0 pl-1">
+        {hasRequested ? (
+          <span className="flex items-center gap-1 bg-[#F1F5F9] text-[#64748B] text-xs font-medium px-2.5 py-1 rounded-full border border-[#CBD5E1] whitespace-nowrap select-none">
+            <Clock className="size-3" />
+            Requested
+          </span>
+        ) : (
+          <button
+            onClick={() => {
+              handleSendRequest(item._id);
+              setJustNow(true);
+            }}
+            className="bg-[#FF2D78] hover:bg-[#E02467] text-white font-semibold text-xs px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all duration-150 cursor-pointer shadow-sm active:scale-95 whitespace-nowrap"
+          >
+            <UserPlus className="size-3" />
+            Connect
+          </button>
+        )}
+      </div>
+
+    </div>
   );
 }
 
 function ContactsPage() {
-  const {
-    sendChatRequest,
-    pendingRequests,
-    allPlatformUser,
-    sentRequests,
-    sentMessageRequest,
-    getSentRequests,
-  } = requestStore();
+  
+  const {isSoundOn,selectedTab,isUsersLoading,contacts,getContacts} =useChatStore()
+  const {getSentRequests}=requestStore()
+  
+  const [filteredContacts, setFilteredContacts] = useState([])
 
-  // Helper utility tracking if we already sent an invitation to this specific user
-  const { getContacts, contacts } = useChatStore();
-  const checkRequestStatus = (targetUserId) => {
-    const resp = sentRequests.some((rqs) => rqs.receiverId === targetUserId);
-
-    return resp;
-  };
-
-  useLayoutEffect(() => {
-    async function getReqs() {
-      try {
-        await getSentRequests();
-      } catch (error) {
-        console.error("error while getting the requests", error);
-      }
+  useEffect(()=>{
+    async function fetchContacts() {
+      await getContacts();
+      await getSentRequests()
     }
 
-    getReqs();
-  }, [getSentRequests]);
+    fetchContacts();
+    
+    setFilteredContacts(contacts)
+  }, [getContacts,selectedTab])
 
 
-  
+  const [searchVal, setSearchVal] = useState("")
+  const handleChange = (e) => {
+    
+     if(e.target.value=="")
+    {
+      setSearchVal("")
+      setFilteredContacts(contacts)
+    }
+    else{
+      const searchVal=e.target.value;
+      const filtered=contacts.filter((cnt)=>(cnt.name.toLowerCase().startsWith(searchVal.toLowerCase())))
+      setFilteredContacts(filtered)
+      setSearchVal(searchVal)
+    }
+  };
+  // const handleBell=()=>{
+
+  // }
   return (
-    <div className="flex flex-col h-full flex-1 border-y border-r border-[#E2E8F0] bg-white">
-      {/* Upper Section Header Banner */}
-      <div className="flex h-1/10 border-b border-[#E2E8F0] items-center px-6">
-        <h2 className="text-xl font-bold text-[#0F172A] font-liberation">
-          Discover People
-        </h2>
-      </div>
-
-      {/* Main Grid Canvas Wrapper */}
-      <div className="h-90/100 w-full overflow-y-auto scrollbar p-6 bg-[#FAFAFA]">
-        <p className="text-lg text-[#71717A] font-inter mb-4 text-center">
-          Connect with other users on Chatflow to start messaging them.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {contacts?.length === 0 ? (
-            <p className="text-gray-400 text-sm italic col-span-2 text-center mt-6">
-              No users available to connect with right now.
-            </p>
-          ) : (
-            contacts?.map((item) => {
-              const isRequested = checkRequestStatus(item._id);
-
-              return (
-                <div
-                  key={item._id}
-                  className="flex items-center justify-between p-4 rounded-xl bg-white border border-[#E2E8F0] shadow-sm hover:shadow-md transition-shadow duration-200"
-                >
-                  {/* Left Column Profile Core Identity details */}
-                  <div className="flex items-center gap-3 w-7/10 overflow-hidden">
-                    <img
-                      className="object-cover size-12 rounded-full border  border-gray-100"
-                      src={item.profilePic || "./avatar.png"}
-                      alt={item.name}
-                    />
-                    <div className="flex flex-col truncate">
-                      <p className="text-base font-bold text-[#18181B] truncate font-liberation">
-                        {item.name}
-                      </p>
-                      <p className="text-xs text-[#71717A] truncate font-inter mt-0.5">
-                        {item.about || "Hey there! I am using Chatflow."}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Right Column Context Action Trigger Toggle Switch state */}
-                  {/* {!justNow ? (
-                    <span className="flex items-center gap-1 bg-[#F1F5F9] text-[#64748B] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#CBD5E1]">
-                      <Clock className="size-3.5" /> Requested
-                    </span>
-                  ) : isRequested ? (
-                    <span className="flex items-center gap-1 bg-[#F1F5F9] text-[#64748B] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#CBD5E1]">
-                      <Clock className="size-3.5" /> Requested
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() =>{ handleSendRequest(item._id);setJustNow(true)}}
-                      className="bg-[#FF2D78] hover:bg-[#E02467] text-white font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1 transition-all duration-200 cursor-pointer shadow-sm"
-                    >
-                      <UserPlus className="size-3.5" /> Connect
-                    </button>
-                  )} */}
-                  <Profiles item={item} isRequested={isRequested}/>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </div>
-    </div>
+    <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
+       <div className=" border-b border-[#E2E8F0] h-1/10 flex">
+         <div className="flex justify-center w-fit mx-4 truncate  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
+           <p>{selectedTab}</p>
+         </div>
+         <div className=" flex items-center justify-evenly grow ">
+           <input
+             type="text"
+             className="border-slate-200 flex-1 mr-4 focus:ring-blue-500 text-gray-900 bg-gray-100 p-2 rounded-2xl h-1/2"
+             placeholder="search here..."
+             onChange={handleChange}
+              value={searchVal}
+       
+           />
+           {/* <button onClick={handleSearch}>
+             <Search className="size-5 text-[#64748B] cursor-pointer" />
+           </button>
+           {isSoundOn ? (
+             <button onClick={handleBell}>
+               <Volume2 className="size-5  text-[#64748B] cursor-pointer" />
+             </button>
+           ) : (
+             <button onClick={handleBell}>
+               <VolumeX className="size-5  text-[#64748B] cursor-pointer" />
+             </button>
+           )
+           } */}
+         </div>
+       </div>
+       
+  
+       <div className="flex-1 flex flex-col gap-1  p-2 w-full overflow-auto scrollbar ">
+         
+         {isUsersLoading ? (
+           <div className="flex items-center justify-center gap-3">
+             {" "}
+             <p className="font-inter ">Loading...</p>{" "}
+             <LoaderCircle className="animate-spin size-4" />{" "}
+           </div>
+         ) : (
+           filteredContacts.map((user) => (
+             <ContactProfileCard 
+             key={user._id}
+             item={user} isRequested={false} />
+           ))
+         )}
+   
+       </div>
+     </div>
   );
 }
 

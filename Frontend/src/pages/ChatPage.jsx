@@ -16,18 +16,20 @@ function ChatPage() {
   const { selectedUser,selectedTab,subscribeMessage,unSubscribeMessage,setSelectedUser } = useChatStore();
   
 const {infoAbout,setInfoAbout}=requestStore()
-const {selectedGroup,oneGroupIscreated}=groupStore()
+const {selectedGroup,oneGroupIscreated,subscribeForGroupMessage,unsubscribeForGroupMessage}=groupStore()
 
  React.useEffect(()=>{
       
       subscribeMessage()
+      subscribeForGroupMessage()
   
     return ()=>{
       unSubscribeMessage();
+      unsubscribeForGroupMessage();
     }
-  },[subscribeMessage,unSubscribeMessage])
+  },[subscribeMessage,unSubscribeMessage,subscribeForGroupMessage,unsubscribeForGroupMessage,selectedGroup])
 
-
+  
 
 
 
@@ -36,7 +38,7 @@ const renderMainContent = () => {
   if (infoAbout) return <Info />;
 
   // 2. Check Contacts tab next
-  if (selectedTab === 'Contacts') return <ContactsPage />;
+  // if (selectedTab === 'Contacts') return <ContactsPage />;
 
   if(selectedTab==='Groups' && !selectedGroup) 
     {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import useChatStore from "../store/useChatStore.js";
 import authStore from "../store/userAuth.store.js";
 import { Search, Bell, BellOff, LoaderCircle,VolumeOff,Volume2, VolumeX } from "lucide-react";
@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import requestStore from "../store/requests.store.js";
 import groupStore from "../store/group.store.js";
 import GroupProfileView from './GroupProfileView.jsx'
+import ContactsPage from "./ContactPage.jsx";
 function Middlepanel() {
   const {
     selectedTab,
@@ -23,28 +24,79 @@ function Middlepanel() {
     isUsersLoading,
   } = useChatStore();
 
-  const [searchVal, setSearchVal] = useState("");
-
-  const { onlineUsers } = authStore();
   
-  const handleChange = (e) => {
-    setSearchVal(e.target.value);
+  const { onlineUsers } = authStore();
+  const {selectedGroup,allGroups,isGroupsLoading,getAllGroups}=groupStore();
+  
+
+  
+  const [searchValForChatParteners, setSearchValForChatParteners] = useState("");
+  const [filteredChatParteners,setFilteredChatParteners]=useState([]);
+  const handleChangeForChatPartners = (e) => {
+  
+    if(e.target.value=="")
+    {
+      setSearchValForChatParteners("")
+      setFilteredChatParteners(users)
+    }
+    else{
+      const searchVal=e.target.value;
+      const partners=users.filter((usr)=>(usr.name.toLowerCase().startsWith(searchVal.toLowerCase())))
+      setFilteredChatParteners(partners)
+      setSearchValForChatParteners(searchVal)
+    }
+  };
+  
+  
+ 
+ 
+
+
+
+
+
+const [searchValForGroup, setSearchValForGroup] = useState("");
+const [filteredGroups,setFilteredGroups]=useState([]);
+
+  // for initial render of groups
+  useEffect(()=>{
+      async function getIt(){
+        await getAllGroups()
+      }
+
+      getIt()
+      
+      setFilteredGroups(allGroups)
+    },[getAllGroups,selectedTab])
+
+
+ 
+
+  const handleChangeForGroup = (e) => {
+    
+     if(e.target.value=="")
+    {
+      setSearchValForGroup("")
+      setFilteredGroups(allGroups)
+    }
+    else{
+      const searchVal=e.target.value;
+      const groups=allGroups.filter((grp)=>(grp.groupName.toLowerCase().startsWith(searchVal.toLowerCase())))
+      setFilteredGroups(groups)
+      setSearchValForGroup(searchVal)
+    }
   };
 
-  const handleSearch = () => {
-    console.log(searchVal);
-    setSearchVal("");
-  };
+  
 
   const handleBell = () => {
     toggleSound();
-    console.log("Now sound is ", isSoundOn);
+   
   };
 
   
 
   const [users, setUsers] = useState([]);
-
   useEffect(() => {
     setUsers([]);
     async function LoadChats() {
@@ -52,14 +104,8 @@ function Middlepanel() {
         if (selectedTab === "Chats") {
           let res = await getchatPartners();
           setUsers(res);
-          console.log("chatParteners are: ",res)
-          
-        } else if (selectedTab === "Contacts") {
-          let res = await getContacts();
-          
-          setUsers(res);
-          
-        }
+         setFilteredChatParteners(res)
+        } 
       } catch (error) {
         
         toast.error(error?.message);
@@ -72,48 +118,32 @@ function Middlepanel() {
 
   const {selectedNoticeTab,setSelectedNoticeTab,getMessageRequests,getGroupRequests}=requestStore();
 
-  const tempRequests= [
-        {
-            "_id": "6a2d18e17b0c6142f49ed4cb",
-            "senderId": "69d8177a438b5137a1682528",
-            "receiverId": "69d2a516baf6989be3e137af",
-            "status": "accepted",
-            "createdAt": "2026-06-13T08:46:25.178Z",
-            "updatedAt": "2026-06-13T08:51:19.214Z",
-            "__v": 0
-        }
-    ]
+  
 
-    const {selectedGroup,allGroups,isGroupsLoading,getAllGroups}=groupStore();
-
-    useEffect(()=>{
-      async function getIt(){
-        await getAllGroups()
-      }
-
-       getIt()
-    },[getAllGroups])
+    
     
 
     if(selectedTab==='Chats' )
   {return (
     <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
       <div className=" border-b border-[#E2E8F0] h-1/10 flex">
-        <div className="flex justify-center w-27/100 truncate  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
+        <div className="flex justify-center w-fit mx-3 truncate  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
           <p>{selectedTab}</p>
         </div>
         <div className=" flex items-center justify-evenly grow ">
           <input
             type="text"
-            className="border-slate-200 focus:ring-blue-500 text-gray-900 bg-gray-100 p-2 rounded-2xl h-1/2"
+            className="border-slate-200 focus:ring-blue-500 flex-1 mr-4 text-gray-900 bg-gray-100 p-2 rounded-2xl h-1/2"
             placeholder="search here..."
-            onChange={handleChange}
-            value={searchVal}
+            onChange={handleChangeForChatPartners}
+            value={searchValForChatParteners}
           />
-          <button onClick={handleSearch}>
+          {/* <button 
+           ref={searchButtonForChatParteners}
+          onClick={handleSearchForChatPateners}>
             <Search className="size-5 text-[#64748B] cursor-pointer" />
-          </button>
-          {isSoundOn ? (
+          </button> */}
+          {/* {isSoundOn ? (
             <button onClick={handleBell}>
               <Volume2 className="size-5  text-[#64748B] cursor-pointer" />
             </button>
@@ -121,7 +151,7 @@ function Middlepanel() {
             <button onClick={handleBell}>
               <VolumeX className="size-5  text-[#64748B] cursor-pointer" />
             </button>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -137,7 +167,7 @@ function Middlepanel() {
             <LoaderCircle className="animate-spin size-4" />{" "}
           </div>
         ) : (
-          users.map((user) => (
+          filteredChatParteners.map((user) => (
             // hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full
             <ProfileHeader
               key={user._id}
@@ -157,18 +187,20 @@ function Middlepanel() {
     
      <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
       <div className=" border-b border-[#E2E8F0] h-1/10 flex">
-        <div className="flex justify-center w-27/100 truncate  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
+        <div className="flex justify-center w-fit mx-3 truncate  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
           <p>{selectedTab}</p>
         </div>
         <div className=" flex items-center justify-evenly grow ">
           <input
             type="text"
-            className="border-slate-200 focus:ring-blue-500 text-gray-900 bg-gray-100 p-2 rounded-2xl h-1/2"
+            className="border-slate-200 flex-1 mr-4 focus:ring-blue-500 text-gray-900 bg-gray-100 p-2 rounded-2xl h-1/2"
             placeholder="search here..."
-            onChange={handleChange}
-            value={searchVal}
+            onChange={handleChangeForGroup}
+            value={searchValForGroup}
           />
-          <button onClick={handleSearch}>
+          {/* <button 
+          
+          onClick={handleSearch}>
             <Search className="size-5 text-[#64748B] cursor-pointer" />
           </button>
           {isSoundOn ? (
@@ -179,7 +211,7 @@ function Middlepanel() {
             <button onClick={handleBell}>
               <VolumeX className="size-5  text-[#64748B] cursor-pointer" />
             </button>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -194,7 +226,7 @@ function Middlepanel() {
             <LoaderCircle className="animate-spin size-4" />{" "}
           </div>
         ) : (
-          allGroups.map((group) => (
+          filteredGroups.map((group) => (
             // hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full
             <GroupProfileView
           
@@ -214,61 +246,63 @@ function Middlepanel() {
   );}
   else  {
     return (
-   
-     <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
-      <div className=" border-b border-[#E2E8F0] h-1/10 flex">
-        <div className="flex justify-center w-27/100 truncate  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
-          <p>{selectedTab}</p>
-        </div>
-        <div className=" flex items-center justify-evenly grow ">
-          <input
-            type="text"
-            className="border-slate-200 focus:ring-blue-500 text-gray-900 bg-gray-100 p-2 rounded-2xl h-1/2"
-            placeholder="search here..."
-            onChange={handleChange}
-            value={searchVal}
-          />
-          <button onClick={handleSearch}>
-            <Search className="size-5 text-[#64748B] cursor-pointer" />
-          </button>
-          {isSoundOn ? (
-            <button onClick={handleBell}>
-              <Volume2 className="size-5  text-[#64748B] cursor-pointer" />
-            </button>
-          ) : (
-            <button onClick={handleBell}>
-              <VolumeX className="size-5  text-[#64748B] cursor-pointer" />
-            </button>
-          )}
-        </div>
-      </div>
+      <ContactsPage/>
+    //  <div className=" border border-[#E2E8F0] box-border  h-full w-27/100 flex flex-col ">
+    //   <div className=" border-b border-[#E2E8F0] h-1/10 flex">
+    //     <div className="flex justify-center w-fit mx-4 truncate  items-center h-full font-liberation text-[#1d2947] font-bold text-2xl">
+    //       <p>{selectedTab}</p>
+    //     </div>
+    //     <div className=" flex items-center justify-evenly grow ">
+    //       <input
+    //         type="text"
+    //         className="border-slate-200 flex-1 mr-4 focus:ring-blue-500 text-gray-900 bg-gray-100 p-2 rounded-2xl h-1/2"
+    //         placeholder="search here..."
+    //         // onChange={handleChange}
+    //         // value={searchVal}
+           
+    //       />
+    //       {/* <button onClick={handleSearch}>
+    //         <Search className="size-5 text-[#64748B] cursor-pointer" />
+    //       </button>
+    //       {isSoundOn ? (
+    //         <button onClick={handleBell}>
+    //           <Volume2 className="size-5  text-[#64748B] cursor-pointer" />
+    //         </button>
+    //       ) : (
+    //         <button onClick={handleBell}>
+    //           <VolumeX className="size-5  text-[#64748B] cursor-pointer" />
+    //         </button>
+    //       )} */}
+    //     </div>
 
-      {/* chat appears here */}
+    //   </div>
+
+    //   {/* chat appears here */}
      
-      <div className="flex-1 flex flex-col gap-1  p-2 w-full overflow-auto scrollbar ">
-        {/* chat component */}
+    //   <div className="flex-1 flex flex-col gap-1  p-2 w-full overflow-auto scrollbar ">
+    //     {/* chat component */}
 
-        {isUsersLoading ? (
-          <div className="flex items-center justify-center gap-3">
-            {" "}
-            <p className="font-inter ">Loading...</p>{" "}
-            <LoaderCircle className="animate-spin size-4" />{" "}
-          </div>
-        ) : (
-          users.map((user) => (
-            // hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full
-            <ProfileHeader
-              key={user._id}
-              onlineUsers={onlineUsers}
-              user={user}
-              fromContactPage={true}
-              outsideClass="hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full"
-            />
-          ))
-        )}
+    //     {isUsersLoading ? (
+    //       <div className="flex items-center justify-center gap-3">
+    //         {" "}
+    //         <p className="font-inter ">Loading...</p>{" "}
+    //         <LoaderCircle className="animate-spin size-4" />{" "}
+    //       </div>
+    //     ) : (
+    //       users.map((user) => (
+    //         // hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full
+    //         <ProfileHeader
+    //           key={user._id}
+    //           onlineUsers={onlineUsers}
+    //           user={user}
+    //           fromContactPage={true}
+    //           outsideClass="hover:cursor-pointer h-12/100  p-1 flex items-center gap-1 w-full"
+    //         />
+    //       ))
+    //     )}
        
-      </div>
-    </div>
+    //   </div>
+    // </div>
   );
   }
 }

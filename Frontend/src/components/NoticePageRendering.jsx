@@ -67,12 +67,12 @@ function GroupInvitation({invt}) {
 const {acceptInvitation,rejectInvitation}=requestStore()
 
   const accepted = async (id,invtId) => {
-    console.log("In accepted");
+    
     await acceptInvitation(id,invtId);
   };
 
   const rejected = async (id,invtId) => {
-    console.log("In rejected");
+    
     await rejectInvitation(id,invtId);
   };
   return (
@@ -131,17 +131,7 @@ function NoticePageRendering() {
     groupInvitations,
   } = requestStore();
 
-  const tempRequests = [
-    {
-      _id: "6a2d18e17b0c6142f49ed4cb",
-      senderId: "69d8177a438b5137a1682528",
-      receiverId: "69d2a516baf6989be3e137af",
-      status: "accepted",
-      createdAt: "2026-06-13T08:46:25.178Z",
-      updatedAt: "2026-06-13T08:51:19.214Z",
-      __v: 0,
-    },
-  ];
+ 
 
   const { selectedGroup, allGroups, isGroupsLoading } = groupStore();
   // console.log(allGroups);

@@ -180,14 +180,14 @@ function MessagePageGroup() {
         }
     },[selectedGroup?._id,getGroupMessages])
 
-    useEffect(()=>{
-      if(selectedGroup)
-        subscribeForGroupMessage()
+      // useEffect(()=>{
+      //   if(selectedGroup)
+      //     subscribeForGroupMessage()
 
-      return ()=>{
-        unsubscribeForGroupMessage()
-      }
-    },[selectedGroup])
+      //   return ()=>{
+      //     unsubscribeForGroupMessage()
+      //   }
+      // },[selectedGroup])
 
     
      const [messageText, setMessageText] = useState("");
@@ -215,7 +215,7 @@ function MessagePageGroup() {
     let url="";
     if (inputImage) {
       const tokens=await getTokenForUpload('groupMessages')
-      console.log(tokens)
+     
       // const {timestamp,signature,apiKey}=await getTokenForUpload('profilePics')
       const formData=new FormData();
       formData.append('api_key',tokens.apiKey)
@@ -236,7 +236,7 @@ function MessagePageGroup() {
     }
     
     try {
-        console.log("In the send message to group")
+      
       await sendMessageInGroup({text:messageText,groupId:selectedGroup._id,image:url});
     } catch (error) {
       console.log(error);
@@ -268,7 +268,7 @@ function MessagePageGroup() {
     return elements;
   };
   const showMessageInGroup = (msg) => {
-  console.log(msg)
+
     if (msg.senderId._id === user._id || msg.senderId===user._id) {
       {
         /* user is sender */

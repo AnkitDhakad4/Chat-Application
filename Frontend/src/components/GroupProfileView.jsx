@@ -6,12 +6,11 @@ function GroupProfileView(props) {
 
 
   const {group,outsideClass,upper}=props
-  console.log("Props are",)
-    
+ 
     
     // console.log(group)
     
-    const {setSelectedGroup}=groupStore()
+    const {setSelectedGroup,notificationsToGroups}=groupStore()
 
     
 
@@ -57,7 +56,7 @@ function GroupProfileView(props) {
            <p className="font-liberation text-xs text-gray-500 ">
             {group.members.length}  Members</p>}
           </div>
-          
+           {notificationsToGroups.has(group._id) && <div className="h-3 w-3 rounded-full bg-[#ff4081] ring-white animate-pulse" />}
         </div>
   )
 }

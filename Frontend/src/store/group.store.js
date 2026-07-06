@@ -4,7 +4,7 @@ import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
 import socket from "../socket/socket";
 import authStore from "./userAuth.store.js";
-
+import {triggerGroupNotification} from '../utils/notification.util.jsx'
 const initialState = {
   selectedGroup: null,
   allGroups: [],
@@ -14,14 +14,20 @@ const initialState = {
   groupsMessages: {},
   socketIsConnected: false,
   notificationCount:{},
-  isUpdatingGroup:false
+  isUpdatingGroup:false,
+  notificationsToGroups:new Set()
 };
 const groupStore = create((set, get) => ({
   ...initialState,
 
   setSelectedGroup: (grp) => {
     // console.log(grp,"is selected")
-    set({ selectedGroup: grp });
+    const currentNotifications=get().notificationsToGroups
+    if(currentNotifications && currentNotifications?.has(grp?._id))
+    {
+      currentNotifications.delete(grp._id)
+    }
+    set({ selectedGroup: grp ,notificationsToGroups:currentNotifications});
   },
 
   sendMessageInGroup: async ({ text, groupId, image }) => {
@@ -74,20 +80,23 @@ const groupStore = create((set, get) => ({
 
   getGroupMessages: async (id) => {
     try {
-      console.log("in getGroupMessages id is   ", id);
+      
       const resp = await axiosInstance.post("/group/getAllMessages", {
         groupId: id,
       });
       const newMessages = resp.data.data;
-
-      console.log("in getGroupMessages", newMessages);
+      
+     if(get().selectedGroup._id !== newMessages.groupId)
+     {
       set({
         groupsMessages: {
           ...get().groupsMessages,
           [id]: newMessages,
         },
       });
-      // toast.success(resp.data.message);
+     }
+     
+      toast.success(resp.data.message);
     } catch (error) {
       console.log(error.response.data);
     }
@@ -95,7 +104,7 @@ const groupStore = create((set, get) => ({
 
   createGroup: async (body) => {
     try {
-      console.log(body)
+      
       const resp = await axiosInstance.post("/group/createGroup", body);
       toast.success(resp.data.message);
       // set({ oneGroupIscreated: true });
@@ -108,7 +117,7 @@ const groupStore = create((set, get) => ({
  updateGroup: async (data, grpId) => {
   try {
     set({isUpdatingGroup:true})
-    console.log("Updated user ", data, grpId);
+   
     const resp = await axiosInstance.post(`/group/updateGroupDetails/${grpId}`, data);
     const updatedGroup = resp?.data?.data;
 
@@ -168,13 +177,13 @@ const groupStore = create((set, get) => ({
 
       // const newMembers=selectedGroup.members.map((mem)=>(!members.includes(mem._id)))
       const newAllGroup=allGroups.map((grp)=>(grp._id === resp.data?.data?._id ? resp?.data?.data : grp))
-      console.log("Updated ",newAllGroup)
+     
       set({selectedGroup:resp.data.data,allGroups:[...newAllGroup]})
 
     } catch (error) {
       console.log(error)
       // toast.error(error.response?.data?.message);
-      console.log(error?.data?.message);
+     
     }
   },
   
@@ -182,7 +191,7 @@ const groupStore = create((set, get) => ({
     try {
       set({ isGroupsLoading: true });
       const resp = await axiosInstance.post("/group/allGroups");
-      // console.log(resp.data.data);
+    
       set({ allGroups: resp.data.data });
     } catch (error) {
       console.log(error);
@@ -194,8 +203,10 @@ const groupStore = create((set, get) => ({
   subscribeForGroupMessage: () => {
     set({ socketIsConnected: true });
     if (!socket) return;
-    socket.on("newGroupMessage", (newmsg) => {
-      console.log("socket se aa gya hai ", newmsg);
+  
+    
+    socket.on("newGroupMessage", (newmsg,data) => {
+      // console.log("Data in the groupMessage ",data)
       const currentmsgs = get().groupsMessages[newmsg.groupId] || [];
       set({
         groupsMessages: {
@@ -203,6 +214,16 @@ const groupStore = create((set, get) => ({
           [newmsg.groupId]: [...currentmsgs, newmsg],
         },
       });
+      console.log(data)
+      console.log(get().selectedGroup)
+      
+      if(!get().selectedGroup ||  get().selectedGroup._id !== data._id)
+       {
+        const currentState=get().notificationsToGroups
+            set({notificationsToGroups:new Set([...currentState,data._id])})
+        
+          triggerGroupNotification(data.groupName,newmsg.senderId.name,newmsg.text,data.groupIcon)
+      }
     });
   },
 
@@ -213,7 +234,7 @@ const groupStore = create((set, get) => ({
   },
 
   reset: () => {
-    // console.log("Reseting the groupStore")
+    
     set({ ...initialState });
   },
 }));
