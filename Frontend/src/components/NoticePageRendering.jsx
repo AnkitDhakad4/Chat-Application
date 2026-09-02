@@ -114,6 +114,7 @@ function NoticePageRendering() {
 
   const handleSearch = () => {
     console.log(searchVal);
+    
     setSearchVal("");
   };
 
