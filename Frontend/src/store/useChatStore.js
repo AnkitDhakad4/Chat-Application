@@ -33,9 +33,9 @@ const useChatStore = create((set, get) => ({
   },
 
   setSelectedTab: (tab) => {
-    
+     console.log(tab)
     set({ selectedTab: tab });
-    localStorage.setItem("selectedTab", String(tab));
+    // localStorage.setItem("selectedTab", String(tab));
   },
 
   getchatPartners: async () => {
@@ -213,8 +213,9 @@ const useChatStore = create((set, get) => ({
     // const {messages}=get()
     socket.on("newMessage", (msg) => {
 
-        
-        if(get().selectedUser?._id !== msg.senderId._id)
+        const selectedTab=get().selectedTab
+        console.log(selectedTab)
+        if(get().selectedUser?._id !== msg.senderId._id )
         {
            const currentState=get().notificationsToUsers
             set({notificationsToUsers:new Set([...currentState,msg.senderId._id])})
@@ -237,7 +238,15 @@ const useChatStore = create((set, get) => ({
 
       if (!incomming && !outgoing) return;
 
-      set({ messages: [...get().messages, msg] });
+      // set({ messages: [...get().messages, msg] });
+      const {messages}=get()
+      const prvmessages=messages[selectedUser._id]
+     set((state)=>({
+      messages:{
+        ...messages,
+        [selectedUser._id]:[...prvmessages,msg]
+      }
+    }))
 
       if (isSoundOn) {
         const playSound = new Audio("./sounds/notification.mp3");
