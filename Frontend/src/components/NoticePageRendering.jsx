@@ -123,8 +123,6 @@ function NoticePageRendering() {
   };
 
   const {
-    selectedNoticeTab,
-    setSelectedNoticeTab,
     getMessageRequests,
     getGroupRequests,
     messageRequests,
@@ -269,33 +267,3 @@ function NoticePageRendering() {
 }
 
 export default NoticePageRendering;
-
-// {/* <div className=" h-1/10 flex p-0.5 items-center justify-evenly ">
-//           <img className=" object-cover size-11" src="./avatar.png" />
-//           <div className="flex flex-col w-65/100 ">
-//             <p className="text-lg font-liberation text-[#18181B]">
-//               Ankit Dhakad
-//             </p>
-//             <p className="truncate max-w-full text-xs font-extralight text-[#71717A] font-inter">
-//               Lorem, ipsum dolor sit amet consectetur adipisicing elit. Pariatur
-//               magnam veniam cum, consequuntur veritatis rerum molestiae. Enim
-//               porro blanditiis incidunt reprehenderit deserunt? Quasi, quaerat
-//               veniam! Maiores fugit, ab sapiente rem fuga, harum obcaecati nobis
-//               temporibus, corrupti velit magnam quidem nesciunt eius. Fuga
-//               tempore dolorem cum quisquam delectus velit placeat nostrum?
-//             </p>
-//           </div>
-//           <div className="flex flex-col gap-1 pt-1 ">
-//             <button
-//             onClick={()=>{}}
-//             className="bg-[#166534] hover:bg-[#15803d] text-white font-medium text-xs px-2 py-0.5  rounded-xl cursor-pointer transition-all duration-200 flex items-center">
-//               Accept
-//             </button>
-
-//             <button
-//             onClick={()=>{}}
-//             className="bg-[#5b0e0e] hover:bg-[#991b1b] text-neutral-300 hover:text-white font-medium text-xs px-2 py-0.5 rounded-xl cursor-pointer transition-all duration-200 flex items-center">
-//               Reject
-//             </button>
-//           </div>
-//         </div> */}

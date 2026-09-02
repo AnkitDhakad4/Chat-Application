@@ -27,8 +27,8 @@ messageRouter.route("/messageRequest/:id").get(authentication,requestToMessage);
 messageRouter.route('/acceptMessageRequest').post(authentication,acceptMessageRequest)
 messageRouter.route('/rejectMessageRequest').post(authentication,rejectMessageRequest)
 messageRouter.route('/getAllRequests').post(authentication,getAllRequestForUser)
-messageRouter.route('/getRejectedRequests').post(authentication,getAllRejectedRequests)
-messageRouter.route('/acceptRejectedRequest').post(authentication,acceptRejectedRequest)
+// messageRouter.route('/getRejectedRequests').post(authentication,getAllRejectedRequests)
+// messageRouter.route('/acceptRejectedRequest').post(authentication,acceptRejectedRequest)
 messageRouter.route('/getSentRequests').get(authentication,getAllSendedRequest) 
 messageRouter.route("/:id").get(authentication, getMessageByUserId);
 

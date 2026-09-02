@@ -14,7 +14,8 @@ const initialState={
   selectedTab:null,
   // localStorage.getItem("selectedTab") || "Chats",
   selectedUser: null,
-  messages: [],
+  // messages: [],
+  messages:{},
   isUsersLoading: false,
   isMessageLoading: false,
   isSoundOn: localStorage.getItem("isSoundOn") === "true",
@@ -22,17 +23,7 @@ const initialState={
   notificationsToUsers:new Set()
 }
 const useChatStore = create((set, get) => ({
-  // chatPartners: [],
-  // tempMsgStore: [],
-  // contacts: [],
-  // selectedTab:"", 
-  // // localStorage.getItem("selectedTab") || "Chats",
-  // selectedUser: null,
-  // messages: [],
-  // isUsersLoading: false,
-  // isMessageLoading: false,
-  // isSoundOn: localStorage.getItem("isSoundOn") === "true",
-  // isImageUploading: false,
+  
   ...initialState,
 
   toggleSound: () => {
@@ -67,7 +58,7 @@ const useChatStore = create((set, get) => ({
   getContacts: async () => {
     const { contacts, chatPartners } = get();
 
-    // if (contacts && contacts.length > 0) return contacts;
+
 
     set({ isUsersLoading: true });
     try {
@@ -93,12 +84,26 @@ const useChatStore = create((set, get) => ({
 
   getMessages: async (id) => {
     set({ isMessageLoading: true });
+    let {messages}=get()
+
+    if(messages[id]!==undefined) 
+    {
+      set({isMessageLoading:false})
+      return
+    }
     try {
      
       const res = await axiosInstance.get(`/message/${id}`);
       // console.log(res)
-      set({ messages: res.data.data });
-      // console.log("messages are ",res.data.data)
+      const data=res.data.data || []
+      set((state)=>({
+        messages:{
+          ...state.messages,
+          [id]:data
+        }        
+      }))
+      // set({ messages: res.data.data });
+      
     } catch (error) {
       console.log(error)
       toast.error(error.response?.data?.error);
@@ -123,7 +128,7 @@ const useChatStore = create((set, get) => ({
     const { user } = authStore.getState();
     const { messages, selectedUser } = get();
 
-    const prvmessages=[...messages]
+    const prvmessages=messages[selectedUser._id]
     const optimisticId=`temp-${Date.now()}`
     const artificialMessage={
       _id:optimisticId,
@@ -134,7 +139,12 @@ const useChatStore = create((set, get) => ({
       createdAt:new Date().toISOString(),
       isSending:true,
     }
-    set({ messages: [...prvmessages, artificialMessage] });
+    set((state)=>({
+      messages:{
+        ...messages,
+        [selectedUser._id]:[...prvmessages,artificialMessage]
+      }
+    }))
 
     try {
      
@@ -146,7 +156,11 @@ const useChatStore = create((set, get) => ({
 
       const savedMessage=resp.data.message
       set((state)=>({
-        messages:state.messages.map((msg)=>(msg._id ===optimisticId? savedMessage:msg))
+        messages:{
+          ...messages,
+          [selectedUser._id]:[...prvmessages,savedMessage]
+        }
+        // messages:state.messages.map((msg)=>(msg._id ===optimisticId? savedMessage:msg))
       }));
     } catch (error) {
       console.log(error);

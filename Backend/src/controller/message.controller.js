@@ -265,7 +265,6 @@ const createMessage = async function (req, res) {
     // 
  
     
-    // todo : to implement the socket.io for real time message sending
     const receiverSocketId = getReceiverId(receiver);
     // 
     if (receiverSocketId) {
@@ -376,11 +375,15 @@ const getAllContacts = async function (req, res) {
   }
 };
 
+let cnt=1;
 const getMessageByUserId = async function (req, res) {
   try {
     const senderId = req.user.id;
     const { id: receiverId } = req.params;
-
+    
+    console.log(`for userId ${receiverId} messages are fetched current call is ${cnt}`)
+    cnt++;
+    
     const messages = await Message.find({
       $or: [
         { senderId: senderId, receiverId: receiverId },
@@ -394,6 +397,7 @@ const getMessageByUserId = async function (req, res) {
       data: newmessages,
     });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ message: error.message });
   }
 };

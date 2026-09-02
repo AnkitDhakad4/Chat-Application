@@ -63,11 +63,11 @@ const groupStore = create((set, get) => ({
       
       // if (!get().socketIsConnected) {
         set((state)=>{
-          const freshGroupMessages = state.groupsMessages[groupId] || [];
+          // const freshGroupMessages = state.groupsMessages[groupId] || [];
           return {
           groupsMessages: {
             ...state.groupsMessages,
-            [groupId]: freshGroupMessages.map((msg)=>(msg._id===tempId ?newMessage:msg)),
+            [groupId]: [...currentMessages,newMessage]
           },
         }
         });

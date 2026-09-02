@@ -175,7 +175,7 @@ function MessagePage() {
     //             "_id": "6a34d792475c1dd5dff2d518",
     //             "name": "A",
     //             "profilePic": ""
-    //         },
+    //         }, 
     //         "text": "Message by user a",
     //         "image": "https://lh4.googleusercontent.com/proxy/SpJhKhirUm0YNLmdSuU5tuJqw_4H-VOkYwl55F2qVo__jQqn_IWXXTXsP95e1oI6-quM7xS3VPobQ5jVqGWK3s-aU7N1NiM0orygMqgD5SjIJsixVdniw4mW7qai57gWWnkKRCWr3lHkTA36hXZPL6HQ3cpAYkDpN-UbXM_hWMFtK2hsNzkMxs079TE0YP8ZYe77KRrn7Poz5RKFyp5qzsVPEnTlu1SwHTqzifZQ",
     //         "groupId": "6a36f74392b1ba1a0df517d5",
@@ -216,8 +216,10 @@ function MessagePage() {
 
 
   const handleMessageRenderingAccordingToTime = (messages) => {
+
+    
     let elements = [];
-    for (let i = 0; i < messages.length; i++) {
+    for (let i = 0; i < messages?.length ?? 0; i++) {
       let Day = new Date(messages[i].createdAt).toISOString().split("T")[0];
       elements.push(<DayShow key={`date-header-${Day}`} day={Day} />);
       for (; i < messages.length; i++) {
@@ -368,8 +370,7 @@ function MessagePage() {
   const {infoAbout,setInfoAbout}=requestStore()
   const {selectedGroup,setSelectedGroup}=groupStore()
   
-  // console.log("selected tab in messagepage is ",selectedTab)
-  // console.log("selected group is ",selectedGroup)
+  
 
   
   if (selectedTab === 'Groups') {
@@ -393,6 +394,7 @@ function MessagePage() {
       return <NoChatPage />;
     }
 
+    
  return (
   <div className="relative flex flex-col h-full flex-1 border-y border-r border-[#E2E8F0]">
     {/* upper section */}
@@ -425,7 +427,7 @@ function MessagePage() {
             <p className="font-inter">Loading...</p>
           </div>
         ) : (
-          handleMessageRenderingAccordingToTime(messages)
+          handleMessageRenderingAccordingToTime(messages[selectedUser._id])
         )}
         <div className="w-0 h-0" ref={scrollViewRef}></div>
       </div>

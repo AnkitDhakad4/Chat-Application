@@ -34,11 +34,10 @@ const {selectedGroup,oneGroupIscreated,subscribeForGroupMessage,unsubscribeForGr
 
 
 const renderMainContent = () => {
-  // 1. Check Info first
+ 
   if (infoAbout) return <Info />;
 
-  // 2. Check Contacts tab next
-  // if (selectedTab === 'Contacts') return <ContactsPage />;
+ 
 
   if(selectedTab==='Groups' && !selectedGroup) 
     {
@@ -47,11 +46,10 @@ const renderMainContent = () => {
       
     }
 
-  // 3. Check if an active conversation exists
-  // (Using ?.id or whatever key verifies a real group/user object exists)
+  
   if (selectedUser || selectedGroup) return <MessagePage />;
 
-  // 4. Default fallback when everything else is empty/null
+  
   return <NoChatPage />;
 };
   return (
@@ -59,16 +57,7 @@ const renderMainContent = () => {
       <Sidebar />
 
       {selectedTab==='Activity'?<NoticePageRendering/> :<Middlepanel />}
-      {/* {infoAbout ?
-      (<Info/> ):
-        selectedTab!=='Contacts'  ? 
-            // (selectedTab==='Contacts' ? <ContactsPage/> :<NoChatPage /> )
-            (!selectedUser ? 
-              (!selectedGroup ? <NoChatPage/> :<MessagePage/>)
-              :<MessagePage /> )
-             :( <ContactsPage />
-      )}
-       */}
+   
        {renderMainContent()}
       
       

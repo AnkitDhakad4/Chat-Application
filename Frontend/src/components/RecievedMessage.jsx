@@ -48,7 +48,7 @@ function RecievedMessage({ msg }) {
         </div>
       )}
 
-      {/* Conditional rendering: Text box hides completely if empty */}
+      {/* Text box hides completeely if empty */}
       {msg.text && (
         <div className="h-fit border-2 border-[#E5E7EB] p-2 max-w-[70%] rounded-b-xl rounded-r-xl text-[#111827] bg-[#F3F4F6] break-words">
           {msg.text}
