@@ -9,7 +9,8 @@ import requestStore from "../store/requests.store.js";
 import groupStore from "../store/group.store.js";
 import GroupProfileView from './GroupProfileView.jsx'
 import ContactsPage from "./ContactPage.jsx";
-function Middlepanel() {
+function Middlepanel()    
+{
   const {
     selectedTab,
     isSoundOn,
