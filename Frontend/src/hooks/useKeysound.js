@@ -15,7 +15,7 @@ const useKeysound=()=>{
 
         let rndm=Math.floor(Math.random()*4+1)
         let key=`s${rndm}`
-        console.log(key)
+        // console.log(key)
         const curr=sound[key]
         curr.currentTime=0
         curr.play().catch((e)=>{console.log("Error while playing the sound ",error)})

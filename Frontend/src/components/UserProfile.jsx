@@ -87,7 +87,7 @@ function UserProfile( {setprofileViewer} ) {
         formData.append('file', file);
           
         const data = await uploadOnCloudinary(formData);
-        console.log(data.secure_url);
+        // console.log(data.secure_url);
         finalProfilePayload.profilePic = data.secure_url;
       } catch (error) {
         console.log(error?.message);
@@ -102,7 +102,7 @@ function UserProfile( {setprofileViewer} ) {
     try {
         await updateUser(finalProfilePayload);
     } catch (error) {
-        console.log('There is someError while updating the profile');
+        // console.log('There is someError while updating the profile');
     } finally {
         setprofileViewer(false);
     }

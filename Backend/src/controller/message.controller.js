@@ -182,50 +182,50 @@ const getAllRequestForUser=async function(req,res){
 }
 
 
-const getAllRejectedRequests=async function(req,res){
-  try {
-    const user=req.user;
+// const getAllRejectedRequests=async function(req,res){
+//   try {
+//     const user=req.user;
     
-    const requests=await MessageRequest.find({receiverId:user._id,status:'rejected'})
+//     const requests=await MessageRequest.find({receiverId:user._id,status:'rejected'})
   
-    if(!requests)
-    {
-      return res.status(503).json({message:"Error while fetching all rejected requests"});
-    }
+//     if(!requests)
+//     {
+//       return res.status(503).json({message:"Error while fetching all rejected requests"});
+//     }
   
-    return res.status(200).json({message:"rejected requests are fetched successfully",data:requests});
-  } catch (error) {
-    return res.status(500).json({message:error.message});
-  }
-}
+//     return res.status(200).json({message:"rejected requests are fetched successfully",data:requests});
+//   } catch (error) {
+//     return res.status(500).json({message:error.message});
+//   }
+// }
 
 
 
-const acceptRejectedRequest=async function(req,res){
-  try {
-    const user=req.user;
-    const {requestId}=req.body
+// const acceptRejectedRequest=async function(req,res){
+//   try {
+//     const user=req.user;
+//     const {requestId}=req.body
     
-    const requestAccepted=await MessageRequest.findOneAndUpdate({_id:requestId},{status:'accepted'},{returnDocument:'after'})
+//     const requestAccepted=await MessageRequest.findOneAndUpdate({_id:requestId},{status:'accepted'},{returnDocument:'after'})
     
-    if(!requestAccepted)
-    {
-      return res.status(503).json({message:"Error while accepting request"});
-    }
+//     if(!requestAccepted)
+//     {
+//       return res.status(503).json({message:"Error while accepting request"});
+//     }
 
-    const receiverId=requestAccepted.receiverId;
-    const updateParteners=await chatParteners.findOneAndUpdate({userId:user._id},{$addToSet:{partners:receiverId}},{upsert:true,returnDocument:'after'})
+//     const receiverId=requestAccepted.receiverId;
+//     const updateParteners=await chatParteners.findOneAndUpdate({userId:user._id},{$addToSet:{partners:receiverId}},{upsert:true,returnDocument:'after'})
 
-    if(!updateParteners)
-    {
-      return res.status(503).json({message:"Error while updating the chatParteners"});
-    }
+//     if(!updateParteners)
+//     {
+//       return res.status(503).json({message:"Error while updating the chatParteners"});
+//     }
   
-    return res.status(200).json({message:"Request is accepted successfully",data:requestAccepted});
-  } catch (error) {
-    return res.status(500).json({message:error.message});
-  }
-}
+//     return res.status(200).json({message:"Request is accepted successfully",data:requestAccepted});
+//   } catch (error) {
+//     return res.status(500).json({message:error.message});
+//   }
+// }
 
 
 
@@ -282,28 +282,7 @@ const createMessage = async function (req, res) {
   }
 };
 
-// const getChatPartners = async function (req, res) {
-//   try {
-//     const userId = req.user.id;
 
-    
-//   const parteners=await chatParteners.findOne({userId:userId}).populate('partners','email name profilePic about lastSeen')
-// const data = parteners ? parteners.partners.filter((prtnr)=>prtnr._id!=userId) : [];
-
-// // parteners.filter((prtnr)=>prtnr._id !=user._id)
-    // 
-    // 
-      
-      
-//     return res
-//       .status(200)
-//       .json({ message: "Here is all the chat partners ", data: data });
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "Error while fetching the chat partners", error:error.message });
-//   }
-// };
 const getChatPartners = async function (req, res) {
   try {
     const userId = req.user.id;
@@ -327,25 +306,6 @@ const getChatPartners = async function (req, res) {
   }
 };
 
-// const getAllContacts = async function (req, res) {
-//   try {
-//     const userId = req.user.id;
-
-    // 
-//     const contacts = await User.find({ _id: { $ne: userId } }).select(
-//       "-password -dob",
-//     );
-    // 
-    // 
-//     return res
-//       .status(200)
-//       .json({ message: "Here is all the contacts ", data: contacts });
-//   } catch (error) {
-//     return res
-//       .status(500)
-//       .json({ message: "Error while getting the all contacts", error });
-//   }
-// };
 
 const getAllContacts = async function (req, res) {
   try {
@@ -381,7 +341,7 @@ const getMessageByUserId = async function (req, res) {
     const senderId = req.user.id;
     const { id: receiverId } = req.params;
     
-    console.log(`for userId ${receiverId} messages are fetched current call is ${cnt}`)
+    // console.log(`for userId ${receiverId} messages are fetched current call is ${cnt}`)
     cnt++;
     
     const messages = await Message.find({
@@ -423,15 +383,9 @@ export {
   getChatPartners,
   getMessageByUserId,
   generateUploadToken,
-
   requestToMessage,
   acceptMessageRequest,
   rejectMessageRequest,
   getAllRequestForUser,
-  getAllRejectedRequests,
-  acceptRejectedRequest,
-
-
-
   getAllSendedRequest
 };

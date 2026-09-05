@@ -25,7 +25,7 @@ function GroupInfo() {
     isUpdatingGroup
   } = groupStore();
   const group = selectedGroup;
-  console.log(group)
+  // console.log(group)
   // Admin Check  
   const isAdmin = loggedInUser?._id === group?.admin;
 
@@ -72,7 +72,7 @@ const handleSubmit=async () => {
           
 
           try {
-            console.log(" data is  ",newObject)
+            // console.log(" data is  ",newObject)
             await updateGroup(newObject,group._id)
           } catch (error) {
             console.log(error)

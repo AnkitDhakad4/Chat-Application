@@ -39,13 +39,13 @@ const CreateGroup = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    console.log({
-      groupName,
-      groupDescription,
-      selectedMembers,
-      iconFile,
-      groupIcon
-    });
+    // console.log({
+    //   groupName,
+    //   groupDescription,
+    //   selectedMembers,
+    //   iconFile,
+    //   groupIcon
+    // });
 
 
     const file=iconFile
@@ -63,7 +63,7 @@ const CreateGroup = () => {
         
      
       const data=await uploadOnCloudinary(formData)
-      console.log(data.secure_url)
+      // console.log(data.secure_url)
       url=data.secure_url;
       
     } catch (error) {
@@ -73,7 +73,7 @@ const CreateGroup = () => {
 
     // Pass inputs or a custom FormData instances directly to your store action
     try {
-      console.log("Url is ",url)
+      // console.log("Url is ",url)
       await createGroup({
         groupName,
         description: groupDescription,

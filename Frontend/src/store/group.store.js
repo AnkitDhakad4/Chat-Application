@@ -214,8 +214,8 @@ const groupStore = create((set, get) => ({
           [newmsg.groupId]: [...currentmsgs, newmsg],
         },
       });
-      console.log(data)
-      console.log(get().selectedGroup)
+      // console.log(data)
+      // console.log(get().selectedGroup)
       
       if(!get().selectedGroup ||  get().selectedGroup._id !== data._id)
        {

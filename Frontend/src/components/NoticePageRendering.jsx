@@ -20,16 +20,16 @@ import groupStore from "../store/group.store.js";
 import GroupProfileView from "./GroupProfileView.jsx";
 
 function MessageRequest({ rqs }) {
-  console.log(rqs);
+  // console.log(rqs);
   const { acceptMessageReqeust, rejectMessageReqeust } = requestStore();
 
   const accepted = async (id) => {
-    console.log("In accepted");
+    // console.log("In accepted");
     await acceptMessageReqeust(id);
   };
 
   const rejected = async (id) => {
-    console.log("In rejected");
+    // console.log("In rejected");
     await rejectMessageReqeust(id);
   };
   return (
@@ -113,14 +113,14 @@ function NoticePageRendering() {
   };
 
   const handleSearch = () => {
-    console.log(searchVal);
+    // console.log(searchVal);
     
     setSearchVal("");
   };
 
   const handleBell = () => {
     toggleSound();
-    console.log("Now sound is ", isSoundOn);
+    // console.log("Now sound is ", isSoundOn);
   };
 
   const {

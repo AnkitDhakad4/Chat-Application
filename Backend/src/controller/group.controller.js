@@ -139,7 +139,7 @@ const addMembers = async function (req, res) {
   try {
     const { members, groupId } = req.body;
     const user = req.user;
-    console.log(members,groupId)
+    // console.log(members,groupId)
     if (members.length == 0) {
       return res
         .status(400)
@@ -182,7 +182,7 @@ const addMembers = async function (req, res) {
 
     const requests = await Promise.all(invitationPromises);
     const createdRequests = requests.filter((reqs) => reqs !== null);
-    console.log(createdRequests)
+    // console.log(createdRequests)
     return res.status(200).json({
       message: "Request to join the group is sent to the users successfully",
       data: createdRequests,
@@ -212,7 +212,7 @@ const allGroups=async function(req,res){
 
 const groupInvitationsToUser = async function (req, res) {
   try {
-    console.log("frontend is hitting")
+    // console.log("frontend is hitting")
     const user = req.user;
     const invitations = await groupRequest
       .find({ invitedUserId: user._id, status: "pending" })
@@ -340,85 +340,6 @@ const groupInvitationRejection = async function (req, res) {
   }
 };
 
-const rejectedInvitations = async function (req, res) {
-  try {
-    const user = req.user;
-
-    const rejectedRequests = await groupRequest
-      .find({ invitedUserId: user._id, status: "rejected" })
-      .populate("adminId", "name email profilePic about")
-      .populate("groupId", "groupName groupIcon groupDescription");
-
-    if (!rejectedRequests) {
-      return res
-        .status(200)
-        .json({ message: "you do not give rejection to any group" });
-    }
-
-    return res.status(200).json({
-      message: "Rejected groups are successfully fetched",
-      data: rejectedRequests,
-    });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
-
-const acceptRejectedInvitation = async function (req, res) {
-  try {
-    const user = req.user;
-    const { groupId, adminId } = req.body;
-
-    if (!groupId || !adminId) {
-      return res
-        .status(403)
-        .json({ message: "Please provide the groupId or the adminId" });
-    }
-
-    const pendingInvite = await groupRequest.findOne({
-      groupId: groupId,
-      adminId: adminId,
-      invitedUserId: user._id,
-      status: "rejected",
-    });
-    if (!pendingInvite) {
-      return res.status(400).json({ message: "No rejected invitation found" });
-    }
-
-    const isGroupExist = await Group.findOne({ _id: groupId, admin: adminId });
-
-    if (!isGroupExist) {
-      return res.status(400).json({
-        message:
-          "Group does not exist or the person who invited you is not the admin of the group",
-      });
-    }
-
-    const addToGroup = await Group.findOneAndUpdate(
-      { _id: groupId },
-      { $addToSet: { members: user._id } },
-      { returnDocument: "after" },
-    ).populate("members", "name profilePic about");
-
-    if (!addToGroup) {
-      return res
-        .status(501)
-        .json({ message: "there is error while adding member to the group" });
-    }
-
-    await groupRequest.findOneAndUpdate(
-      { groupId: groupId, invitedUserId: user._id },
-      { status: "accepted" },
-      { returnDocument: "after" },
-    );
-
-    return res
-      .status(200)
-      .json({ message: "you joined the group successfully", data: addToGroup });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
 
 const getGroupInfo = async function (req, res) {
   try {
@@ -490,7 +411,7 @@ const removeMembers = async function (req, res) {
       });
     }
 
-    console.log(updatedGroup)
+    // console.log(updatedGroup)
     // 4. Clean up Invitation Requests from the GroupRequest collection
     // Deletes any matching invitations for these users for this specific group
     const deletionResult = await groupRequest.deleteMany({
@@ -499,7 +420,7 @@ const removeMembers = async function (req, res) {
     });
 
     // 5. Return the brand new data state along with deletion telemetry
-    console.log("members removed new members are",updatedGroup)
+    // console.log("members removed new members are",updatedGroup)
     return res.status(200).json({ 
       message: "Members and their invitations removed successfully", 
       data: updatedGroup,
@@ -510,37 +431,37 @@ const removeMembers = async function (req, res) {
     return res.status(500).json({ message: error.message });
   }
 };
-const deleteGroup = async function (req, res) {
-  try {
-    const { groupId } = req.params;
-    const user = req.user;
-    if (!groupId) {
-      return res.status(400).json({ message: "Provide the groupId properly" });
-    }
-    const matchGroupAdmin = await Group.findOne({
-      _id: groupId,
-      admin: user._id,
-    });
-    if (!matchGroupAdmin) {
-      return res.status(403).json({
-        message: "You are not the admin of this group you can not delete it",
-      });
-    }
+// const deleteGroup = async function (req, res) {
+//   try {
+//     const { groupId } = req.params;
+//     const user = req.user;
+//     if (!groupId) {
+//       return res.status(400).json({ message: "Provide the groupId properly" });
+//     }
+//     const matchGroupAdmin = await Group.findOne({
+//       _id: groupId,
+//       admin: user._id,
+//     });
+//     if (!matchGroupAdmin) {
+//       return res.status(403).json({
+//         message: "You are not the admin of this group you can not delete it",
+//       });
+//     }
 
-    const deletedData = await Group.findOneAndDelete({ _id: groupId });
-    if (!deletedData) {
-      return res
-        .status(404)
-        .json({ message: "Error while deleting the group" });
-    }
+//     const deletedData = await Group.findOneAndDelete({ _id: groupId });
+//     if (!deletedData) {
+//       return res
+//         .status(404)
+//         .json({ message: "Error while deleting the group" });
+//     }
 
-    return res
-      .status(200)
-      .json({ message: "Group is deleted successfully", data: deletedData });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
+//     return res
+//       .status(200)
+//       .json({ message: "Group is deleted successfully", data: deletedData });
+//   } catch (error) {
+//     return res.status(500).json({ message: error.message });
+//   }
+// };
 
 const updateGroupDetails = async function (req, res) {
   try {
@@ -551,7 +472,7 @@ const updateGroupDetails = async function (req, res) {
     if (!groupId) {
       return res.status(400).json({ message: "Provide the groupId properly" });
     }
-    console.log(groupId,iconUrl,groupName,description)
+    // console.log(groupId,iconUrl,groupName,description)
     const updatedData = await Group.findOneAndUpdate(
       {
        _id:groupId
@@ -563,7 +484,7 @@ const updateGroupDetails = async function (req, res) {
       { returnDocument: "after" },
     ).populate('members','name email about profilePic lastSeen');;
 
-      console.log(updatedData)
+      // console.log(updatedData)
     if (!updatedData) {
       return res
         .status(404)
@@ -582,13 +503,10 @@ export {
   createGroup,
   getGroupInfo,
   removeMembers,
-  deleteGroup,
   updateGroupDetails,
   groupInvitationsToUser,
   groupInvitationAcceptance,
   groupInvitationRejection,
-  rejectedInvitations,
-  acceptRejectedInvitation,
   allGroups,
   getGroupMessages,
   createGroupMessages

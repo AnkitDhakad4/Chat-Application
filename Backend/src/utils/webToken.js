@@ -5,7 +5,6 @@ import ENV from '../ENV.js'
 
 function generateToken(userId){
     const token= jwt.sign({id:userId},ENV.jwtSecretKey,{expiresIn:ENV.EXPIRY})
-
     return token;
 }
 

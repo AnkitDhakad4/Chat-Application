@@ -8,7 +8,7 @@ import requestStore from "./requests.store.js";
 import socket from "../socket/socket.js";
 
 const baseUrl = import.meta.env.VITE_SOCKET_URL;
-console.log(baseUrl)
+// console.log(baseUrl)
 
 const initialState={
   authStatus: false,
@@ -88,7 +88,7 @@ const authStore = create((set, get) => ({
   
 
       // set({ authStatus: false });
-      console.log("Reseting another stores")
+      // console.log("Reseting another stores")
       useChatStore.getState().reset();
       groupStore.getState().reset();
       requestStore.getState().reset();

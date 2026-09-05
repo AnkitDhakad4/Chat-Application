@@ -33,7 +33,7 @@ const useChatStore = create((set, get) => ({
   },
 
   setSelectedTab: (tab) => {
-     console.log(tab)
+    //  console.log(tab)
     set({ selectedTab: tab });
     // localStorage.setItem("selectedTab", String(tab));
   },
@@ -195,7 +195,7 @@ const useChatStore = create((set, get) => ({
         },
       );
       const data = await resp.json();
-      console.log("resp from uploadoncloudinary", data);
+      // console.log("resp from uploadoncloudinary", data);
       return data;
     } catch (error) {
       console.error("Error uploading to Cloudinary:", error);
@@ -214,7 +214,7 @@ const useChatStore = create((set, get) => ({
     socket.on("newMessage", (msg) => {
 
         const selectedTab=get().selectedTab
-        console.log(selectedTab)
+        // console.log(selectedTab)
         if(get().selectedUser?._id !== msg.senderId._id )
         {
            const currentState=get().notificationsToUsers

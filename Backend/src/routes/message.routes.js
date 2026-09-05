@@ -10,8 +10,8 @@ import {
   acceptMessageRequest,
   rejectMessageRequest,
   getAllRequestForUser,
-  getAllRejectedRequests,
-  acceptRejectedRequest,
+  // getAllRejectedRequests,
+  // acceptRejectedRequest,
   getAllSendedRequest,
 } from "../controller/message.controller.js";
 import authentication from "../middleware/authMiddleWare.js";

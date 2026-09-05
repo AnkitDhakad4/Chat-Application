@@ -8,7 +8,7 @@ const initialState = {
   groupInvitations: [],
   rejectedMessageRequests: [],
   rejectedGroupInvitations: [],
-  sentRequests:new Set(),
+  // sentRequests:new Set(),
   infoAbout: null,
 };
 // it return all these states(variables) and actions(methods)
@@ -23,7 +23,7 @@ const requestStore = create((set, get) => ({
 
   sentMessageRequest: async (userId) => {
     try {
-      console.log(userId);
+      // console.log(userId);
       const request = await axiosInstance.get(
         `/message/messageRequest/${userId}`,
       );
@@ -71,7 +71,7 @@ const requestStore = create((set, get) => ({
   rejectedInvitations: async () => {
     try {
       const resp = await axiosInstance.post("/users/rejectedInvitations");
-      console.log(resp.data.data);
+      // console.log(resp.data.data);
       set({ rejectedGroupInvitations: resp.data.data });
     } catch (error) {
       console.error(error);
@@ -121,7 +121,7 @@ const requestStore = create((set, get) => ({
         });
         //  console.log(resp.data.message)
         if (!resp) {
-            console.log("there is some error");
+            // console.log("there is some error");
             return;
         }
         

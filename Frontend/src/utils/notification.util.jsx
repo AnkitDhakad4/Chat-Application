@@ -61,10 +61,10 @@ export const triggerGroupNotification = (
   messageText,
   groupAvatar
 ) => {
-  console.log(groupName)
-  console.log(senderName)
-  console.log(messageText)
-  console.log(groupAvatar)
+  // console.log(groupName)
+  // console.log(senderName)
+  // console.log(messageText)
+  // console.log(groupAvatar)
   notificationSound
     .play()
     .catch(() =>

@@ -15,7 +15,7 @@ function Sidebar() {
   const { user, logout,updateProfile } = authStore();
   const inst=useRef()
   const clickOnIcon=(e)=>{
-    console.log(e)
+    // console.log(e)
     inst.current?.click();
   }
   
