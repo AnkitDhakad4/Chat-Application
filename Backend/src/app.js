@@ -28,6 +28,7 @@ app.use('/api/v1/group',groupRouter)
 
 app.get('/',(req,res)=>{
     res.send('<h1 style="color:red; display: flex; justify-content: center; background: #f0f0f0; align-items: center; padding:80px; ">It is  working fine bro !!</h1>')
+    
 })
 
 export default app

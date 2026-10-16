@@ -2,7 +2,6 @@ import welcomeEmail from "../emails/emailHandler.js";
 import User from "../models/user.model.js";
 import { generateToken } from "../utils/webToken.js";
 import ENV from "../ENV.js";
-import jwt from "jsonwebtoken";
 import uploadOnCloudinary from '../Database/cloudinary.js'
 
 const signup = async function (req, res) {
@@ -128,32 +127,17 @@ const login = async function (req, res) {
 };
 
 const logout = async function (req, res) {
-  const token = req.cookies.accessToken;
-
-  if (!token) {
-    return res.status(400).json({ message: "User is not login" });
-  }
-
   const isProduction = ENV.NODE_ENV === "production";
-    const option = {
-      secure: isProduction, 
-      sameSite: isProduction ? "none" : "lax", // Crucial for cross-origin hosting like Render + Vercel
-      httpOnly: true, 
-    };
+  const option = {
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    httpOnly: true,
+  };
 
-  try {
-    const verification = jwt.verify(token, ENV.jwtSecretKey,{maxAge:'1h'});
-    if (verification) {
-      return res
-        .clearCookie("accessToken", option)
-        .json({ message: "User is logout successfully" });
-    }
-  } catch (error) {
-    // console.log("Error while verifyin the JWT Token ", error.message);
-    return res
-      .status(401)
-      .json({ message: "Token is not valid", error: error.message });
-  }
+  // Clear stale cookies too: logout should not require a valid JWT.
+  return res
+    .clearCookie("accessToken", option)
+    .json({ message: "User is logout successfully" });
 };
 
 
@@ -207,4 +191,15 @@ const updateProfile=async function(req,res){
   }
 
 }
-export { signup, login, logout,updateProfilePic,updateProfile };
+
+const userProfile=async function(req,res){
+  try {
+    const user=req.user;  
+    return res.status(200).json({message:"User Profile",data:user})
+  } catch (error) {
+    console.log(error)
+      return res.status(500).json({message:"server error"})
+  }
+}
+
+export { signup, login, logout,updateProfilePic,updateProfile,userProfile };

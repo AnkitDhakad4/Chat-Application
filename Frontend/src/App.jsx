@@ -7,12 +7,14 @@ import authStore from './store/userAuth.store.js';
 import {requestNotificationPermission} from '../src/utils/notification.util.jsx'
 import { useEffect } from 'react';
 function App() {
-  const {authStatus}=authStore()
+  const {authStatus,getMe}=authStore()
 
 useEffect(() => {
     // Request desktop alert rights from user on load
     requestNotificationPermission();
-  }, []);
+    getMe();
+
+  }, [getMe]);
 
   return (
     <> 

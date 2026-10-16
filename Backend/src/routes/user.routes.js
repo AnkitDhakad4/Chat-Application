@@ -1,5 +1,5 @@
 import express from "express";
-import { login, logout, signup, 
+import { login,userProfile, logout, signup, 
     // check
     updateProfilePic, updateProfile} from "../controller/user.controller.js";
 import authentication from "../middleware/authMiddleWare.js";
@@ -9,6 +9,7 @@ import { groupInvitationsToUser
 
 const userRoutes=express.Router()
 
+userRoutes.route('/me').get(authentication,userProfile)
 userRoutes.route('/signup').post(signup)
 userRoutes.route('/logout').post(logout)
 userRoutes.route('/login').post(login)

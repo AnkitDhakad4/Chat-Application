@@ -31,7 +31,18 @@ const authStore = create((set, get) => ({
   // onlineUsers: new Set(),
   ...initialState,
 
-
+  getMe: async () => {
+    set({ isCheckingAuth: true });
+    try {
+      const response = await axiosInstance.get("/users/me");
+      set({ user: response.data.data, authStatus: true });
+      get().connect();
+    } catch (error) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      set({ isCheckingAuth: false });
+    } 
+  },
   signup: async (data) => {
     set({ isLoading: true });
     try {
@@ -79,26 +90,22 @@ const authStore = create((set, get) => ({
       set({ isLoading: false });    
     }
   },
+  clearSession: () => {
+    useChatStore.getState().setSelectedUser(null);
+    get().disconnect();
+    useChatStore.getState().reset();
+    groupStore.getState().reset();
+    requestStore.getState().reset();
+    set({ ...initialState });
+  },
   logout: async () => {
-    // console.log("In log out")
     try {
-      useChatStore.getState().setSelectedUser(null);
       await axiosInstance.post("/users/logout");
-      get().disconnect();
-  
-
-      // set({ authStatus: false });
-      // console.log("Reseting another stores")
-      useChatStore.getState().reset();
-      groupStore.getState().reset();
-      requestStore.getState().reset();
-      set({...initialState});
-          toast.success("I will wait for you! 🥺 👋👋", {
-        autoClose: 3000,
-        pauseOnHover: true,
-      });
     } catch (error) {
-      toast.error(error.response?.data?.message);
+      toast.error(error.response?.data?.message || "Could not contact the server while logging out.");
+    } finally {
+      get().clearSession();
+      toast.success("You have been logged out.");
     }
   },
   updateProfile:async(url)=>{
