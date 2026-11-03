@@ -97,9 +97,10 @@ function Sidebar() {
       <div className="flex flex-col gap-4 p-4 rounded-lg">
         <div className=" ring-black flex items-center gap-2 p-1.5 justify-center group-hover:justify-start">
           <img  
-            src="./chatFlowLogo.png"
+            src="./chatFlowLogo.webp"
             alt="logo"
             className="h-12 pt-1 pl-1 rounded-full min-w-[48px]"
+            lazy="true"
           />
           {/* Replaced 'hidden' with smooth max-width and opacity transitions */}
           <div className="flex flex-col justify-end whitespace-nowrap max-w-0 opacity-0 scale-95 group-hover:max-w-xs group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-in-out overflow-hidden">
@@ -148,7 +149,7 @@ function Sidebar() {
          <div className="relative size-10 mt-0.5 min-w-[40px] group/avatar cursor-pointer" onClick={clickOnIcon}>
               {/* The Profile Image */}
               <img
-                src={ previewURL||user.profilePic || "./chatFlowLogo.png"}
+                src={ previewURL||user.profilePic || "./chatFlowLogo.webp"}
                 alt="avatar"
                 className="w-full h-full object-cover rounded-xl"
               />

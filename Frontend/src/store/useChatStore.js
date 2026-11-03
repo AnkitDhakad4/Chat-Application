@@ -216,7 +216,7 @@ const useChatStore = create((set, get) => ({
         const selectedTab=get().selectedTab
         // console.log(selectedTab)
         if(get().selectedUser?._id !== msg.senderId._id )
-        {
+        { 
            const currentState=get().notificationsToUsers
             set({notificationsToUsers:new Set([...currentState,msg.senderId._id])})
           triggerNotification(msg.senderId.name,msg.text,msg.senderId.profilePic)

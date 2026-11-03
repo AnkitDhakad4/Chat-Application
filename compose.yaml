@@ -1,0 +1,21 @@
+services:
+  server:
+    build: ./Backend/
+    container_name: chat-server
+    ports:
+      - "5000:5000"
+    networks:
+      - chat-net
+  
+  client:
+    build: ./Frontend/
+    container_name: chat-client
+    ports:
+      - "80:80"
+    networks:
+      - chat-net
+
+
+networks:
+  chat-net:
+    driver: bridge

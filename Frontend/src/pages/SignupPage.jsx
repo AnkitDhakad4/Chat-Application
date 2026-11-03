@@ -34,12 +34,12 @@ function SignupPage() {
   };
 
   return (
-    <div className="w-full h-screen flex justify-center items-center bg-[url(/LoginBG.png)] bg-cover p-4">
+    <div className="w-full h-screen flex justify-center items-center bg-[url(/LoginBG.webp)] bg-cover p-4">
       <div className="h-[92%] w-11/12 max-w-5xl rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05),0_30px_60px_rgba(255,45,149,0.12)] flex bg-white overflow-hidden">
         
         <div className="w-1/2 h-full flex flex-col p-8 justify-between bg-slate-50/50">
           <div className="w-full flex items-center gap-2">
-            <img src="./Logo.png" alt="Logo png" className="size-14 object-contain" />
+            <img src="./Logo.webp" alt="Logo png" className="size-14 object-contain" />
             <p className="text-[#FF2D78] text-4xl font-bold font-sora tracking-tight">
               Chatflow
             </p>
@@ -56,7 +56,7 @@ function SignupPage() {
 
           <div className="w-full overflow-hidden rounded-xl flex-1 max-h-[50%]">
             <img 
-              src="./SignUpImage.png" 
+              src="./SignUpImage.webp" 
               alt="Signup Page Image"
               className="w-full h-full object-cover shadow-md"
             />
